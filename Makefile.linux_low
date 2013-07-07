@@ -1,0 +1,38 @@
+CC	=	gcc
+C++	=	g++
+CFLAGS	= -O2 -Werror -mfpmath=sse -msse -fPIC
+CFLAGSDEBUG	= -g3 -Wall -mfpmath=sse -msse -fPIC
+CFLAGS = $(CFLAGSDEBUG)
+RM = rm -f
+
+DEFS += -DLINUX
+#OBJS += obj/system/linux_low/gelinuxkeyboard.o
+
+TARGET	 = "Game"
+EXT_LIBS = -llua5.2 -lmad -ljpeg -lpng -lz -lfreetype
+# -llua -lmad
+LIBS	 =  $(EXT_LIBS) -lasound -lXxf86vm -lGL -lX11 -lm
+
+all: $(OBJS) obj/main.o
+	$(CC) $(CFLAGS) obj/main.o $(OBJS) -o $(TARGET) $(LIBS) $(DEFS) -DLIBGE_STATIC
+
+lib: $(OBJS)
+	$(CC) -shared -o build/linux_low/libge.so $(CFLAGS) $(OBJS) $(LIBS) $(DEFS) -DLIBGE_STATIC
+
+lib_static: $(OBJS)
+	ar cru build/linux_low/libge.a $(OBJS)
+	ranlib build/linux_low/libge.a
+
+install:
+	mkdir -p /usr/include/libge
+	cp *.h /usr/include/libge
+	cp build/linux_low/libge.so /usr/lib/libge.so
+
+obj/%.o: %.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: system/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: video/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: audio/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC

@@ -1,0 +1,62 @@
+PSPSDK=$(shell psp-config --pspsdk-path)
+include psplibs/Makefile
+
+CC       = psp-gcc
+CXX      = psp-g++
+AS       = psp-gcc
+LD       = psp-gcc
+AR       = psp-ar
+RANLIB   = psp-ranlib
+STRIP    = psp-strip
+MKSFO    = mksfo
+PACK_PBP = pack-pbp
+FIXUP    = psp-fixup-imports
+
+CFLAGS = -O2 -G0 -Wall -DPSPFW3xx
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS)
+
+INCDIR = $(PSPSDK)/include $(PSPSDK)/../include
+LIBDIR = $(PSPSDK)/lib $(PSPSDK)/../lib
+LIBS =	-lpng -ljpeg -lmad -lfreetype -llua -lz -lm -lpsppower -lpspvfpu -lpspvram -lpspmp3 -lpsprtc \
+		-lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lc -lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility -lpspuser
+
+
+CFLAGS  += $(addprefix -I,$(INCDIR))
+LDFLAGS  += $(addprefix -L,$(LIBDIR)) -specs=$(PSPSDK)/lib/prxspecs -Wl,-q,-T$(PSPSDK)/lib/linkfile.prx
+ 
+PSP_EBOOT_TITLE = LibGE 1.0beta PSP
+PSP_EBOOT_ICON = ICON0.PNG
+
+#all: $(OBJS) obj/main_psp.o $(EXT_LIBS)
+#	$(CC) $(CFLAGS) $(LDFLAGS) obj/main_psp.o $(OBJS) $(EXT_LIBS) -o "build/psp/libge.elf" $(LIBS) $(DEFS) -DLIBGE_STATIC
+all: $(OBJS) obj/main_psp.o
+	$(CC) $(CFLAGS) $(LDFLAGS) obj/main_psp.o $(OBJS) -o "build/psp/libge.elf" $(LIBS) $(DEFS) -DLIBGE_STATIC
+	$(FIXUP) "build/psp/libge.elf"
+	psp-prxgen "build/psp/libge.elf" "build/psp/libge.prx"
+	$(MKSFO) '$(PSP_EBOOT_TITLE)' PARAM.SFO
+	$(PACK_PBP) EBOOT.PBP PARAM.SFO $(PSP_EBOOT_ICON) NULL NULL NULL NULL "build/psp/libge.prx" NULL
+
+lib: $(OBJS) $(EXT_LIBS)
+	$(AR) cru "build/psp/libge.a" $(OBJS) $(EXT_LIBS)
+	$(RANLIB) "build/psp/libge.a"
+
+$(PSP_EBOOT): $(TARGET).prx $(PSP_EBOOT_SFO)
+	$(PACK_PBP) $(PSP_EBOOT) $(PSP_EBOOT_SFO) $(PSP_EBOOT_ICON)  \
+		$(PSP_EBOOT_ICON1) $(PSP_EBOOT_UNKPNG) $(PSP_EBOOT_PIC1)  \
+		$(PSP_EBOOT_SND0) $(TARGET).prx $(PSP_EBOOT_PSAR)
+		
+
+install: all
+#	cp EBOOT.PBP "/cygdrive/l/PSP/GAME/LibGE/EBOOT.PBP"
+	cp build/psp/libge.prx /cygdrive/c/Users/admin/Documents/PSP/PSPLink/PC/LibGE/libge.prx
+
+
+obj/%.o: %.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: system/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: video/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: audio/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC

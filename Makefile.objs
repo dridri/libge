@@ -1,0 +1,85 @@
+OBJS_P_VIDEO =	obj/video/$(vid_platform)/geparticles.o \
+				obj/video/$(vid_platform)/ge_context.o \
+				obj/video/$(vid_platform)/ge_viddrv.o \
+				obj/video/$(vid_platform)/geshaders.o \
+				obj/video/$(vid_platform)/gematrix.o \
+				obj/video/$(vid_platform)/gedraw2d.o \
+				obj/video/$(vid_platform)/gedraw3d.o \
+				obj/video/$(vid_platform)/geclouds.o \
+				obj/video/$(vid_platform)/geloader_3d.o \
+				obj/video/$(vid_platform)/gemaths.o
+
+OBJS_VIDEO =	obj/video/geimg.o \
+				obj/video/gelensflare.o \
+				obj/video/gelightscattering.o \
+				obj/video/gewater.o
+
+
+OBJS_P_AUDIO =	obj/audio/$(audio_platform)/geaudio_mp3.o \
+				obj/audio/$(audio_platform)/geaudio_sys.o
+
+OBJS_AUDIO =	obj/audio/geaudio_idtag.o \
+				obj/audio/geaudio_music.o \
+				obj/audio/geaudio_sound.o \
+				obj/audio/geaudio_wav.o \
+				obj/audio/geaudio_fx.o
+
+OBJS_SYSTEM =	obj/system/$(platform)/gesystem.o \
+				obj/system/$(platform)/ge_window.o \
+				obj/system/$(platform)/gememory.o \
+				obj/system/$(platform)/gekeys.o \
+				obj/system/$(platform)/gethreads.o \
+				obj/system/$(platform)/genet.o
+
+OBJS_LOADER =	obj/geloader_obj.o \
+				obj/geloader_obj_obj.o \
+				obj/geloader_obj_dae.o \
+				obj/geloader_obj_dae_anim.o \
+				obj/geloader_obj_geo.o \
+				obj/geloader_scene.o \
+				obj/geloader_scene_ge3d.o \
+				obj/geloader_img.o \
+				obj/geloader_img_tga.o \
+				obj/geloader_img_bmp.o \
+				obj/geloader_img_png.o \
+				obj/geloader_img_jpeg.o \
+				obj/geloader_img_xpm.o
+
+OBJS_SAVER	=	obj/gesaver_obj.o \
+				obj/gesaver_obj_geo.o
+
+OBJS_LUA	=	obj/lua/gelua.o \
+				obj/lua/gelua_ge.o \
+				obj/lua/gelua_image.o \
+				obj/lua/gelua_screen.o
+
+OBJS_GUI	=	obj/gui/gegui.o \
+				obj/gui/gegui_button.o \
+				obj/gui/gegui_checkbox.o \
+				obj/gui/gegui_inputbox.o \
+				obj/gui/gegui_progressbar.o \
+				obj/gui/gegui_combobox.o \
+				obj/gui/gegui_listwidget.o \
+				obj/gui/gegui_window.o
+
+OBJS_PLATFORM = $(OBJS_P_AUDIO) $(OBJS_P_VIDEO) $(OBJS_SYSTEM)
+
+BASE_OBJS =	obj/geanimation.o \
+			obj/gecamera.o \
+			obj/gephysics.o \
+			obj/gekeyboard.o \
+			obj/gefont.o \
+			obj/gefont_ttf.o \
+			obj/ge.o \
+			obj/getimers.o \
+			obj/geframerate.o \
+			obj/gefile.o \
+			obj/gesocket.o \
+			obj/geutils.o \
+			obj/gesys.o \
+			obj/ge_internal_$(ARCH).o \
+			$(OBJS_LOADER) \
+			$(OBJS_SAVER)
+#			$(OBJS_LUA)
+
+OBJS	=	$(BASE_OBJS) $(OBJS_GUI) $(OBJS_LUA) $(OBJS_AUDIO) $(OBJS_VIDEO) $(OBJS_PLATFORM)

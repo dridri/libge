@@ -1,0 +1,54 @@
+CC	=	mingw32-gcc
+C++	=	mingw32-g++
+DLLTOOL = dlltool
+CFLAGS	= -O2 -g -Wall -m$(ARCH) -std=c99
+CFLAGSDEBUG	= -g -Wall -m$(ARCH) -std=c99
+#  -mfpmath=sse -msse
+RM = rm -f
+
+OBJS += obj/system/win/gewinkeyboard.o
+
+TARGET	 =	"Game.exe"
+LIBS	 = -lmad -lfreetype -ljpeg -lpng -llua -lz -lbz2 -lm -lwinmm
+LIBS += -lopengl32 -lglu32 -lwsock32 -lgdi32 -luser32
+
+OPENCL_LIB = $(shell $(CC) -print-file-name=libOpenCL.a)
+ifeq ($(test -f $(OPENCL_LIB)),)
+	CFLAGS += -DOPENCL
+	OBJS += obj/gecl.o
+	LIBS += -lOpenCL
+endif
+
+ifeq ($(ARCH),64)
+	CC	= x86_64-w64-mingw32-gcc
+	C++	= x86_64-w64-mingw32-g++
+	DLLTOOL	= x86_64-w64-mingw32-dlltool
+else
+endif
+
+OBJS_TEST = obj/main.o obj/opencl.o obj/scene.o obj/glow.o obj/ssao.o obj/rk4v.o obj/rk4v2.o obj/planet2.o obj/perlin.o
+
+all: $(OBJS) $(OBJS_TEST)
+	$(CC) $(CFLAGS) $(OBJS_TEST) $(OBJS) -o $(TARGET) $(LIBS) $(DEFS) -DLIBGE_STATIC
+
+lib: $(OBJS)
+	windres -i build/win32/dll.rc -o build/win32/dll.o
+	$(CC) $(CFLAGS) -shared build/win32/dll.o $(OBJS) -o "build/win32/libge.dll" $(LIBS) -DLIBGE_LIB
+	$(DLLTOOL) --output-def "build/win32/libge_auto.def" $(OBJS)
+	$(DLLTOOL) --def "build/win32/libge_auto.def" --dllname "libge.dll" --output-lib "build/win32/libge.a"
+
+lib_debug: $(OBJS)
+	$(CC) $(CFLAGSDEBUG) -shared $(OBJS) -o "build/win32/libge.dll" $(LIBS) -DLIBGE_LIB
+	$(DLLTOOL) --output-def "build/win32/libge_auto.def" $(OBJS)
+	$(DLLTOOL) --def "build/win32/libge_auto.def" --dllname "libge.dll" --output-lib "build/win32/libge.a"
+
+
+
+obj/%.o: %.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: system/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: video/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+obj/%.o: audio/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC

@@ -1,0 +1,11 @@
+all:
+	cd android_build && $(MAKE)
+
+lib:
+	cd android_build && $(MAKE) lib
+
+install:
+	cd android_build && $(MAKE) install
+
+clean:
+	cd android_build && $(MAKE) clean
