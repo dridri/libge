@@ -34,7 +34,7 @@ all: $(OBJS) $(OBJS_TEST)
 
 lib: $(OBJS)
 	@mkdir -p build build/win32_low
-	windres -i dll.rc -o build/win32_low/dll.o
+	windres -i src/dll.rc -o build/win32_low/dll.o
 	$(CC) $(CFLAGS) -shared build/win32_low/dll.o $(OBJS) -o "build/win32_low/libge.dll" $(LIBS) -DLIBGE_LIB
 	$(DLLTOOL) --output-def "build/win32_low/libge_auto.def" $(OBJS)
 	$(DLLTOOL) --def "build/win32_low/libge_auto.def" --dllname "libge.dll" --output-lib "build/win32_low/libge.a"

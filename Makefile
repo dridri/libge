@@ -60,14 +60,14 @@ DEFS = -DPLATFORM=$(platform) -DPLATFORM_$(platform) -DARCH=$(ARCH)
 include Makefile.$(platform)
 
 
-obj/%.o: %.c
+obj/%.o: src/%.c
 	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
 
 obj/system/$(platform)/%.o: system/$(platform)/%.c
 	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
 
 obj/video/$(vid_platform)/%.o: video/$(vid_platform)/%.c
-	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+	$(CC) $(CFLAGS) $(DEFS) -c < -o $@ -DLIBGE_STATIC
 
 obj/audio/$(platform)/%.o: audio/$(platform)/%.c
 	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
