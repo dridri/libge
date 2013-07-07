@@ -1,0 +1,463 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="audio">
+      <UniqueIdentifier>{e86a284a-fc03-45ba-8d21-f4084724d614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\win">
+      <UniqueIdentifier>{0e00ea20-2ed3-4e74-940b-227eaf60e972}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\linux">
+      <UniqueIdentifier>{6757ca64-eb20-4c60-be65-7857b4d67a2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\android">
+      <UniqueIdentifier>{39df19b4-7c7c-4704-a07e-0367231d3ea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\psp">
+      <UniqueIdentifier>{3df0ac7d-8835-4836-a2ad-ca6529158d8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lua">
+      <UniqueIdentifier>{9bb17686-4699-4357-9da4-73ed886b1637}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui">
+      <UniqueIdentifier>{f316542d-f7bc-433a-8029-d3dfbbb13339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{7fb4fbca-78b9-458c-9065-1ad4b13315b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\android">
+      <UniqueIdentifier>{0875b785-6cd9-4e29-bef9-03d626bb8796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\psp">
+      <UniqueIdentifier>{0f6d81d1-9d8e-42b9-a83a-71522f52f960}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\linux_low">
+      <UniqueIdentifier>{85a0a668-bc15-40f6-ad79-cbc6c81eb2c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="system\win_low">
+      <UniqueIdentifier>{cf14fda8-f796-43cb-8f56-d960a856cdef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video">
+      <UniqueIdentifier>{d3b01967-7085-4ba6-bae3-5fda66b3ae4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\android">
+      <UniqueIdentifier>{0c36eef1-0f25-454b-b2d3-fcb785a009e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\psp">
+      <UniqueIdentifier>{a9fe703d-0db6-4582-9630-a5dba816b621}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\opengl21">
+      <UniqueIdentifier>{de7147d5-c18f-4d5b-9056-a38f5a429df5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="video\opengl30">
+      <UniqueIdentifier>{3c1dde83-3262-4346-ab98-4368fe0eed2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{6fffac7e-a7d8-49aa-b4c6-a277601076b0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\audio\geaudio_fx.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\geaudio_idtag.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\geaudio_music.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\geaudio_sound.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\geaudio_wav.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\fix_fft.c">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\android\geaudio_mp3.c">
+      <Filter>audio\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\android\geaudio_sys.c">
+      <Filter>audio\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\linux\geaudio_mp3.c">
+      <Filter>audio\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\linux\geaudio_sys.c">
+      <Filter>audio\linux</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\win\geaudio_sys.c">
+      <Filter>audio\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\audio\win\geaudio_mp3.c">
+      <Filter>audio\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\ge_lua.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\gelua.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\gelua_ge.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\gelua_image.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lua\gelua_screen.c">
+      <Filter>lua</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_inputbox.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_listwidget.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_progressbar.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_window.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_button.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_checkbox.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gegui_combobox.c">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\android\ge_window.c">
+      <Filter>system\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\android\gekeys.c">
+      <Filter>system\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\android\gememory.c">
+      <Filter>system\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\android\gesystem.c">
+      <Filter>system\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\android\gethreads.c">
+      <Filter>system\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\gememory.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\genet.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\gesystem.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\gethreads.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\ge_window.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\linux_low\gekeys.c">
+      <Filter>system\linux_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\gekeys.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\gememory.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\genet.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\gesystem.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\gethreads.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\psp\ge_window.c">
+      <Filter>system\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\gememory.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\genet.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\gesystem.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\gethreads.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\gewinkeyboard.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\ge_window.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win_low\gekeys.c">
+      <Filter>system\win_low</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\gedraw3d.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\geloader_3d.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\gemaths.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\gematrix.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\geparticles.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\geshaders.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\ge_context.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\ge_viddrv.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\geclouds.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\android\gedraw2d.c">
+      <Filter>video\android</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\gelensflare.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\gelightscattering.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\gewater.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\geimg.c">
+      <Filter>video</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\ge_viddrv.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\geclouds.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\gedraw2d.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\gedraw3d.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\geloader_3d.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\gemaths.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\gematrix.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\geparticles.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\geshaders.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\psp\ge_context.c">
+      <Filter>video\psp</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\gedraw2d.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\gedraw3d.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\geloader_3d.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\gemaths.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\gematrix.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\geparticles.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\geshaders.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\ge_context.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\ge_viddrv.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl21\geclouds.c">
+      <Filter>video\opengl21</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\gedraw2d.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\gedraw3d.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\geloader_3d.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\gemaths.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\gematrix.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\geshaders.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\ge_context.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\ge_viddrv.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\video\opengl30\ge_window.c">
+      <Filter>video\opengl30</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gecl.c" />
+    <ClCompile Include="src\gefile.c" />
+    <ClCompile Include="src\gefont.c" />
+    <ClCompile Include="src\gefont_ttf.c" />
+    <ClCompile Include="src\geframerate.c" />
+    <ClCompile Include="src\gegui_window.c" />
+    <ClCompile Include="src\gekeyboard.c" />
+    <ClCompile Include="src\geloader_img.c" />
+    <ClCompile Include="src\geloader_img_bmp.c" />
+    <ClCompile Include="src\geloader_img_jpeg.c" />
+    <ClCompile Include="src\geloader_img_png.c" />
+    <ClCompile Include="src\geloader_img_tga.c" />
+    <ClCompile Include="src\geloader_img_xpm.c" />
+    <ClCompile Include="src\geloader_obj.c" />
+    <ClCompile Include="src\geloader_obj_dae.c" />
+    <ClCompile Include="src\geloader_obj_dae_anim.c" />
+    <ClCompile Include="src\geloader_obj_geo.c" />
+    <ClCompile Include="src\geloader_obj_obj.c" />
+    <ClCompile Include="src\geloader_scene.c" />
+    <ClCompile Include="src\geloader_scene_ge3d.c" />
+    <ClCompile Include="src\gephysics.c" />
+    <ClCompile Include="src\gesaver_obj.c" />
+    <ClCompile Include="src\gesaver_obj_geo.c" />
+    <ClCompile Include="src\gesocket.c" />
+    <ClCompile Include="src\gesys.c" />
+    <ClCompile Include="src\getimers.c" />
+    <ClCompile Include="src\geutils.c" />
+    <ClCompile Include="src\gewriter_img_bmp.c" />
+    <ClCompile Include="src\ge.c" />
+    <ClCompile Include="src\ge_internal_32.c" />
+    <ClCompile Include="src\ge_internal_64.c" />
+    <ClCompile Include="src\geanimation.c" />
+    <ClCompile Include="src\gecamera.c" />
+    <ClCompile Include="src\main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\system\android\ge_context.h">
+      <Filter>system\android</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\linux_low\ge_context.h">
+      <Filter>system\linux_low</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\psp\ge_context.h">
+      <Filter>system\psp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\win_low\ge_context.h">
+      <Filter>system\win_low</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\android\ge_viddrv.h">
+      <Filter>video\android</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\psp\ge_viddrv.h">
+      <Filter>video\psp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\psp\ge_cmd.h">
+      <Filter>video\psp</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\opengl21\ge_viddrv.h">
+      <Filter>video\opengl21</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\opengl30\ge_context.h">
+      <Filter>video\opengl30</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\opengl30\ge_viddrv.h">
+      <Filter>video\opengl30</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geresources.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gesocket.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gesys.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\getimers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\getypes.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geutils.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\libge.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ge_internal.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geaudio.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gecl.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geenums.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geerror.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gefile.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gefont.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gegfx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gegui.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gekeys.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gelua.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gephysics.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\dll.rc" />
+  </ItemGroup>
+</Project>

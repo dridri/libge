@@ -1,0 +1,7 @@
+Game.exe
+*.sln
+*.sdf
+*.suo
+*.opensdf
+Debug
+obj

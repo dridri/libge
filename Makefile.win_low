@@ -27,7 +27,7 @@ ifeq ($(ARCH),64)
 else
 endif
 
-OBJS_TEST += obj/main.o obj/glow.o
+OBJS_TEST += obj/main.o
 
 all: $(OBJS) $(OBJS_TEST)
 	$(CC) $(CFLAGS) $(OBJS_TEST) $(OBJS) -o $(TARGET) $(LIBS) $(DEFS) -DLIBGE_STATIC
