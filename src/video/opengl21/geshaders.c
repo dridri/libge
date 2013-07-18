@@ -41,6 +41,10 @@ int geInitShaders(){
 		libge_context->shaders_available = true;
 	}
 
+#ifdef TARGET_qt
+	libge_context->shaders_available = true; // Suppose shaders available
+#endif
+
 	if(libge_context->shaders_available){
 		load_func(glCreateShader);
 		load_func(glShaderSource);
@@ -367,8 +371,36 @@ void geShaderUniform4f(int id, float v1, float v2, float v3, float v4){
 	glUniform4f(id, v1, v2, v3, v4);
 }
 
+void geShaderUniform1fv(int id, int n, float* v){
+	glUniform1fv(id, n, v);
+}
+
+void geShaderUniform2fv(int id, int n, float* v){
+	glUniform2fv(id, n, v);
+}
+
 void geShaderUniform3fv(int id, int n, float* v){
 	glUniform3fv(id, n, v);
+}
+
+void geShaderUniform4fv(int id, int n, float* v){
+	glUniform4fv(id, n, v);
+}
+
+void geShaderUniform1iv(int id, int n, int* v){
+	glUniform1iv(id, n, v);
+}
+
+void geShaderUniform2iv(int id, int n, int* v){
+	glUniform2iv(id, n, v);
+}
+
+void geShaderUniform3iv(int id, int n, int* v){
+	glUniform3iv(id, n, v);
+}
+
+void geShaderUniform4iv(int id, int n, int* v){
+	glUniform4iv(id, n, v);
 }
 
 int geFileFullRead(const char* filename, void** buf);

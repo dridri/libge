@@ -2,7 +2,15 @@ ifeq ($(ARCH),)
 	ARCH = $(shell getconf LONG_BIT)
 endif
 
+ifeq ($(target),)
+$(error Please choose target platform by passing target=[win_low|linux_low|android|psp] argument)
+endif
+
 platform = $(target)
+
+ifneq (,$(filter $(platform),win_low2))
+platform = win_low
+endif
 
 ifeq ($(platform),)
 	SYS = $(shell uname)
@@ -57,7 +65,7 @@ include Makefile.objs
 
 DEFS = -DPLATFORM=$(platform) -DPLATFORM_$(platform) -DARCH=$(ARCH)
 
-include Makefile.$(platform)
+include Makefile.$(target)
 
 
 obj/%.o: src/%.c
@@ -73,6 +81,9 @@ obj/audio/$(platform)/%.o: audio/$(platform)/%.c
 	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
 
 obj/lua/$(platform)/%.o: lua/$(platform)/%.c
+	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
+
+testobj/%.o: testsrc/%.c
 	$(CC) $(CFLAGS) $(DEFS) -c $< -o $@ -DLIBGE_STATIC
 	
 	

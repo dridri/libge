@@ -96,7 +96,6 @@ typedef struct LibGE_Context {
 	t_ptr vidcontext;
 } LibGE_Context;
 
-
 LIBGE_API void geInit();
 LIBGE_API void geQuit();
 LIBGE_API int geCreateMainWindow(const char* title, int Width, int Height, int flags);
@@ -109,6 +108,7 @@ LIBGE_API void geDebugMode(int mode);
 LIBGE_API bool geDebugCritical(bool enabled);
 LIBGE_API void gePrintDebug(int level, const char *format, ...);
 LIBGE_API void geRegisterSystemMessageCallback(void* cb);
+LIBGE_API void geCustomProcAdress(void* (*fct)(const char*));
 
 LIBGE_API int geEnable(int what);
 LIBGE_API int geDisable(int what);
@@ -336,6 +336,8 @@ LIBGE_API void geDrawArray(int mode, int start, int num);
 // 3D Lights
 LIBGE_API ge_Light* geCreateLight(float x, float y, float z, u32 diffuse, u32 ambient);
 LIBGE_API void geLightSpot(ge_Light* light, float innerAngler, float exponent);
+LIBGE_API void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, float size_factor);
+LIBGE_API void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*), void* udata);
 LIBGE_API void geRendererLinkLight(ge_Renderer* render, ge_Light* light);
 
 
@@ -373,7 +375,14 @@ LIBGE_API void geShaderUniform1f(int id, float v1);
 LIBGE_API void geShaderUniform2f(int id, float v1, float v2);
 LIBGE_API void geShaderUniform3f(int id, float v1, float v2, float v3);
 LIBGE_API void geShaderUniform4f(int id, float v1, float v2, float v3, float v4);
+LIBGE_API void geShaderUniform1fv(int id, int n, float* v);
+LIBGE_API void geShaderUniform2fv(int id, int n, float* v);
 LIBGE_API void geShaderUniform3fv(int id, int n, float* v);
+LIBGE_API void geShaderUniform4fv(int id, int n, float* v);
+LIBGE_API void geShaderUniform1iv(int id, int n, int* v);
+LIBGE_API void geShaderUniform2iv(int id, int n, int* v);
+LIBGE_API void geShaderUniform3iv(int id, int n, int* v);
+LIBGE_API void geShaderUniform4iv(int id, int n, int* v);
 LIBGE_API void geVertexAttribPointer(int id, int size, int type, bool normalized, int stride, void* data);
 LIBGE_API void geForceShader(ge_Shader* sh);
 

@@ -1,4 +1,4 @@
- /*
+/*
 	The Gamma Engine Library is a multiplatform library made to make games
 	Copyright (C) 2012  Aubry Adrien (dridri85)
 
@@ -375,11 +375,11 @@ LRESULT CALLBACK _ge_windowProcedure(HWND window, UINT message, WPARAM wParam, L
 	last_key = 0;
 	if(message == WM_SETFOCUS){
 		has_focus = true;
-		ShowCursor(cursor_visible);
+	//	ShowCursor(cursor_visible);
 	}
 	if(message == WM_KILLFOCUS){
 		has_focus = false;
-		ShowCursor(true);
+	//	ShowCursor(true);
 	}
 	if(message == WM_DESTROY){
 		if(initializing == false){
@@ -483,6 +483,7 @@ void geCursorRoundMode(bool active){
 }
 
 void geCursorVisible(bool visible){
+	ShowCursor(visible);
 	ShowCursor(visible);
 	cursor_visible = visible;
 }

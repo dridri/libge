@@ -17,7 +17,7 @@
 */
 
 #include <windows.h>
-#include "../../video/opengl21/ge_viddrv.h"
+#include "../../video/opengl30/ge_viddrv.h"
 
 typedef struct LibGE_WinlowContext {
 	int flags;

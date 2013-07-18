@@ -1,3 +1,9 @@
+/*
+ * This file is for testing purpose only
+ * Please consider to compile LibGE as a library instead
+*/
+
+
 #include "ge_internal.h"
 
 int main(int argc, char** argv){

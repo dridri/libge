@@ -1,5 +1,3 @@
-#ifdef LOW_PROFILE
-
 #define smooth
 #define in varying
 #define out varying
@@ -18,8 +16,6 @@
 
 //#define ge_Color gl_FrontColor
 #define ge_TexCoord0 gl_TexCoord[0]
-
-#endif
 
 uniform mat4 ge_MatrixView;
 uniform mat4 ge_MatrixModel;

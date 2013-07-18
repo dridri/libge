@@ -1,8 +1,8 @@
 CC	=	mingw32-gcc
 C++	=	mingw32-g++
 DLLTOOL = dlltool
-CFLAGS	= -O2 -Wall -m$(ARCH) -std=c99
-CFLAGSDEBUG	= -g3 -Wall -m$(ARCH) -std=c99
+CFLAGS	= -O2 -Wall -m$(ARCH) -std=c99 -I./include
+CFLAGSDEBUG	= -g3 -Wall -m$(ARCH) -std=c99 -I./include
 #  -mfpmath=sse -msse
 RM = rm -f
 

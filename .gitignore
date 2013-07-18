@@ -5,3 +5,10 @@ Game.exe
 *.opensdf
 Debug
 obj
+build
+scene
+rk4
+data
+Makefile.win_low2
+testsrc
+testobj

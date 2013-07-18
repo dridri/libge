@@ -38,15 +38,26 @@ static bool fsmode = false;
 int iFormat = 0;
 
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
+	printf("geCreateMainWindow 1\n");
 	WNDCLASS winClass;
 	RECT WindowRect;
 	bool fullscreen = false;
 	bool resizable = false;
+	int nSamples = 1;
 	if(flags & GE_WINDOW_FULLSCREEN){
 		fullscreen = true;
 	}
 	if(flags & GE_WINDOW_RESIZABLE){
 		resizable = true;
+	}
+	if(flags & GE_WINDOW_MSAA2X){
+		nSamples = 2;
+	}
+	if(flags & GE_WINDOW_MSAA4X){
+		nSamples = 4;
+	}
+	if(flags & GE_WINDOW_MSAA8X){
+		nSamples = 8;
 	}
 	initializing = true;
 
@@ -86,6 +97,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 
 	int dwExStyle = 0;
 	int dwStyle = 0;
+	printf("geCreateMainWindow 2\n");
 
 	if(fullscreen){
 		fsmode = true;
@@ -98,6 +110,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 	}
+	printf("geCreateMainWindow 3\n");
 
 	if(fullscreen){
 		dwExStyle=WS_EX_APPWINDOW;
@@ -105,20 +118,19 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	}else{
 		dwExStyle=WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		if(resizable){
-			dwStyle= (WS_OVERLAPPEDWINDOW-WS_MAXIMIZEBOX-WS_THICKFRAME)| WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU;
+			dwStyle = (WS_OVERLAPPEDWINDOW-WS_MAXIMIZEBOX-WS_THICKFRAME)| WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX | WS_SYSMENU;
 		}else if(!fullscreen){
-			dwStyle= (WS_OVERLAPPEDWINDOW-WS_MAXIMIZEBOX-WS_THICKFRAME)| WS_BORDER | WS_MINIMIZEBOX | WS_SYSMENU;
+			dwStyle = (WS_OVERLAPPEDWINDOW-WS_MAXIMIZEBOX-WS_THICKFRAME)| WS_BORDER | WS_MINIMIZEBOX | WS_SYSMENU;
 		}
 	}
+	printf("geCreateMainWindow 4\n");
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
 
-	context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
-
-	static	PIXELFORMATDESCRIPTOR pfd;
-	context->hDC = GetDC(context->window);
-
+	context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
 	
+	printf("geCreateMainWindow 5\n");
+	static	PIXELFORMATDESCRIPTOR pfd;
 	ZeroMemory(&pfd, sizeof (pfd));
 	pfd.nSize = sizeof(pfd);
 	pfd.nVersion = 2;
@@ -127,56 +139,92 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	pfd.cColorBits = 24;
 	pfd.cAlphaBits = 8;
 //	pfd.cDepthBits = 16;
-	pfd.cDepthBits = 32;
+	pfd.cDepthBits = 24;
 	pfd.iLayerType = PFD_MAIN_PLANE;
-	int fmt = 0;
-	if(iFormat == 0){
-		fmt = ChoosePixelFormat(context->hDC, &pfd);
-	}else{
-		fmt = iFormat;
-	}
-	printf("fmt : %d\n", fmt);
-	SetPixelFormat(context->hDC, fmt, &pfd);
+	int fmt = ChoosePixelFormat(GetDC(context->window), &pfd);
+	SetPixelFormat(GetDC(context->window), fmt, &pfd);
 
-
-	context->hRC = wglCreateContext(context->hDC);
-	wglMakeCurrent(context->hDC, context->hRC);
-
-	/*
+	context->hRC = wglCreateContext(GetDC(context->window));
+	wglMakeCurrent(GetDC(context->window), context->hRC);
+	printf("geCreateMainWindow 6\n");
+	
 	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-	if(wglChoosePixelFormatARB){
+	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+	printf("geCreateMainWindow 6.1\n");
+	if(1 && wglChoosePixelFormatARB){
 		int pixelFormat;
 		UINT numFormats;
-		float fAttributes[] = {0,0};
+		float fAttributes[] = { 0,0 };
 		int iAttributes[] = {
 			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
 			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
 			WGL_COLOR_BITS_ARB, 24,
 			WGL_ALPHA_BITS_ARB, 8,
-			WGL_DEPTH_BITS_ARB, 16,
+			WGL_DEPTH_BITS_ARB, 24,
 			WGL_STENCIL_BITS_ARB, 0,
 //			WGL_STEREO_ARB, GL_TRUE,
 			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
 			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-			WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-			WGL_SAMPLES_ARB, 8,
+			WGL_SAMPLE_BUFFERS_ARB, nSamples > 1 ? GL_TRUE : GL_FALSE,
+			WGL_SAMPLES_ARB, nSamples,
 			0,0
 		};
-		printf("Chose format !\n");
-		int _ret = wglChoosePixelFormatARB(context->hDC, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
-		printf("RETURNED 0x%08X\n", _ret);
-		int _if = iFormat;
-		iFormat = pixelFormat;
-		if(_if == 0){
-			wglMakeCurrent(context->hDC, 0);
-			wglDeleteContext(context->hRC);
-			ReleaseDC(context->window, context->hDC);
-			DestroyWindow(context->window);
-			return geCreateMainWindow(title, Width, height, flags);
+		printf("geCreateMainWindow 6.2 (%p)\n", wglChoosePixelFormatARB);
+		int _ret = wglChoosePixelFormatARB(GetDC(context->window), iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+		printf("geCreateMainWindow 6.3\n");
+		wglDeleteContext(context->hRC);
+		printf("geCreateMainWindow 6.4\n");
+		ReleaseDC(context->window, GetDC(context->window));
+		printf("geCreateMainWindow 6.5\n");
+		DestroyWindow(context->window);
+		printf("geCreateMainWindow 6.6\n");
+		
+		context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
+		context->hDC = GetDC(context->window);
+		SetPixelFormat(context->hDC, pixelFormat, NULL);
+		if(wglCreateContextAttribsARB){
+			int attribList[] = {
+				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+				WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+				0, 0
+			};
+			context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
+			if(!context->hRC){
+				gePrintDebug(0x101, "Cannot create OpenGL 4.2 context, trying 4.0 version...\n");
+				attribList[1] = 4;
+				attribList[3] = 0;
+				context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
+				if(!context->hRC){
+					gePrintDebug(0x101, "Cannot create OpenGL 4.0 context, trying 3.2 version...\n");
+					attribList[1] = 3;
+					attribList[3] = 2;
+					context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
+					if(!context->hRC){
+						gePrintDebug(0x101, "Cannot create OpenGL 3.3 context, trying 3.0 version...\n");
+						attribList[1] = 3;
+						attribList[3] = 0;
+						context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
+						if(!context->hRC){
+							gePrintDebug(0x102, "Incompatible hardware with OpenGL 3.0+\n");
+							exit(0);
+						}
+					}
+				}
+			}
+		}else{
+			context->hRC = wglCreateContext(context->hDC);
 		}
+	}else{
+		ShowWindow(context->window, SW_SHOW);
+		context->hDC = GetDC(context->window);
 	}
-	*/
+	printf("geCreateMainWindow 7\n");
+	
+	wglMakeCurrent(context->hDC, context->hRC);
+
 	geWaitVsync(true);
 	
 	WindowsInit();

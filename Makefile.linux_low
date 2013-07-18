@@ -1,7 +1,7 @@
 CC	=	gcc
 C++	=	g++
-CFLAGS	= -O2 -Werror -mfpmath=sse -msse -fPIC
-CFLAGSDEBUG	= -g3 -Wall -mfpmath=sse -msse -fPIC
+CFLAGS	= -O2 -Werror -mfpmath=sse -msse -fPIC -I./include
+CFLAGSDEBUG	= -g3 -Wall -mfpmath=sse -msse -fPIC -I./include
 CFLAGS = $(CFLAGSDEBUG)
 RM = rm -f
 

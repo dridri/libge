@@ -1,3 +1,5 @@
+#define GE_LIGHT_HAVE_SHADOW 1
+
 struct ge_struct_Light {
 	int flags;
 	vec4 position;
@@ -35,22 +37,13 @@ uniform float ge_Time;
 uniform float ge_ScreenRatio;
 uniform int ge_HasTexture;
 
-#define GE_LIGHT_HAVE_SHADOW 1
-
-#ifdef LOW_PROFILE
-
 #define smooth
 #define in varying
 #define out varying
-
-smooth in vec4 ge_Color;
-//#define ge_Color gl_Color
-#define ge_FragColor gl_FragColor
-#define ge_FragData gl_FragData
-#define ge_FragCoord gl_FragCoord
-
-//#define texture texture2D
-
 #define ge_TexCoord0 gl_TexCoord[0]
 
-#endif
+#define ge_FragColor gl_FragColor
+
+smooth in vec4 ge_Color;
+#define ge_FragData gl_FragData
+#define ge_FragCoord gl_FragCoord

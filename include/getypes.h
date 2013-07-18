@@ -20,6 +20,7 @@
 #define __GE_TYPES_HEADER__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #if(defined(PSP) && !defined(U32_COLORS))
 #define U32_COLORS
@@ -260,6 +261,14 @@ typedef struct ge_Shader {
 	ge_Gl_Loc_Light* loc_lights;
 } ge_Shader;
 
+typedef struct ge_Framebuffer {
+	s32 id;
+	s32 ms_id;
+	s32 samples;
+	ge_Image* texture;
+	ge_Image* depth;
+} ge_Framebuffer;
+
 typedef struct ge_Fog {
 	s32 mode;
 #ifdef U32_COLORS
@@ -326,7 +335,14 @@ typedef struct ge_Light {
 	float spot_exponent;
 	float attenuation;
 	s32 type;
+
 	ge_Image* shadow;
+	ge_Framebuffer* shadow_fbo;
+	ge_Shader* shadow_shader;
+	int iShadow;
+	int shadow_depth;
+	float shadow_factor;
+
 	bool isDynamic;
 	int i_loc;
 
@@ -540,14 +556,6 @@ typedef struct ge_Particles {
 	int loc_life;
 	int loc_textured;
 } ge_Particles;
-
-typedef struct ge_Framebuffer {
-	s32 id;
-	s32 ms_id;
-	s32 samples;
-	ge_Image* texture;
-	ge_Image* depth;
-} ge_Framebuffer;
 
 
 #endif // __GE_TYPES_HEADER__

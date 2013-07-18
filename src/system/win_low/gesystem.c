@@ -33,6 +33,7 @@ void WindowsInit(){
 }
 
 void* geglImportFunction(const char* func_name){
+	gePrintDebug(0x100, "WIN_geglImportFunction(%s)\n", func_name);
 	void* func = NULL;
 	func = wglGetProcAddress(func_name);
 	if(!func){

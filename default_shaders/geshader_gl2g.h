@@ -1,5 +1,3 @@
-#ifdef LOW_PROFILE
-
 #define smooth varying
 
 #define ge_VertexTexcoord gl_MultiTexCoord0
@@ -15,8 +13,6 @@
 #define ge_ClipPlane gl_ClipPlane[0]
 
 #define ge_Position gl_Position
-
-#endif
 
 uniform vec3 ge_CameraPosition;
 uniform float ge_Time;

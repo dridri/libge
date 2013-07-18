@@ -12,7 +12,7 @@ MKSFO    = mksfo
 PACK_PBP = pack-pbp
 FIXUP    = psp-fixup-imports
 
-CFLAGS = -O2 -G0 -Wall -DPSPFW3xx
+CFLAGS = -O2 -G0 -Wall -DPSPFW3xx -I./include
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 

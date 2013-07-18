@@ -195,15 +195,19 @@ void GetTitleArtistByName(const char* filename, char* title, char* artist){
 	}
 	gePrintDebug(0x100, "GetTitleArtistByName 2\n");
 
-	int len = strlen(file) - strlen(strstr(file," - "));
-	gePrintDebug(0x100, "GetTitleArtistByName 3\n");
-	memcpy(artist, file, len);
-	gePrintDebug(0x100, "GetTitleArtistByName 4\n");
+	if(strstr(file, " - ")){
+		int len = strlen(file) - strlen(strstr(file," - "));
+		gePrintDebug(0x100, "GetTitleArtistByName 3\n");
+		memcpy(artist, file, len);
+		gePrintDebug(0x100, "GetTitleArtistByName 4\n");
 
-	len = strlen(file) - len - 3;
-	gePrintDebug(0x100, "GetTitleArtistByName 5\n");
-	memcpy(title, strstr(file," - ")+3, len-4);
-	gePrintDebug(0x100, "GetTitleArtistByName 6\n");
+		len = strlen(file) - len - 3;
+		gePrintDebug(0x100, "GetTitleArtistByName 5\n");
+		memcpy(title, strstr(file," - ")+3, len-4);
+		gePrintDebug(0x100, "GetTitleArtistByName 6\n");
+	}else{
+		strcpy(title, file);
+	}
 }
 
 char* strafterlast(char* out, char* in, char st){

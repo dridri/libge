@@ -609,7 +609,12 @@ void ListGlExtensions(){
 #ifdef WIN32
 	PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB;
 	wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+#ifdef TARGET_qt
+	char* sysgl_ext = "";
+//	char* sysgl_ext = (char*)wglGetExtensionsStringARB(((LibGE_QtContext*)libge_context->syscontext)->hDC);
+#else
 	char* sysgl_ext = (char*)wglGetExtensionsStringARB(((LibGE_WinlowContext*)libge_context->syscontext)->hDC);
+#endif
 #else //Unix
 	char* sysgl_ext = "";
 #endif

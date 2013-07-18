@@ -24,7 +24,7 @@
 #ifdef WIN32
 #include <GL/wglext.h>
 #endif
-#include "../../getypes.h"
+#include "getypes.h"
 
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY
