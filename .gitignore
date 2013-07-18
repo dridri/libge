@@ -3,6 +3,7 @@ Game.exe
 *.sdf
 *.suo
 *.opensdf
+*.vcxproj.user
 Debug
 obj
 build
