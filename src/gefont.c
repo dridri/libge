@@ -223,6 +223,13 @@ void geFontPrintfScreen(int x, int y, ge_Font* font, u32 color, const char* fmt,
 	geFontPrintScreen(x, y, font, _ge_fmt_buf, color);
 }
 
+void geFontPrintfScreenOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColor, const char* fmt, ...){
+	va_list opt;
+	va_start(opt, fmt);
+	vsnprintf( _ge_fmt_buf, (size_t) sizeof(_ge_fmt_buf), fmt, opt);
+	geFontPrintScreenOutline(x, y, font, _ge_fmt_buf, color, outlineColor);
+}
+
 void geFontPrintfImage(int x, int y, ge_Font* font, u32 color, ge_Image* image, const char* fmt, ...){
 	va_list opt;
 	va_start(opt, fmt);

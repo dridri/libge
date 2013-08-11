@@ -37,11 +37,11 @@ static char _ge_shader_ogl3_generic_2d_frag[] =
 	"#define NO_DEFAULT_INCLUDE\n"
 	"smooth in vec4 ge_Color;\n"
 	"smooth in vec2 ge_TexCoord0;\n"
-	"smooth out vec4 ge_FragColor;\n"
 	"uniform sampler2D ge_Texture;\n"
-	"uniform float textured;\n"
+	"uniform float ge_HasTexture;\n"
+	"smooth out vec4 ge_FragColor;\n"
 	"void main(){\n"
-	"	ge_FragColor = ge_Color * (texture(ge_Texture, ge_TexCoord0) + vec4(1.0-textured));\n"
+	"	ge_FragColor = ge_Color * (texture(ge_Texture, ge_TexCoord0) + vec4(1.0-ge_HasTexture));\n"
 	"}\n";
 
 struct {
@@ -68,11 +68,12 @@ void geGraphicsInit(){
 		ctx->shader2d = geCreateShader();
 		geShaderLoadVertexSource(ctx->shader2d, geFileFromBuffer(_ge_shader_ogl3_generic_2d_vert, sizeof(_ge_shader_ogl3_generic_2d_vert)+1));
 		geShaderLoadFragmentSource(ctx->shader2d, geFileFromBuffer(_ge_shader_ogl3_generic_2d_frag, sizeof(_ge_shader_ogl3_generic_2d_frag)+1));
-		ctx->loc_textured = geShaderUniformID(ctx->shader2d, "textured");
+	//	ctx->loc_textured = geShaderUniformID(ctx->shader2d, "textured");
 		geShaderUse(ctx->shader2d);
+		glUseProgram(ctx->shader2d->programId);
 		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
-		glUniform1i(glGetUniformLocation(ctx->shader2d->programId, "ge_Texture"), 0);
+		glUniform1i(geShaderUniformID(ctx->shader2d, "ge_Texture"), 0);
+		glUseProgram(0);
 	}
 
 	libge_context->blend_src = GE_DEFAULT;
@@ -147,7 +148,6 @@ int geDrawingMode(int mode){
 	if(mode != libge_context->drawing_mode || mode & 0xF0000000){
 		if(mode & GE_DRAWING_MODE_2D){
 			glActiveTexture(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_CULL_FACE);
 		
 			glEnable(GL_ALPHA_TEST);

@@ -18,6 +18,8 @@
 
 #include "../../ge_internal.h"
 
+#define max(a, b) (((a) >= (b)) ? (a) : (b))
+
 static ge_Scene* current_scene;
 extern ge_Camera* ge_current_camera;
 extern u32 shadow_map;

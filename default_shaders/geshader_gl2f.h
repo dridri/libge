@@ -36,6 +36,7 @@ uniform sampler2D ge_Texture;
 uniform float ge_Time;
 uniform float ge_ScreenRatio;
 uniform int ge_HasTexture;
+uniform vec3 ge_CameraPosition;
 
 #define smooth
 #define in varying

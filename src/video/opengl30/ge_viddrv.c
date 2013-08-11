@@ -264,16 +264,20 @@ void UpdateGlTexture(ge_Image* image, int mipmapping){
 	image->u = (float)image->width / (float)image->textureWidth;
 	image->v = (float)image->height / (float)image->textureHeight;
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glActiveTexture(GL_TEXTURE0);
 	if(!image->id){
 		glGenTextures(1, &image->id);
 		glBindTexture(tex_mode, image->id);
-		glTexImage2D(tex_mode, 0, GL_RGBA/*4*/, image->textureWidth, image->textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(tex_mode, 0, GL_RGBA8, image->textureWidth, image->textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+		printf("err0 : %d\n", glGetError());
 		libge_context->gpumem += image->textureWidth*image->textureHeight*sizeof(u32);
 	//	InitMipmaps(image, mipmap_detail);
+	}else{
+		glBindTexture(tex_mode, image->id);
+		glTexSubImage2D(tex_mode, 0, 0, 0, image->textureWidth, image->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+		printf("err1 : %d\n", glGetError());
 	}
-	
-	glBindTexture(tex_mode, image->id);
-	glTexSubImage2D(tex_mode, 0, 0, 0, image->textureWidth, image->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
 
 	if(mipmap_detail){
 		if(image->flags & GE_IMAGE_BUMP){
@@ -368,6 +372,7 @@ void geAllocateSurface(ge_Image* image, int width, int height){
 			ok = true;
 		}
 	}
+
 	if(!ok){
 		image->textureWidth = geGetNextPower2(width);
 		image->textureHeight = geGetNextPower2(height);
@@ -470,13 +475,13 @@ ge_Framebuffer* geCreateFramebuffer(int width, int height){
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fbo->depth->id, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

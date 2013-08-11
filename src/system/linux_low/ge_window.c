@@ -32,10 +32,9 @@ static Cursor invisible_cursor;
 static XEvent event;
 static int event_mask = ExposureMask | PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask;
 
-void ge_exit(){
-	printf("EXIT\n");
+void _ge_exit(){
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
-	XCloseDisplay(context->dpy);
+	CloseFullScreen();
 }
 
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
@@ -120,8 +119,6 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		XGrabKeyboard(context->dpy, context->win, True, GrabModeAsync, GrabModeAsync, CurrentTime);
 		XGrabPointer(context->dpy, context->win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, context->win, None, CurrentTime);
 
-		atexit(CloseFullScreen);
-
 		XEvent xev;
 		Atom wm_state = XInternAtom(context->dpy, "WM_STATE", True);
 		Atom fullscreen = XInternAtom(context->dpy, "WM_STATE_FULLSCREEN", True);
@@ -174,7 +171,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	geGraphicsInit();
 	geDrawingMode(GE_DRAWING_MODE_2D);
 	
-	atexit(ge_exit);
+	atexit(_ge_exit);
 	
 	initializing = false;
 	return 0;
@@ -240,6 +237,9 @@ int LinuxSwapBuffers(){
 					/*
 					ge_event.type = GE_EVENT_WINDOW_CLOSE;
 					*/
+					finished = true;
+				}
+				if (event.xclient.data.l[0] == XInternAtom(context->dpy, "WM_DELETE_WINDOW", False)){
 					finished = true;
 				}
 				break;
@@ -350,6 +350,7 @@ int LinuxSwapBuffers(){
 	if(finished){
 		_to_close = true;
 		finished = false;
+		exit(0);
 	}
 
 	changed = false;

@@ -236,6 +236,11 @@ void geSceneSetup(ge_Scene* scene){
 
 void geRendererCreateContext(ge_Scene* scene, ge_Renderer* render){
 	bool first = false;
+	if(render->vao <= 0){
+		first = true;
+		glGenVertexArrays(1, &render->vao);
+	}
+	glBindVertexArray(render->vao);
 	if(render->vbo){
 		int mem = 0;
 		glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
@@ -247,8 +252,9 @@ void geRendererCreateContext(ge_Scene* scene, ge_Renderer* render){
 		int id;
 		glGenBuffers(1, (GLuint*)&id);
 		render->vbo = id;
+		glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
+
 	if(render->customVert){
 		glBufferData(GL_ARRAY_BUFFER, render->customVert->size*render->nVerts, render->verts, render->memory_mode);
 		libge_context->gpumem += render->customVert->size*render->nVerts;
@@ -257,68 +263,66 @@ void geRendererCreateContext(ge_Scene* scene, ge_Renderer* render){
 		libge_context->gpumem += sizeof(ge_Vertex)*render->nVerts;
 	}
 
-	if(render->vao <= 0){
-		glGenVertexArrays(1, &render->vao);
-		glBindVertexArray(render->vao);
-	
-		if(render->customVert){
-			if(render->customVert->color_offset >= 0){
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, render->customVert->color_count, render->customVert->color_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->color_offset));
-			}else{
-				glDisableVertexAttribArray(0);
-			}
-			if(render->customVert->texture_offset >= 0){
-				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, render->customVert->texture_count, render->customVert->texture_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->texture_offset));
-			}else{
-				glDisableVertexAttribArray(1);
-			}
-			if(render->customVert->normal_offset >= 0){
-				glEnableVertexAttribArray(2);
-				glVertexAttribPointer(2, 3, render->customVert->normal_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->normal_offset));
-			}else{
-				glDisableVertexAttribArray(2);
-			}
-			if(render->customVert->vertex_offset >= 0){
-				glEnableVertexAttribArray(3);
-				glVertexAttribPointer(3, render->customVert->vertex_count, render->customVert->vertex_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->vertex_offset));
-			}else{
-				glDisableVertexAttribArray(3);
-			}
-		}else{
+	if(render->customVert){
+		if(render->customVert->color_offset >= 0){
 			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
-			glEnableVertexAttribArray(3);
-
-	#ifdef U32_COLORS
-			glVertexAttribPointer(3, 3, GL_FLOAT, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 1*4 + 3*4 => size(u,v,w,color,nx,ny,nz)
-			glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(16)); //3*4 + 1*4 => size(u,v,w,color)
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
-	#else
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(40)); //3*4 + 4*4 + 3*4 => size(u,v,w,color[4],nx,ny,nz)
-			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 4*4 => size(u,v,w,color[4])
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
-	#endif
+			glVertexAttribPointer(0, render->customVert->color_count, render->customVert->color_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->color_offset));
+		}else{
+			glDisableVertexAttribArray(0);
 		}
+		if(render->customVert->texture_offset >= 0){
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, render->customVert->texture_count, render->customVert->texture_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->texture_offset));
+		}else{
+			glDisableVertexAttribArray(1);
+		}
+		if(render->customVert->normal_offset >= 0){
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 3, render->customVert->normal_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->normal_offset));
+		}else{
+			glDisableVertexAttribArray(2);
+		}
+		if(render->customVert->vertex_offset >= 0){
+			glEnableVertexAttribArray(3);
+			glVertexAttribPointer(3, render->customVert->vertex_count, render->customVert->vertex_type, GL_FALSE, render->customVert->size, BUFFER_OFFSET(render->customVert->vertex_offset));
+		}else{
+			glDisableVertexAttribArray(3);
+		}
+	}else{
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
 
-		glBindVertexArray(0);
+#ifdef U32_COLORS
+		glVertexAttribPointer(3, 3, GL_FLOAT, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 1*4 + 3*4 => size(u,v,w,color,nx,ny,nz)
+		glVertexAttribPointer(0, 4, GL_UNSIGNED_BYTE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(16)); //3*4 + 1*4 => size(u,v,w,color)
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
+#else
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(40)); //3*4 + 4*4 + 3*4 => size(u,v,w,color[4],nx,ny,nz)
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 4*4 => size(u,v,w,color[4])
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
+#endif
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
 }
 
 void geRendererUpdateContext(ge_Scene* scene, ge_Renderer* render){
 	int mem = 0;
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
+
 	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &mem);
 	libge_context->gpumem -= mem;
 	if(render->customVert){
+//		glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
 		glBufferData(GL_ARRAY_BUFFER, render->customVert->size*render->nVerts, render->verts, render->memory_mode);
 		libge_context->gpumem += render->customVert->size*render->nVerts;
 	}else{
+//		glBindBuffer(GL_ARRAY_BUFFER, render->vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(ge_Vertex)*render->nVerts, render->verts, render->memory_mode);
 		libge_context->gpumem += sizeof(ge_Vertex)*render->nVerts;
 	}

@@ -56,6 +56,7 @@ LIBGE_API void geFontPrintImage(int x, int y, ge_Font* font, const char* text, u
 LIBGE_API void geFontPrintImageUnicode(int x, int y, ge_Font* font, const unsigned short* text, u32 color, ge_Image* image);
 
 LIBGE_API void geFontPrintfScreen(int x, int y, ge_Font* font, u32 color, const char* fmt, ...);
+LIBGE_API void geFontPrintfScreenOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColor, const char* fmt, ...);
 LIBGE_API void geFontPrintfImage(int x, int y, ge_Font* font, u32 color, ge_Image* image, const char* fmt, ...);
 
 LIBGE_API ge_Image* geFontMakeImage(ge_Font* font, const char* text, u32 color);

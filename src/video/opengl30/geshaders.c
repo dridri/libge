@@ -277,38 +277,38 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	gePrintDebug(0x100, "program linking infos: \n    %s", log);
 
 	
-	shader->loc_time = glGetUniformLocation(shader->programId, "ge_Time");
-	shader->loc_ratio = glGetUniformLocation(shader->programId, "ge_ScreenRatio");
-	shader->loc_camera = glGetUniformLocation(shader->programId, "ge_CameraPosition");
-	shader->loc_HasTexture = glGetUniformLocation(shader->programId, "ge_HasTexture");
+	shader->loc_time = geShaderUniformID(shader, "ge_Time");
+	shader->loc_ratio = geShaderUniformID(shader, "ge_ScreenRatio");
+	shader->loc_camera = geShaderUniformID(shader, "ge_CameraPosition");
+	shader->loc_HasTexture = geShaderUniformID(shader, "ge_HasTexture");
 
-	shader->loc_lights_d_count = glGetUniformLocation(shader->programId, "ge_DynamicLightsCount");
-	shader->loc_lights_s_count = glGetUniformLocation(shader->programId, "ge_StaticLightsCount");
-	shader->loc_front_ambient = glGetUniformLocation(shader->programId, "ge_FrontMaterial.ambient");
-	shader->loc_front_diffuse = glGetUniformLocation(shader->programId, "ge_FrontMaterial.diffuse");
-	shader->loc_front_specular = glGetUniformLocation(shader->programId, "ge_FrontMaterial.specular");
+	shader->loc_lights_d_count = geShaderUniformID(shader, "ge_DynamicLightsCount");
+	shader->loc_lights_s_count = geShaderUniformID(shader, "ge_StaticLightsCount");
+	shader->loc_front_ambient = geShaderUniformID(shader, "ge_FrontMaterial.ambient");
+	shader->loc_front_diffuse = geShaderUniformID(shader, "ge_FrontMaterial.diffuse");
+	shader->loc_front_specular = geShaderUniformID(shader, "ge_FrontMaterial.specular");
 
-	shader->loc_mvp = glGetUniformLocation(shader->programId, "ge_MatrixModelViewProjection");
-	shader->loc_projection = glGetUniformLocation(shader->programId, "ge_MatrixProjection");
-	shader->loc_modelview = glGetUniformLocation(shader->programId, "ge_MatrixModelView");
-	shader->loc_normal = glGetUniformLocation(shader->programId, "ge_MatrixNormal");
-	shader->loc_view = glGetUniformLocation(shader->programId, "ge_MatrixView");
-	shader->loc_model = glGetUniformLocation(shader->programId, "ge_MatrixModel");
-	shader->loc_submodel = glGetUniformLocation(shader->programId, "ge_MatrixSubModel");
-	shader->loc_texture0 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[0]");
-	shader->loc_texture1 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[1]");
-	shader->loc_texture2 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[2]");
-	shader->loc_texture3 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[3]");
-	shader->loc_texture4 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[4]");
-	shader->loc_texture5 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[5]");
-	shader->loc_texture6 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[6]");
-	shader->loc_texture7 = glGetUniformLocation(shader->programId, "ge_MatrixTexture[7]");
-	shader->loc_clipplane = glGetUniformLocation(shader->programId, "ge_ClipPlane");
+	shader->loc_mvp = geShaderUniformID(shader, "ge_MatrixModelViewProjection");
+	shader->loc_projection = geShaderUniformID(shader, "ge_MatrixProjection");
+	shader->loc_modelview = geShaderUniformID(shader, "ge_MatrixModelView");
+	shader->loc_normal = geShaderUniformID(shader, "ge_MatrixNormal");
+	shader->loc_view = geShaderUniformID(shader, "ge_MatrixView");
+	shader->loc_model = geShaderUniformID(shader, "ge_MatrixModel");
+	shader->loc_submodel = geShaderUniformID(shader, "ge_MatrixSubModel");
+	shader->loc_texture0 = geShaderUniformID(shader, "ge_MatrixTexture[0]");
+	shader->loc_texture1 = geShaderUniformID(shader, "ge_MatrixTexture[1]");
+	shader->loc_texture2 = geShaderUniformID(shader, "ge_MatrixTexture[2]");
+	shader->loc_texture3 = geShaderUniformID(shader, "ge_MatrixTexture[3]");
+	shader->loc_texture4 = geShaderUniformID(shader, "ge_MatrixTexture[4]");
+	shader->loc_texture5 = geShaderUniformID(shader, "ge_MatrixTexture[5]");
+	shader->loc_texture6 = geShaderUniformID(shader, "ge_MatrixTexture[6]");
+	shader->loc_texture7 = geShaderUniformID(shader, "ge_MatrixTexture[7]");
+	shader->loc_clipplane = geShaderUniformID(shader, "ge_ClipPlane");
 
-	shader->loc_fog_density = glGetUniformLocation(shader->programId, "ge_Fog.density");
-	shader->loc_fog_color = glGetUniformLocation(shader->programId, "ge_Fog.color");
-	shader->loc_fog_start = glGetUniformLocation(shader->programId, "ge_Fog.start");
-	shader->loc_fog_end = glGetUniformLocation(shader->programId, "ge_Fog.end");
+	shader->loc_fog_density = geShaderUniformID(shader, "ge_Fog.density");
+	shader->loc_fog_color = geShaderUniformID(shader, "ge_Fog.color");
+	shader->loc_fog_start = geShaderUniformID(shader, "ge_Fog.start");
+	shader->loc_fog_end = geShaderUniformID(shader, "ge_Fog.end");
 
 	gePrintDebug(0x100, "_geShaderSource : Uniforms Ok\n");
 	
@@ -329,6 +329,9 @@ void geShaderUse(ge_Shader* shader){
 	}
 	if(!shader){
 		glUseProgram(0);
+		if(libge_context->drawing_mode & GE_DRAWING_MODE_2D){
+			geShaderUse(_ge_GetVideoContext()->shader2d);
+		}
 		return;
 	}
 	glUseProgram(shader->programId);
@@ -345,7 +348,9 @@ void geLineShader(ge_Shader* sh){
 }
 
 int geShaderUniformID(ge_Shader* shader, const char* name){
-	return glGetUniformLocation(shader->programId, name);
+	int ret = glGetUniformLocation(shader->programId, name);
+//	gePrintDebug(0x100, "geShaderUniformID(%p, %s) = %d\n", shader, name, ret);
+	return ret;
 }
 
 int geShaderAttribID(ge_Shader* shader, const char* name){
@@ -388,8 +393,36 @@ void geShaderUniform4f(int id, float v1, float v2, float v3, float v4){
 	glUniform4f(id, v1, v2, v3, v4);
 }
 
+void geShaderUniform1fv(int id, int n, float* v){
+	glUniform1fv(id, n, v);
+}
+
+void geShaderUniform2fv(int id, int n, float* v){
+	glUniform2fv(id, n, v);
+}
+
 void geShaderUniform3fv(int id, int n, float* v){
 	glUniform3fv(id, n, v);
+}
+
+void geShaderUniform4fv(int id, int n, float* v){
+	glUniform4fv(id, n, v);
+}
+
+void geShaderUniform1iv(int id, int n, int* v){
+	glUniform1iv(id, n, v);
+}
+
+void geShaderUniform2iv(int id, int n, int* v){
+	glUniform2iv(id, n, v);
+}
+
+void geShaderUniform3iv(int id, int n, int* v){
+	glUniform3iv(id, n, v);
+}
+
+void geShaderUniform4iv(int id, int n, int* v){
+	glUniform4iv(id, n, v);
 }
 
 int geFileFullRead(const char* filename, void** buf);

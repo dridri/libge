@@ -94,7 +94,7 @@ void geSocketAccept(ge_Socket* socket, int client){
 	gePrintDebug(0x100, "geSocketAccept(socket, %d) 1\n", client);
 	u32 size = sizeof(socket->csin[client]);
 	gePrintDebug(0x100, "geSocketAccept(socket, %d) 2\n", client);
-	socket->csock[client] = accept(socket->sock, (SOCKADDR*)&socket->csin[client], (int*)&size);
+	socket->csock[client] = accept(socket->sock, (SOCKADDR*)&socket->csin[client], (socklen_t*)&size);
 	gePrintDebug(0x100, "geSocketAccept(socket, %d) 3\n", client);
 	gePrintDebug(0x100, "\nClient %d connected with socket %d to %s:%d\n", client, socket->csock[client], inet_ntoa(socket->csin[client].sin_addr), htons(socket->csin[client].sin_port));
 }

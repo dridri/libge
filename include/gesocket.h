@@ -21,7 +21,7 @@
 
 #ifdef WIN32
 #include <winsock2.h>
-#elif defined(LINUX) || defined(ANDROID) || defined(PSP)
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

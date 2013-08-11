@@ -16,6 +16,13 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef H_GE_PHYSICS
+#define H_GE_PHYSICS
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "getypes.h"
 
 typedef struct ge_RK4Target ge_RK4Target;
@@ -51,3 +58,9 @@ LIBGE_API void geRK4ResetForce(ge_RK4State* state);
 LIBGE_API void geRK4SetForce(ge_RK4State* state, ge_Vector3d vec);
 LIBGE_API void geRK4ApplyForce(ge_RK4State* state, ge_Vector3d vec);
 LIBGE_API void geRK4ApplyGravity(ge_RK4State* s1, ge_RK4State* s2);
+
+#ifdef __cplusplus
+};
+#endif
+
+#endif // H_GE_PHYSICS
