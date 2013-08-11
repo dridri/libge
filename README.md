@@ -1,7 +1,7 @@
 LibGE
 =====
 
-LibGE is a fast and easy multiplatform game engine, currently working on Linux,
+The Gamma Engine library is a fast and easy multiplatform game engine, currently working on Linux,
 Windows, PSP (open source SDK) and Android (NDK with GLES 2.0+) platforms
 
 
