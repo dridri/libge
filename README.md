@@ -9,14 +9,20 @@ Windows, PSP (open source SDK) and Android (NDK with GLES 2.0+) platforms
 Building
 ========
 
-Just type 'make target=_TARGET_ ARCH=32/64' where _TARGET_ can be :
- * linux_low
- * win_low
- * android
+    $ mkdir build
+    $ cd build
+    $ cmake .. [-Dtarget=TARGET] [-Dvideo=VIDEO]
+    $ make
+    $ make install
+
+The target platform will be automatically detected. If you want to cross-compile to other platform,
+run the 'cmake' command with -Dtarget option, where _TARGET_ can be :
+ * linux
+ * win
  * psp
+ * android
 
-Going to use cmake instead
-
-
-Precompiled version can be still downloaded from here :
-http://code.google.com/p/libge/downloads/list
+On Linux/Windows/Mac platforms, you can also choose the OpenGL support version between 2.1 and 3.0+
+with the -Dvideo option, where _VIDEO_ can be :
+ * opengl21
+ * opengl30
