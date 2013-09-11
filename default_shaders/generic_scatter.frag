@@ -63,6 +63,7 @@ void main(){
 		int i;
 		float dist;
 		vec2 frag_coord_norm = vec2(frag_coord.x*ge_ScreenRatio, frag_coord.y);
+		coord.y += 1.0;
 
 		color = texture(ge_Texture, ge_TexCoord0.st);
 		for(i=0; i<nLights; i++){
@@ -80,5 +81,6 @@ void main(){
 		float zFar = 100.0;
 		float base_depth = (2.0 * zNear) / (zFar + zNear - texture(ge_Texture1, ge_TexCoord0.st).x * (zFar - zNear));
 		ge_FragColor = vec4(base_depth, base_depth, base_depth, 1.0);
+		ge_FragColor = texture(ge_Texture1, ge_TexCoord0.st);
 	}
 }

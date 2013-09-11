@@ -15,7 +15,7 @@ struct ge_struct_Light {
 	vec3 targetVector;
 	float CosOuterConeAngle;
 	float CosInnerMinusOuterAngle;
-	sampler2DArray shadow;
+//	sampler2DArray shadow;
 };
 struct ge_struct_material {
 	vec4 ambient;
@@ -26,7 +26,7 @@ struct ge_struct_material {
 // Lights
 uniform int ge_DynamicLightsCount;
 uniform int ge_StaticLightsCount;
-uniform ge_struct_Light ge_StaticLights[];
+uniform ge_struct_Light ge_StaticLights[8];
 uniform ge_struct_Light ge_DynamicLights[];
 
 // Materials
@@ -39,7 +39,7 @@ uniform int ge_HasTexture;
 uniform vec3 ge_CameraPosition;
 
 smooth in vec3 ge_TexCoord0;
-smooth out vec4 ge_FragColor;
+out vec4 ge_FragColor;
 
 smooth in vec4 ge_Color;
 #define ge_FragData gl_FragData

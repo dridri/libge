@@ -1,4 +1,4 @@
-smooth in vec3 frag_coord;
+smooth out vec3 frag_coord;
 
 void main(){
 	ge_Color = ge_VertexColor;

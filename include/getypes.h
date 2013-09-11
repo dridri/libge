@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if(defined(PSP) && !defined(U32_COLORS))
+#if (defined(PSP) && !defined(U32_COLORS))
 #define U32_COLORS
 #endif
 
@@ -68,7 +68,7 @@
 #ifndef u8
 	#define u8 uint8_t
 #endif
-#if(ARCH==64)
+#if defined(_M_X64) || defined(__amd64__)
 	#define t_ptr u64
 #else
 	#define t_ptr u32

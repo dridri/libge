@@ -5,7 +5,7 @@ smooth in vec3 frag_coord;
 
 void main(){
 	vec4 color = ge_Color;
-	vec4 tex = texture(ge_Texture, ge_TexCoord0);
+	vec4 tex = texture(ge_Texture, ge_TexCoord0.st);
 	color.a = color.a * tex.r;
 
 	float l = length((ge_TexCoord0.xy*256.0) - vec2(192.0));

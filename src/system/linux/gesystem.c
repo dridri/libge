@@ -23,6 +23,18 @@
 #include <time.h>
 
 
+void LinuxKeyboardInit();
+void LinuxKeyboardFinished();
+void LinuxKeyboardDescrition(const char* desc);
+void LinuxKeyboardOutput(char* ptr, int max_len);
+void LinuxKeyboardColor(u32 color);
+int LinuxKeyboardUpdate();
+int LinuxKeyboardIndex();
+
+void LinuxInit(){
+	geKeyboardDefine(LinuxKeyboardInit, LinuxKeyboardFinished, LinuxKeyboardDescrition, LinuxKeyboardOutput, LinuxKeyboardColor, LinuxKeyboardUpdate, LinuxKeyboardIndex);
+}
+
 void* geglImportFunction(const char* func_name){
 	void* func = NULL;
 	//glXGetProcAddress

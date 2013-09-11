@@ -128,7 +128,7 @@ ge_File* geFileOpen(const char* filename, int mode){
 	desc->fake_offset = 0;
 	file->desc = desc;
 
-	if((int)file->fd <= 0){
+	if((t_ptr)file->fd <= 0){
 		gePrintDebug(0x102, "System file open error 0x%08X on \"%s\"\n", file->fd, filename);
 		geFree((void*)file->desc);
 		geFree(file);

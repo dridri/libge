@@ -332,6 +332,7 @@ LIBGE_API void geTextureMode(ge_Image* img, int mode);
 LIBGE_API void geTextureWrap(ge_Image* img, int wrapx, int wrapy);
 LIBGE_API void geTextureCopyBuffer(ge_Image* target, int ofsx, int ofsy, int sx, int sy, int w, int h);
 LIBGE_API void geDrawArray(int mode, int start, int num);
+LIBGE_API void geDrawArrayInstanced(int mode, int start, int num, int nInstances);
 
 // 3D Lights
 LIBGE_API ge_Light* geCreateLight(float x, float y, float z, u32 diffuse, u32 ambient);

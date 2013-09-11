@@ -37,7 +37,7 @@ struct ge_struct_Light {
 	vec3 targetVector;
 	float CosOuterConeAngle;
 	float CosInnerMinusOuterAngle;
-	sampler2DArray shadow;
+//	sampler2DArray shadow;
 };
 struct ge_struct_material {
 	vec4 ambient;

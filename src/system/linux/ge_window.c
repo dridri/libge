@@ -19,15 +19,14 @@
 #include "../../ge_internal.h"
 #include <stdlib.h>
 
+void LinuxInit();
 void CloseFullScreen();
 
 bool initializing = false;
 
 static XWMHints* win_hints = NULL;
 static XSizeHints* win_size_hints = NULL;
-static XF86VidModeModeLine sys_mode;
-static int dot_clock = 0;
-static int attributes[] = { GLX_RGBA, GLX_DOUBLEBUFFER, GLX_RED_SIZE, 8, GLX_GREEN_SIZE, 8, GLX_BLUE_SIZE, 8, GLX_DEPTH_SIZE, 16, None};
+static int attributes[] = { GLX_RGBA, GLX_DOUBLEBUFFER, GLX_RED_SIZE, 8, GLX_GREEN_SIZE, 8, GLX_BLUE_SIZE, 8, GLX_ALPHA_SIZE, 8, GLX_DEPTH_SIZE, 16, None};
 static Cursor invisible_cursor;
 static XEvent event;
 static int event_mask = ExposureMask | PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask;
@@ -53,47 +52,24 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 
 	XVisualInfo *vi;
 	Colormap cmap;
-	int glxMajorVersion, glxMinorVersion;
-	int vidModeMajorVersion, vidModeMinorVersion;
-	XF86VidModeModeInfo **modes;
-	int i, modeNum, bestMode=0;
 	Window winDummy;
 	unsigned int borderDummy;
-	
+
 	context->dpy = XOpenDisplay(0);
 	context->screen = DefaultScreen(context->dpy);
 
-	//Get Current Mode
-	XF86VidModeGetModeLine(context->dpy, context->screen, &dot_clock, &sys_mode);
-
-	glXQueryVersion(context->dpy, &glxMajorVersion, &glxMinorVersion);
-	XF86VidModeQueryVersion(context->dpy, &vidModeMajorVersion, &vidModeMinorVersion);
-	gePrintDebug(0x100, "glX-Version %d.%d   XF86VidModeExtension-Version %d.%d\n", glxMajorVersion, glxMinorVersion, vidModeMajorVersion, vidModeMinorVersion);
-		
-	XF86VidModeGetAllModeLines(context->dpy, context->screen, &modeNum, &modes);
-	context->deskMode = *modes[0];
-	
-	// look for mode with requested resolution
-	for (i = 0; i < modeNum; i++)
-	{
-		if ((modes[i]->hdisplay == libge_context->width) && (modes[i]->vdisplay == libge_context->height))
-		{
-			bestMode = i;
-		}
-	}
 	// get an appropriate visual
 	vi = glXChooseVisual(context->dpy, context->screen, attributes);
 	context->doubleBuffered = True;
-	
-	// create a GLX context
-	context->ctx = glXCreateContext(context->dpy, vi, 0, true);
+
 	// create a color map
 	cmap = XCreateColormap(context->dpy, RootWindow(context->dpy, vi->screen), vi->visual, AllocNone);
 	context->attr.colormap = cmap;
 	context->attr.border_pixel = 0;
+	context->attr.background_pixmap = None;
 
 	win_size_hints->flags = PSize;
-	if(flags & GE_WINDOW_RESIZABLE){
+	if(!(flags & GE_WINDOW_RESIZABLE)){
 		win_size_hints->flags = PSize | PMinSize | PMaxSize;
 		win_size_hints->min_width = libge_context->width;
 		win_size_hints->min_height = libge_context->height;
@@ -104,47 +80,20 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	}
 
 	if (context->fs){
-		XF86VidModeSwitchToMode(context->dpy, context->screen, modes[bestMode]);
-		XF86VidModeSetViewPort(context->dpy, context->screen, 0, 0);
-		int dpyWidth = modes[bestMode]->hdisplay;
-		int dpyHeight = modes[bestMode]->vdisplay;
-		XFree(modes);
-	
-		/* create a fullscreen window */
-		context->attr.override_redirect = True;
-		context->attr.event_mask = event_mask;
-		context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, vi->screen), 0, 0, dpyWidth, dpyHeight, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect, &context->attr);
-		XWarpPointer(context->dpy, None, context->win, 0, 0, 0, 0, 0, 0);
-		XMapRaised(context->dpy, context->win);
-		XGrabKeyboard(context->dpy, context->win, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-		XGrabPointer(context->dpy, context->win, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, context->win, None, CurrentTime);
-
-		XEvent xev;
-		Atom wm_state = XInternAtom(context->dpy, "WM_STATE", True);
-		Atom fullscreen = XInternAtom(context->dpy, "WM_STATE_FULLSCREEN", True);
-
-		memset(&xev, 0, sizeof(xev));
-		xev.type = ClientMessage;
-		xev.xclient.window = context->win;
-		xev.xclient.message_type = wm_state;
-		xev.xclient.format = 32;
-		xev.xclient.data.l[0] = 1;
-		xev.xclient.data.l[1] = fullscreen;
-		xev.xclient.data.l[2] = 0;
-
-		XSendEvent(context->dpy, DefaultRootWindow(context->dpy), False, SubstructureNotifyMask, &xev);
-
 	}else{
-		/* create a window in window mode*/
+		// create a window in window mode
 		context->attr.event_mask = event_mask;
-		context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, vi->screen), 0, 0, libge_context->width, libge_context->height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWColormap | CWEventMask, &context->attr);
-		/* only set window title and handle wm_delete_events if in windowed mode */
+		context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, vi->screen), 0, 0, libge_context->width, libge_context->height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWBackPixmap | CWColormap | CWEventMask, &context->attr);
+		// only set window title and handle wm_delete_events if in windowed mode 
 		XSetStandardProperties(context->dpy, context->win, title, title, None, NULL, 0, NULL);
 		XMapRaised(context->dpy, context->win);
-
 	}
-//	wmDelete = XInternAtom(context->dpy, "WM_DELETE_WINDOW", True);
-//	XSetWMProtocols(context->dpy, context->win, &wmDelete, 1);
+
+	// create a GLX context
+	context->ctx = glXCreateContext(context->dpy, vi, 0, true);
+
+	Atom wmDelete = XInternAtom(context->dpy, "WM_DELETE_WINDOW", True);
+	XSetWMProtocols(context->dpy, context->win, &wmDelete, 1);
 
 	Pixmap bm_no; XColor black;
 	static char bm_no_data[] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -154,15 +103,14 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 
 	XSetWMNormalHints(context->dpy, context->win, win_size_hints);
 	XSetWMHints(context->dpy, context->win, win_hints);
-
+	XSelectInput(context->dpy, context->win, event_mask);
 
 	// connect the glx-context to the window
 	glXMakeCurrent(context->dpy, context->win, context->ctx);
 	XGetGeometry(context->dpy, context->win, &winDummy, &context->x, &context->y, (u32*)&libge_context->width, (u32*)&libge_context->height, &borderDummy, (u32*)&context->depth);
 	gePrintDebug(0x100, "X11 Window: %dx%d	depth:%d	Direct rendering: %s\n", libge_context->width, libge_context->height, context->depth, glXIsDirect(context->dpy, context->ctx)?"yes":"no");
 
-	XSelectInput(context->dpy, context->win, event_mask);
-
+	LinuxInit();
 	geWaitVsync(true);
 
 	gePrintDebug(0x100, "Current OpenGL version: %s\n", (const char*)glGetString(GL_VERSION));
@@ -172,7 +120,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	geDrawingMode(GE_DRAWING_MODE_2D);
 	
 	atexit(_ge_exit);
-	
+
 	initializing = false;
 	return 0;
 }
@@ -213,6 +161,7 @@ short mouse_smooth_warp_x=0, mouse_smooth_warp_y=0;
 
 bool keys_pressed[GE_KEYS_COUNT] = { false };
 bool keys_released[GE_KEYS_COUNT] = { true };
+static int last_pressed = 0;
 
 static int current_buf = 0;
 
@@ -257,19 +206,18 @@ int LinuxSwapBuffers(){
 					finished = true;
 				}
 				break;
-			case Expose:
+			case ConfigureNotify:
 				if(event.xexpose.width!=libge_context->width || event.xexpose.height!=libge_context->height){
-					/*
-					ge_event.type = GE_EVENT_WINDOW_RESIZE;
-					ge_event.resize.last_width = width;
-					ge_event.resize.last_height = height;
-					ge_event.resize.width = event.xexpose.width;
-					ge_event.resize.height = event.xexpose.height;
-					width = event.xexpose.width;
-					height = event.xexpose.height;
-					geResizeScene(width, height);
-					*/
+				//	printf("expose : %d, %d, %d, %d\n", event.xconfigure.x, event.xconfigure.y, event.xconfigure.width, event.xconfigure.height);
+					libge_context->width = event.xconfigure.width;
+					libge_context->height = event.xconfigure.height;
+					libge_context->projection_matrix[0] = (float)0xFFFFFFFF;
+					geGraphicsInit();
+					geDrawingMode(libge_context->drawing_mode | 0xF0000000);
 				}
+				break;
+			case KeymapNotify:
+				XRefreshKeyboardMapping(&event.xmapping);
 				break;
 			case KeyPress:
 				key = (int)XLookupKeysym(&event.xkey, 0);
@@ -278,6 +226,14 @@ int LinuxSwapBuffers(){
 				}
 				if(key >= 'a' && key <= 'z'){
 					key += ('A' - 'a');
+				}
+				{
+					char str[25];
+					int len;
+					KeySym keysym;
+					len = XLookupString(&event.xkey, str, 25, &keysym, NULL);
+				//	printf("input : '%s' [%d] (%d)\n", str, (u8)str[0], len);
+					last_pressed = (u8)str[0];
 				}
 				//printf("----------------- PRESS KEY %d ---------------------\n", key);
 				keys_pressed[key] = true;
@@ -407,4 +363,10 @@ void geCursorVisible(bool visible){
 
 void LinuxGetPressedKeys(u8* k){
 	memcpy(k, keys_pressed, GE_KEYS_COUNT*sizeof(u8));
+}
+
+int LinuxGetLastPressed(){
+	int ret = last_pressed;
+	last_pressed = 0;
+	return ret;
 }

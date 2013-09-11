@@ -255,6 +255,10 @@ void geDrawArray(int mode, int start, int num){
 	glDrawArrays(mode, start, num);
 }
 
+void geDrawArrayInstanced(int mode, int start, int num, int nInstances){
+	glDrawArraysInstanced(mode, start, num, nInstances);
+}
+
 void geRendererUpdate(ge_Renderer* render){
 	if(!render)return;
 	int i = 0;

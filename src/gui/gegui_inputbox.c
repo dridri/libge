@@ -18,6 +18,10 @@
 
 #include "../ge_internal.h"
 
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
 void _geGui_MakeResizableObject(ge_GuiWidget* obj, ge_GuiStyle* style);
 static u32 tick = 0;
 
@@ -40,6 +44,7 @@ ge_GuiInputBox* geGuiCreateInputBox(int width, int height, const char* base_text
 void _geGui_RenderInputBox(ge_GuiAreaObject* object, ge_GuiStyle* style){
 	int i = -1;
 	ge_GuiInputBox* box = (ge_GuiInputBox*)object->object;
+	u32 back_color = box->back_color;
 	if(!box->img){
 		_geGui_MakeResizableObject((ge_GuiWidget*)box, style);
 	}
@@ -51,12 +56,14 @@ void _geGui_RenderInputBox(ge_GuiAreaObject* object, ge_GuiStyle* style){
 	if(box->focused){
 		geKeyboardUpdate();
 		i = geKeyboardIndex();
+		back_color = RGBA(min(R(back_color) - 40, 255), min(G(back_color) - 40, 255), min(B(back_color) + 10, 255), A(back_color));
 	}
 	if(box->lostfocus){
 		geKeyboardFinished();
 	}
 
-	u32 foreground = RGBA(255-R(box->back_color), 255-G(box->back_color), 255-B(box->back_color), 255);
+	u32 foreground = RGBA(255-R(back_color), 255-G(back_color), 255-B(back_color), 255);
+	box->img->color = back_color;
 	geBlitImage(object->absx, object->absy, box->img, 0, 0, box->width, box->height, 0);
 	geFontPrintScreen(object->absx+box->textpos[0], object->absy+(box->height/2-style->font->size/2), style->font, box->text, foreground);
 
