@@ -46,10 +46,12 @@ typedef struct in_addr IN_ADDR;
 
 typedef struct ge_Socket {
 	int type;
+	int port_type;
 	int sock;
 	struct sockaddr_in sin;
-	int csock[32];
-	struct sockaddr_in csin[32];
+	int nCsocks;
+	int* csock;
+	struct sockaddr_in* csin;
 } ge_Socket;
 
 void geInitSocket();

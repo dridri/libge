@@ -375,7 +375,9 @@ void gePrintBuffer(void* _buf, int size){
 				for(c=0; c < 16-dec; c++){
 					gePrintDebug(0x103, "   ");
 				}
+#ifdef WIN32
 				gePrintDebug(0x103, " ");
+#endif
 			}
 			for(c=0; c<16 && (b0-dec+c) < size; c++){
 				if(buf[b0-dec+c] < 0x20){
