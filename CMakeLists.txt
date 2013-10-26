@@ -5,6 +5,7 @@ project(LibGE)
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x -g3")
+add_definitions(-DLIBGE_LIB)
 
 option(target "target" )
 option(video "video" )
@@ -18,7 +19,9 @@ if(${target} MATCHES OFF)
 endif()
 
 if("${target}" MATCHES "win*")
-	set(ARCH 32) ## TODO
+	set(ARCH 64) ## TODO
+	set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
+	set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
 elseif("${target}" MATCHES "linux*")
 	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
 	set(platform linux)
@@ -39,6 +42,7 @@ if(${video} MATCHES OFF)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+if(!WIN32)
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(Freetype REQUIRED)
@@ -49,6 +53,7 @@ include_directories(${JPEG_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
 include_directories(${LUA_INCLUDE_DIRS})
 include_directories(${ZLIB_INCLUDE_DIRS})
+endif()
 
 add_definitions(-DPLATFORM_${target})
 
@@ -180,19 +185,42 @@ if("${video}" MATCHES "opengl*")
 endif()
 message(STATUS "LibGE will be compiled for '${target}' in ${ARCH_MSG}${VID_MSG}")
 
+AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
+
 add_library(ge SHARED ${SOURCES})
+add_executable(test ${TEST_SOURCES} ${SOURCES})
 
 target_link_libraries(ge
 					  m
 					  mad
-					  ${OPENGL_LIBRARIES}
-					  ${LUA_LIBRARIES}
-					  ${JPEG_LIBRARIES}
-					  ${PNG_LIBRARIES}
-					  ${ZLIB_LIBRARIES}
-					  ${FREETYPE_LIBRARIES}
-					  ${ALSA_LIBRARIES}
+					  png
+					  openGL32
+					  lua
+					  jpeg
+					  freetype
+					  z
+					  bz2
+					  wsock32
+					  gdi32
+					  user32
+					  winmm
 					  )
 
-install(TARGETS ge LIBRARY DESTINATION /usr/lib)
+target_link_libraries(test
+					  m
+					  mad
+					  png
+					  openGL32
+					  lua
+					  jpeg
+					  freetype
+					  z
+					  bz2
+					  wsock32
+					  gdi32
+					  user32
+					  winmm
+					  )
+
+INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 INSTALL(FILES ${INCLUDES} DESTINATION include/libge)

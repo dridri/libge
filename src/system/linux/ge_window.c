@@ -1,4 +1,4 @@
- /*
+/*
 	The Gamma Engine Library is a multiplatform library made to make games
 	Copyright (C) 2012  Aubry Adrien (dridri85)
 
@@ -170,6 +170,7 @@ static bool pending_wdown_release = false;
 
 static bool changed = false;
 static bool _to_close = false;
+
 int LinuxSwapBuffers(){
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
 
@@ -276,7 +277,7 @@ int LinuxSwapBuffers(){
 			case MotionNotify:
 				if(changed){
 					changed = false;
-					break;
+					continue;
 				}
 				if(libge_context->mouse_round){
 					/*

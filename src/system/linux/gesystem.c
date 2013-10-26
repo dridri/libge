@@ -51,8 +51,9 @@ void geDebugOut(char* buff, int bufsz){
 	if(bufsz <= 0){
 		return;
 	}
-	buff[strlen(buff)-1] = 0x0;
-	puts(buff);
+//	buff[strlen(buff)-1] = 0x0;
+//	puts(buff);
+	printf("%s", buff);
 }
 
 u32 geGetTick(){
