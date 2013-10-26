@@ -190,37 +190,39 @@ AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 add_library(ge SHARED ${SOURCES})
 add_executable(test ${TEST_SOURCES} ${SOURCES})
 
-target_link_libraries(ge
-					  m
-					  mad
-					  png
-					  openGL32
-					  lua
-					  jpeg
-					  freetype
-					  z
-					  bz2
-					  wsock32
-					  gdi32
-					  user32
-					  winmm
-					  )
+if(WIN32)
+	set(LIBS
+		m
+		mad
+		png
+		openGL32
+		lua
+		jpeg
+		freetype
+		z
+		bz2
+		wsock32
+		gdi32
+		user32
+		winmm)
+elseif(UNIX)
+	set(LIBS
+		m
+		mad
+		${OPENGL_LIBRARIES}
+		${LUA_LIBRARY}
+		${JPEG_LIBRARY}
+		${PNG_LIBRARY}
+		${ZLIB_LIBRARY}
+		${FREETYPE_LIBRARY}
+		${ALSA_LIBRARY}
+		pthread
+		)
+endif()
 
-target_link_libraries(test
-					  m
-					  mad
-					  png
-					  openGL32
-					  lua
-					  jpeg
-					  freetype
-					  z
-					  bz2
-					  wsock32
-					  gdi32
-					  user32
-					  winmm
-					  )
+target_link_libraries(ge ${LIBS})
+
+target_link_libraries(test ${LIBS})
 
 INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 INSTALL(FILES ${INCLUDES} DESTINATION include/libge)
