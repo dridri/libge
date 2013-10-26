@@ -36,5 +36,8 @@ void main(){
 	vec4 final_color = vec4(0.0);//ge_FrontMaterial.ambient;
 	final_color += calculateLight(ge_StaticLights[0]);
 
-	ge_FragColor = ge_Color * final_color * texture(ge_Texture, ge_TexCoord0);
+	ge_FragColor = ge_Color * final_color;
+	if(ge_HasTexture != 0){
+		ge_FragColor *= texture(ge_Texture, ge_TexCoord0.st);
+	}
 }

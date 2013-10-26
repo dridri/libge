@@ -214,9 +214,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>mingw32-make platform=win_low ARCH=32</NMakeBuildCommandLine>
-    <NMakeOutput>Game.exe</NMakeOutput>
-    <NMakeCleanCommandLine>mingw32-make platform=win_low clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cd build &amp;&amp; mingw32-make</NMakeBuildCommandLine>
+    <NMakeOutput>build/test.exe</NMakeOutput>
+    <NMakeCleanCommandLine>cd build &amp;&amp; mingw32-make clean</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>PLATFORM_win32_low;WIN32;LIBGE_STATIC</NMakePreprocessorDefinitions>
     <ExecutablePath>$(PATH);</ExecutablePath>
     <IncludePath>C:\mingw\include</IncludePath>

@@ -73,7 +73,10 @@ void geSceneSetup(ge_Scene* scene){
 			GET_DYNAMIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i], spotCosCutoff);
 			GET_DYNAMIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i], spotExponent);
 			GET_DYNAMIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i], attenuation);
-			GET_DYNAMIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i], shadow);
+		//	GET_DYNAMIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i], shadow);
+			sprintf(tmp, "ge_LightShadows[%d]", i);
+			render->shader->loc_lights[i].loc_shadow = glGetUniformLocation(render->shader->programId, tmp);
+			gePrintDebug(0x100, "renderer %d: %s: %d\n", k, tmp, render->shader->loc_lights[i].loc_shadow);
 		}
 		for(i=0; i<render->nLights; i++){
 			render->lights[i+8/*i+scene->nDynamicLights*/]->i_loc = i+8/*i+scene->nDynamicLights*/;
@@ -87,11 +90,14 @@ void geSceneSetup(ge_Scene* scene){
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], spotCosCutoff);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], spotExponent);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], attenuation);
-			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], shadow);
+		//	GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], shadow);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], vector);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], targetVector);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], CosInnerMinusOuterAngle);
 			GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8/*i+scene->nDynamicLights*/], CosOuterConeAngle);
+			sprintf(tmp, "ge_LightShadows[%d]", i);
+			render->shader->loc_lights[i+8].loc_shadow = glGetUniformLocation(render->shader->programId, tmp);
+			gePrintDebug(0x100, "renderer %d: %s: %d\n", k, tmp, render->shader->loc_lights[i+8].loc_shadow);
 		}
 	}
 
@@ -375,11 +381,14 @@ void geRendererLinkLight(ge_Renderer* render, ge_Light* light){
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], spotCosCutoff);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], spotExponent);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], attenuation);
-		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], shadow);
+	//	GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], shadow);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], vector);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], targetVector);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], CosInnerMinusOuterAngle);
 		GET_STATIC_LIGHT_UNIFORM(render->shader->programId, render->shader->loc_lights[i+8], CosOuterConeAngle);
+		sprintf(tmp, "ge_LightShadows[%d]", i);
+		render->shader->loc_lights[i+8].loc_shadow = glGetUniformLocation(render->shader->programId, tmp);
+		gePrintDebug(0x100, "renderer %d: %s: %d\n", k, tmp, render->shader->loc_lights[i+8].loc_shadow);
 		gePrintDebug(0x100, "geRendererLinkLight 4\n");
 		render->lights[render->nLights+8] = light;
 		render->nLights++;

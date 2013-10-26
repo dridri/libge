@@ -377,11 +377,7 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	float sy = _sy*texMaxY/img->height;
 	texMaxX = ex*texMaxX/img->width;
 	texMaxY = ey*texMaxY/img->height;
-
-	if(flags & GE_BLIT_VFLIP){
-		texMaxY = -texMaxY;
-	}
-
+	
 	InitDraw(img, GL_TRIANGLES);
 
 	ge_Vertex* vertex = ReserveVertices(6);
@@ -420,6 +416,15 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	vertex[5].x = x;
 	vertex[5].y = y+height;
 	vertex[5].z = z     ;//+libge_context->img_stack[z+2048];
+
+	if(flags & GE_BLIT_VFLIP){
+		vertex[0].v = sy + texMaxY;
+		vertex[1].v = sy + texMaxY;
+		vertex[2].v = sy;
+		vertex[3].v = sy + texMaxY;
+		vertex[4].v = sy;
+		vertex[5].v = sy;
+	}
 
 	vertex[0].color[0] = vertex[1].color[0] = vertex[2].color[0] = vertex[3].color[0] = vertex[4].color[0] = vertex[5].color[0] = Rf(img->color);
 	vertex[0].color[1] = vertex[1].color[1] = vertex[2].color[1] = vertex[3].color[1] = vertex[4].color[1] = vertex[5].color[1] = Gf(img->color);

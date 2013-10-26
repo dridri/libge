@@ -256,7 +256,7 @@ void geDrawArray(int mode, int start, int num){
 }
 
 void geDrawArrayInstanced(int mode, int start, int num, int nInstances){
-	glDrawArraysInstanced(mode, start, num, nInstances);
+//	glDrawArraysInstanced(mode, start, num, nInstances);
 }
 
 void geRendererUpdate(ge_Renderer* render){
@@ -416,3 +416,129 @@ void geSceneUpdateMatrices(ge_Scene* scene){
 
 }
 
+
+
+void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, float size_factor){
+	light->shadow_depth = depth;
+	light->shadow_factor = size_factor;
+
+	light->shadow_fbo = geCreateFramebuffer(size, size);
+	glBindFramebuffer(GL_FRAMEBUFFER, light->shadow_fbo->id);
+	light->shadow = (ge_Image*)geCreateSurface3D(light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0xFFFFFFFF);
+	glGenTextures(1, &light->shadow->id);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light->shadow->id, 0, 0);
+	/*
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RG32F, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_RG, GL_FLOAT, NULL);
+	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light->shadow->id, 0, 0);
+	*/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	light->shadow_fbo->depth = light->shadow;
+	//shadow->texture = scene->lights[8].shadow;
+	light->flags |= GE_LIGHT_HAVE_SHADOW;
+
+	if(shader){
+		light->shadow_shader = shader;
+	}else{
+		light->shadow_shader = geCreateShader();
+		geShaderLoadVertexSource(light->shadow_shader, "scene/shaders/generic_shadow.vert");
+		geShaderLoadFragmentSource(light->shadow_shader, "scene/shaders/generic_shadow.frag");
+	}
+}
+
+void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*), void* udata){
+	geFramebufferUse(light->shadow_fbo);
+	glDisable(GL_SCISSOR_TEST);
+	geViewport(0, 0, light->shadow_fbo->depth->width, light->shadow_fbo->depth->height);
+		
+	geClearColor(0xFFFFFFFF);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		
+	//glDisable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	geForceShader(light->shadow_shader);
+
+	geMatrixMode(GE_MATRIX_VIEW);
+	geLoadIdentity();
+	float l_pos[3] = { light->position.x, light->position.y, light->position.z };
+	geNormalize(l_pos);
+	l_pos[0] *= 1000.0;
+	l_pos[1] *= 1000.0;
+	l_pos[2] *= 1000.0;
+	float cCam[3] = { cam->cX - cam->x, cam->cY - cam->y, cam->cZ - cam->z };
+	geNormalize(cCam);
+	cCam[0] = cCam[0] * 10.0 + cam->x;
+	cCam[1] = cCam[1] * 10.0 + cam->y;
+	cCam[2] = cCam[2] * 10.0 + cam->z;
+	l_pos[0] += cCam[0];
+	l_pos[1] += cCam[1];
+	l_pos[2] += cCam[2];
+	geLookAt(l_pos[0], l_pos[1], l_pos[2], light->target.x + cCam[0], light->target.y + cCam[1], light->target.z + cCam[2]);
+
+	int i, j;
+	light->iShadow = max(1, (light->iShadow + 1) % light->shadow_depth);
+//	for(j=0; j<3; j++){
+	for(j=0; j<2 && j<light->shadow_depth; j++){
+		if(j == 0){
+			i = 0;
+		}else{
+			i = max(1, (light->iShadow + j) % light->shadow_depth);
+		}
+		glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light->shadow->id, 0, i);
+		//glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light->shadow->id, 0, i);
+
+		geClearScreen();
+	
+		geMatrixMode(GE_MATRIX_PROJECTION);
+		geLoadIdentity();
+		//float range = 10.0 * expf((float)i * 1.0);
+		float range = 10.0 * powf(4.0, (float)i * light->shadow_factor);
+		//float range = 10.0 * powf(2.0, (float)i * 1.0);
+		geOrthogonal(-range, range, -range, range, 1.0, 5000.0);
+
+
+		float bias[16] = {
+			0.5, 0.0, 0.0, 0.0, 
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+		};
+		float* m_projection = geGetMatrix(GE_MATRIX_PROJECTION);
+		float* m_view = geGetMatrix(GE_MATRIX_VIEW);
+
+		float m_1[16] = { 0.0 };
+		geMatrix44Mult(m_1, m_projection, m_view);
+		geMatrixMode(GE_MATRIX_TEXTURE7 - i);
+		geLoadMatrix(bias);
+		geMatrixMult(m_1);
+	
+		//geForceCap(GL_DEPTH_TEST, false);
+		render(udata);
+		//geForceCap(GL_DEPTH_TEST, -1);
+	}
+	
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	glFrontFace(GL_CW);
+	
+	geForceShader(NULL);
+	geFramebufferUse(NULL);
+//	geClearMode(last_clear_mode);
+	glEnable(GL_SCISSOR_TEST);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	geViewport(0, 0, geGetContext()->width, geGetContext()->height);
+}

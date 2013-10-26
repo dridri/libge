@@ -15,7 +15,6 @@ struct ge_struct_Light {
 	vec3 targetVector;
 	float CosOuterConeAngle;
 	float CosInnerMinusOuterAngle;
-//	sampler2DArray shadow;
 };
 struct ge_struct_material {
 	vec4 ambient;
@@ -28,6 +27,7 @@ uniform int ge_DynamicLightsCount;
 uniform int ge_StaticLightsCount;
 uniform ge_struct_Light ge_StaticLights[8];
 uniform ge_struct_Light ge_DynamicLights[];
+uniform sampler2DArray ge_LightShadows[8];
 
 // Materials
 uniform ge_struct_material ge_FrontMaterial;

@@ -323,20 +323,20 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 
 void geShaderUse(ge_Shader* shader){
 	if(!libge_context->shaders_available)return;
-	ge_current_shader = shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;
 	}
+	ge_current_shader = shader;
 	if(!shader){
 		glUseProgram(0);
 		if(libge_context->drawing_mode & GE_DRAWING_MODE_2D){
 			geShaderUse(_ge_GetVideoContext()->shader2d);
 		}
-		return;
+	}else{
+		glUseProgram(shader->programId);
+		geMatrixLocations();
+//		ge_draw_object_set_shader(shader);
 	}
-	glUseProgram(shader->programId);
-	geMatrixLocations();
-//	ge_draw_object_set_shader(shader);
 }
 
 void geForceShader(ge_Shader* sh){

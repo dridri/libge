@@ -3,7 +3,7 @@ smooth in vec3 normal, lightDir, halfVector;
 void main(){
 	vec3 n, halfV;
 	float NdotL, NdotHV;
-	vec4 light_color = vec4(0.2, 0.2, 0.2, 0.0);
+	vec4 light_color = vec4(0.2, 0.2, 0.2, 1.0);
 
 	n = normalize(normal);
 	NdotL = max(dot(n,lightDir),0.0);

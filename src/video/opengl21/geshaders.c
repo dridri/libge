@@ -306,10 +306,10 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 
 void geShaderUse(ge_Shader* shader){
 	if(!libge_context->shaders_available)return;
-	ge_current_shader = shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;
 	}
+	ge_current_shader = shader;
 	if(!shader){
 		glUseProgram(0);
 		return;

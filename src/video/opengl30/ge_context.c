@@ -143,8 +143,8 @@ void geBlendFunc(int src, int dst){
 	}
 }
 
-void geDepthRange(float near, float far){
-	glDepthRange(near, far);
+void geDepthRange(float _near, float _far){
+	glDepthRange(_near, _far);
 }
 
 int geDrawingMode(int mode){

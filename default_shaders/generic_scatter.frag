@@ -63,7 +63,7 @@ void main(){
 		int i;
 		float dist;
 		vec2 frag_coord_norm = vec2(frag_coord.x*ge_ScreenRatio, frag_coord.y);
-		coord.y += 1.0;
+	//	coord.y += 1.0;
 
 		color = texture(ge_Texture, ge_TexCoord0.st);
 		for(i=0; i<nLights; i++){
