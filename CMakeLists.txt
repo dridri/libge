@@ -42,7 +42,7 @@ if(${video} MATCHES OFF)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-if(!WIN32)
+if(NOT WIN32)
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 find_package(Freetype REQUIRED)
@@ -219,6 +219,8 @@ elseif(UNIX)
 		pthread
 		)
 endif()
+
+message(STATUS "LIBS : ${LIBS}")
 
 target_link_libraries(ge ${LIBS})
 
