@@ -173,8 +173,11 @@ static bool pending_wdown_release = false;
 
 static bool changed = false;
 static bool _to_close = false;
+static bool reset = false;
 
 static ge_Thread* ev_thid = NULL;
+
+static int new_w=0, new_h=0;
 
 int _ev_thread(int args, void* argp){
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)argp;
@@ -195,6 +198,10 @@ int _ev_thread(int args, void* argp){
 					if (event.xclient.data.l[0] == XInternAtom(context->dpy, "WM_DELETE_WINDOW", False)){
 						finished = true;
 					}
+					break;
+				case ConfigureNotify:
+					new_w = event.xconfigure.width;
+					new_h = event.xconfigure.height;
 					break;
 					/*
 				case ConfigureNotify:
@@ -258,27 +265,22 @@ int _ev_thread(int args, void* argp){
 					}
 					break;
 				case MotionNotify:
+					/*
 					if(changed){
 						changed = false;
 						continue;
 					}
 					if(libge_context->mouse_round){
+						if(reset){
+							warp_x = warp_y = 0;
+							reset = false;
+						}
 						warp_x += event.xmotion.x - libge_context->width / 2;
 						warp_y += event.xmotion.y - libge_context->height / 2;
 						libge_context->mouse_x = libge_context->width / 2;
 						libge_context->mouse_y = libge_context->height / 2;
 						changed = true;
 						XWarpPointer(context->dpy, context->win, context->win, 0, 0, 0, 0, libge_context->mouse_x, libge_context->mouse_y);
-						/*
-						mouse_warp_x = event.xmotion.x - libge_context->width / 2;
-						mouse_warp_y = event.xmotion.y - libge_context->height / 2;
-						libge_context->mouse_x = libge_context->width / 2;
-						libge_context->mouse_y = libge_context->height / 2;
-					//	mouse_warp_x *= 0.5f;
-					//	mouse_warp_y *= 0.5f;
-						changed = true;
-						XWarpPointer(context->dpy, context->win, context->win, 0, 0, 0, 0, libge_context->mouse_x, libge_context->mouse_y);
-						*/
 					}else{
 						mouse_last_x = libge_context->mouse_x;
 						mouse_last_y = libge_context->mouse_y;
@@ -287,6 +289,7 @@ int _ev_thread(int args, void* argp){
 						mouse_warp_x = libge_context->mouse_x-mouse_last_x;
 						mouse_warp_y = libge_context->mouse_y-mouse_last_y;
 					}
+					*/
 					break;
 				default:
 					break;
@@ -322,12 +325,41 @@ int LinuxSwapBuffers(){
 		keys_released[GEK_MWHEELDOWN] = true;
 		pending_wdown_release = false;
 	}
-
+/*
 	mouse_warp_x = warp_x;
 	mouse_warp_y = warp_y;
-	warp_x = warp_y = 0;
+	reset = true;
+*/
+	int unused, mx, my;
+	Window unwin;
+	if(XQueryPointer(context->dpy, context->win, &unwin, &unwin, &unused, &unused, &mx, &my, (u32*)&unused)){
+		if(libge_context->mouse_round){
+			mouse_warp_x = mx - libge_context->width / 2;
+			mouse_warp_y = my - libge_context->height / 2;
+			libge_context->mouse_x = libge_context->width / 2;
+			libge_context->mouse_y = libge_context->height / 2;
+			changed = true;
+			XWarpPointer(context->dpy, context->win, context->win, 0, 0, 0, 0, libge_context->mouse_x, libge_context->mouse_y);
+		}else{
+			mouse_last_x = libge_context->mouse_x;
+			mouse_last_y = libge_context->mouse_y;
+			libge_context->mouse_x = mx;
+			libge_context->mouse_y = my;
+			mouse_warp_x = libge_context->mouse_x - mouse_last_x;
+			mouse_warp_y = libge_context->mouse_y - mouse_last_y;
+		}
+	}
+
 
 	glXSwapBuffers(context->dpy, context->win);
+
+	if(new_w > 0 && new_h > 0 && (new_w != libge_context->width || new_h != libge_context->height)){
+		libge_context->width = new_w;
+		libge_context->height = new_h;
+		libge_context->projection_matrix[0] = (float)0xFFFFFFFF;
+		geGraphicsInit();
+		geDrawingMode(libge_context->drawing_mode | 0xF0000000);
+	}
 
 	if(_to_close){
 		CloseFullScreen();
