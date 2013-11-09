@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x -g3")
 add_definitions(-DLIBGE_LIB)
+#add_definitions(-DOPENCL)
 
 option(target "target" )
 option(video "video" )
@@ -43,16 +44,16 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(NOT WIN32)
-find_package(PNG REQUIRED)
-find_package(JPEG REQUIRED)
-find_package(Freetype REQUIRED)
-find_package(Lua52 REQUIRED)
-find_package(ZLIB REQUIRED)
-include_directories(${PNG_INCLUDE_DIRS})
-include_directories(${JPEG_INCLUDE_DIRS})
-include_directories(${FREETYPE_INCLUDE_DIRS})
-include_directories(${LUA_INCLUDE_DIRS})
-include_directories(${ZLIB_INCLUDE_DIRS})
+	find_package(PNG REQUIRED)
+	find_package(JPEG REQUIRED)
+	find_package(Freetype REQUIRED)
+	find_package(Lua52 REQUIRED)
+	find_package(ZLIB REQUIRED)
+	include_directories(${PNG_INCLUDE_DIRS})
+	include_directories(${JPEG_INCLUDE_DIRS})
+	include_directories(${FREETYPE_INCLUDE_DIRS})
+	include_directories(${LUA_INCLUDE_DIRS})
+	include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
 add_definitions(-DPLATFORM_${target})
@@ -107,6 +108,7 @@ set(SOURCES
 	src/gesocket.c
 	src/geutils.c
 	src/gesys.c
+#	src/gecl.c
 	)
 
 if("${ARCH}" MATCHES "64")
@@ -209,6 +211,7 @@ elseif(UNIX)
 	set(LIBS
 		m
 		mad
+#		OpenCL
 		${OPENGL_LIBRARIES}
 		${LUA_LIBRARY}
 		${JPEG_LIBRARY}

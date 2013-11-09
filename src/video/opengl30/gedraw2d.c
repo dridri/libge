@@ -47,6 +47,7 @@ static void InitDraw(ge_Image* tex, int mode){
 		glUniform1i(glGetUniformLocation(ge_current_shader->programId, "ge_Texture"), 0);
 	}else{
 		if(ge_current_shader == _ge_GetVideoContext()->shader2d){
+			glBindTexture(GL_TEXTURE_2D, 0);
 			geShaderUniform1f(ge_current_shader->loc_HasTexture, 0.0);
 		}
 	}

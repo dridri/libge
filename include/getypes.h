@@ -192,7 +192,6 @@ typedef struct ge_Vertex {
 } ge_Vertex;
 #endif
 
-
 typedef struct ge_Gl_Loc_Light {
 	s32 loc_flags;
 	s32 loc_position;

@@ -271,22 +271,25 @@ void geFontMeasureText(ge_Font* font, const char* text, int* width, int* height)
 
 	geFontMeasureTextUnicode(font, _ge_uni_text, width, height);
 	*/
-	
-	int len = strlen(text);
+
 	int i = 0;
 	int mx = 0;
 	int x = 0;
 	int y = 0;
 
-	for(i=0; i<len; i++){
+	for(i=0; text[i]; i++){
 		if(text[i] == '\n'){
 			if(x > mx){
 				mx = x;
 			}
+			x = 0;
 			y += font->size;
 			continue;
 		}
 		x += font->positions[(u8)text[i]].advX;
+	}
+	if(x > mx){
+		mx = x;
 	}
 	if(mx == 0){
 		mx = x;

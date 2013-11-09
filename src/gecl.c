@@ -59,7 +59,7 @@ cl_platform_id ge_ClGetPlatform(ge_Cl* cl){
 				break;
 			}
 		}
-		free(platforms);
+		geFree(platforms);
 	}
 	return platform;
 }
@@ -74,7 +74,7 @@ ge_Cl* geCreateCl(const char* name, int preferred_type, const char* file){
 
 	printf("\nGE::CL::Initialize OpenCL object and context\n");
 	platform = ge_ClGetPlatform(cl);
-	printf("GE::CL::PlatformID: %d\n", (u32)platform);
+	printf("GE::CL::PlatformID: %ld\n", (t_ptr)platform);
 	cl->err = clGetDeviceIDs(platform, preferred_type, 0, NULL, &numDevices);
 	printf("GE::CL::clGetDeviceIDs (get number of devices): %d\n", numDevices);
 	devices = (cl_device_id*)geMalloc(sizeof(cl_device_id)*numDevices);

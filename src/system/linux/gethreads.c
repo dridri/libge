@@ -39,6 +39,8 @@ ge_Thread* geCreateThread(const char* name, void* func, int flags){
 	thread->func = func;
 
 	if(thread->flags & GE_THREAD_SHARED_GRAPHIC_CONTEXT){
+		LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
+		thread->graphic_ctx = (t_ptr)glXCreateContext(context->dpy, context->vi, context->ctx, true);
 	}else
 	if(thread->flags & GE_THREAD_GRAPHIC_CONTEXT){
 	}
@@ -68,7 +70,7 @@ int thread_start_point(void* p){
 	
 	if(thread->flags & GE_THREAD_SHARED_GRAPHIC_CONTEXT || thread->flags & GE_THREAD_GRAPHIC_CONTEXT){
 		LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
-		thread->graphic_ctx = (u64)glXCreateContext(context->dpy, NULL, 0, true);
+		glXMakeCurrent(context->dpy, context->win, (GLXContext)thread->graphic_ctx);
 	}
 
 	signal(SIGUSR1, (void*)&SIGUSR1Handler);
@@ -97,6 +99,11 @@ void geThreadStart(ge_Thread* thread, int args, void* argp){
 	p[3] = (unsigned long)argp;
 
 	pthread_t hThread;
+	pthread_attr_t attr;
+
+//	void* stack = malloc(32 * 1024 * 1024);
+//	pthread_attr_init(&attr);
+//	pthread_attr_setstack(&attr, &stack, 32 * 1024 * 1024);
 
 	pthread_create(&hThread, NULL, (void*)&thread_start_point, p);
 	thread->handle = (unsigned long)hThread;

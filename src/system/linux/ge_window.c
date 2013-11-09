@@ -38,6 +38,7 @@ void _ge_exit(){
 
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	initializing = true;
+	XInitThreads();
 
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)geMalloc(sizeof(LibGE_LinuxContext));
 	libge_context->syscontext = (unsigned long)context;
@@ -50,7 +51,6 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	libge_context->height = Height;
 	context->fs = flags & GE_WINDOW_FULLSCREEN;
 
-	XVisualInfo *vi;
 	Colormap cmap;
 	Window winDummy;
 	unsigned int borderDummy;
@@ -59,11 +59,11 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	context->screen = DefaultScreen(context->dpy);
 
 	// get an appropriate visual
-	vi = glXChooseVisual(context->dpy, context->screen, attributes);
+	context->vi = glXChooseVisual(context->dpy, context->screen, attributes);
 	context->doubleBuffered = True;
 
 	// create a color map
-	cmap = XCreateColormap(context->dpy, RootWindow(context->dpy, vi->screen), vi->visual, AllocNone);
+	cmap = XCreateColormap(context->dpy, RootWindow(context->dpy, context->vi->screen), context->vi->visual, AllocNone);
 	context->attr.colormap = cmap;
 	context->attr.border_pixel = 0;
 	context->attr.background_pixmap = None;
@@ -79,18 +79,20 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		win_size_hints->base_height = libge_context->height;
 	}
 
-	if (context->fs){
+	if(context->fs){
+		context->attr.override_redirect = True;
 	}else{
-		// create a window in window mode
-		context->attr.event_mask = event_mask;
-		context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, vi->screen), 0, 0, libge_context->width, libge_context->height, 0, vi->depth, InputOutput, vi->visual, CWBorderPixel | CWBackPixmap | CWColormap | CWEventMask, &context->attr);
-		// only set window title and handle wm_delete_events if in windowed mode 
-		XSetStandardProperties(context->dpy, context->win, title, title, None, NULL, 0, NULL);
-		XMapRaised(context->dpy, context->win);
+		context->attr.override_redirect = False;
 	}
+	// create a window in window mode
+	context->attr.event_mask = event_mask;
+	context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, context->vi->screen), 0, 0, libge_context->width, libge_context->height, 0, context->vi->depth, InputOutput, context->vi->visual, CWBorderPixel | CWBackPixmap | CWColormap | CWEventMask | CWOverrideRedirect, &context->attr);
+	// only set window title and handle wm_delete_events if in windowed mode 
+	XSetStandardProperties(context->dpy, context->win, title, title, None, NULL, 0, NULL);
+	XMapRaised(context->dpy, context->win);
 
 	// create a GLX context
-	context->ctx = glXCreateContext(context->dpy, vi, 0, true);
+	context->ctx = glXCreateContext(context->dpy, context->vi, 0, true);
 
 	Atom wmDelete = XInternAtom(context->dpy, "WM_DELETE_WINDOW", True);
 	XSetWMProtocols(context->dpy, context->win, &wmDelete, 1);
@@ -154,6 +156,7 @@ void geWaitVsync(int enabled){
 
 short mouse_last_x=0, mouse_last_y=0;
 short mouse_warp_x=0, mouse_warp_y=0;
+short warp_x=0, warp_y=0;
 
 int smooth_x=0, smooth_y=0;
 short mouse_last_smooth_x=0, mouse_last_smooth_y=0;
@@ -171,6 +174,170 @@ static bool pending_wdown_release = false;
 static bool changed = false;
 static bool _to_close = false;
 
+static ge_Thread* ev_thid = NULL;
+
+int _ev_thread(int args, void* argp){
+	LibGE_LinuxContext* context = (LibGE_LinuxContext*)argp;
+	u32 ticks = geGetTick();
+	bool finished = false;
+	int key = 0;
+
+	while(1){
+//		mouse_warp_x = mouse_warp_y = 0;
+		while(XPending(context->dpy)){
+			XNextEvent(context->dpy, &event);
+		//	if(event.type)printf("event: %d\n", event.type);
+			switch (event.type){
+				case ClientMessage:	
+					if (*XGetAtomName(context->dpy, event.xclient.message_type) == *"WM_PROTOCOLS"){
+						finished = true;
+					}
+					if (event.xclient.data.l[0] == XInternAtom(context->dpy, "WM_DELETE_WINDOW", False)){
+						finished = true;
+					}
+					break;
+					/*
+				case ConfigureNotify:
+					if(event.xexpose.width!=libge_context->width || event.xexpose.height!=libge_context->height){
+						libge_context->width = event.xconfigure.width;
+						libge_context->height = event.xconfigure.height;
+						libge_context->projection_matrix[0] = (float)0xFFFFFFFF;
+						geGraphicsInit();
+						geDrawingMode(libge_context->drawing_mode | 0xF0000000);
+					}
+					break;
+					*/
+				case KeymapNotify:
+					XRefreshKeyboardMapping(&event.xmapping);
+					break;
+				case KeyPress:
+					key = (int)XLookupKeysym(&event.xkey, 0);
+					if(key >= 0xFF00){
+						key -= 0xFF00;
+					}
+					if(key >= 'a' && key <= 'z'){
+						key += ('A' - 'a');
+					}
+					{
+						char str[25];
+						int len;
+						KeySym keysym;
+						len = XLookupString(&event.xkey, str, 25, &keysym, NULL);
+						last_pressed = (u8)str[0];
+					}
+					keys_pressed[key] = true;
+					keys_released[key] = false;
+					if(keys_pressed[GEK_LALT] && keys_pressed[GEK_F4]){
+						finished = true;
+					}
+					break;
+				case KeyRelease:
+					key = (int)XLookupKeysym(&event.xkey, 0);
+					if(key >= 0xFF00){
+						key -= 0xFF00;
+					}
+					if(key >= 'a' && key <= 'z'){
+						key += ('A' - 'a');
+					}
+					keys_pressed[key] = false;
+					keys_released[key] = true;
+					break;
+				case ButtonPress:
+					keys_pressed[event.xbutton.button] = true;
+					keys_released[event.xbutton.button] = false;
+					break;
+				case ButtonRelease:
+					if(event.xbutton.button == GEK_MWHEELUP){
+						pending_wup_release = true;
+					}else
+					if(event.xbutton.button == GEK_MWHEELDOWN){
+						pending_wdown_release = true;
+					}else{
+						keys_pressed[event.xbutton.button] = false;
+						keys_released[event.xbutton.button] = true;
+					}
+					break;
+				case MotionNotify:
+					if(changed){
+						changed = false;
+						continue;
+					}
+					if(libge_context->mouse_round){
+						warp_x += event.xmotion.x - libge_context->width / 2;
+						warp_y += event.xmotion.y - libge_context->height / 2;
+						libge_context->mouse_x = libge_context->width / 2;
+						libge_context->mouse_y = libge_context->height / 2;
+						changed = true;
+						XWarpPointer(context->dpy, context->win, context->win, 0, 0, 0, 0, libge_context->mouse_x, libge_context->mouse_y);
+						/*
+						mouse_warp_x = event.xmotion.x - libge_context->width / 2;
+						mouse_warp_y = event.xmotion.y - libge_context->height / 2;
+						libge_context->mouse_x = libge_context->width / 2;
+						libge_context->mouse_y = libge_context->height / 2;
+					//	mouse_warp_x *= 0.5f;
+					//	mouse_warp_y *= 0.5f;
+						changed = true;
+						XWarpPointer(context->dpy, context->win, context->win, 0, 0, 0, 0, libge_context->mouse_x, libge_context->mouse_y);
+						*/
+					}else{
+						mouse_last_x = libge_context->mouse_x;
+						mouse_last_y = libge_context->mouse_y;
+						libge_context->mouse_x = event.xmotion.x;
+						libge_context->mouse_y = event.xmotion.y;
+						mouse_warp_x = libge_context->mouse_x-mouse_last_x;
+						mouse_warp_y = libge_context->mouse_y-mouse_last_y;
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		if(finished){
+			_to_close = true;
+			finished = false;
+			geSleep(1000);
+			exit(0);
+		}
+		ticks = geWaitTick(1000 / 120, ticks);
+	}
+
+	return 0;
+}
+
+int LinuxSwapBuffers(){
+	LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
+
+	if(ev_thid == NULL){
+		ev_thid = geCreateThread("LibGE Event Thread", _ev_thread, 0);
+		geThreadStart(ev_thid, sizeof(LibGE_LinuxContext*), context);
+	}
+
+	if(pending_wup_release){
+		keys_pressed[GEK_MWHEELUP] = false;
+		keys_released[GEK_MWHEELUP] = true;
+		pending_wup_release = false;
+	}
+	if(pending_wdown_release){
+		keys_pressed[GEK_MWHEELDOWN] = false;
+		keys_released[GEK_MWHEELDOWN] = true;
+		pending_wdown_release = false;
+	}
+
+	mouse_warp_x = warp_x;
+	mouse_warp_y = warp_y;
+	warp_x = warp_y = 0;
+
+	glXSwapBuffers(context->dpy, context->win);
+
+	if(_to_close){
+		CloseFullScreen();
+		exit(0);
+	}
+
+	return (current_buf^=1);
+}
+
+/*
 int LinuxSwapBuffers(){
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)libge_context->syscontext;
 
@@ -196,11 +363,7 @@ int LinuxSwapBuffers(){
 	//	if(event.type)printf("event: %d\n", event.type);
 		switch (event.type){
 			case ClientMessage:	
-			//	printf("Atom: \"%s\"\n", XGetAtomName(context->dpy, event.xclient.message_type));
 				if (*XGetAtomName(context->dpy, event.xclient.message_type) == *"WM_PROTOCOLS"){
-					/*
-					ge_event.type = GE_EVENT_WINDOW_CLOSE;
-					*/
 					finished = true;
 				}
 				if (event.xclient.data.l[0] == XInternAtom(context->dpy, "WM_DELETE_WINDOW", False)){
@@ -209,7 +372,6 @@ int LinuxSwapBuffers(){
 				break;
 			case ConfigureNotify:
 				if(event.xexpose.width!=libge_context->width || event.xexpose.height!=libge_context->height){
-				//	printf("expose : %d, %d, %d, %d\n", event.xconfigure.x, event.xconfigure.y, event.xconfigure.width, event.xconfigure.height);
 					libge_context->width = event.xconfigure.width;
 					libge_context->height = event.xconfigure.height;
 					libge_context->projection_matrix[0] = (float)0xFFFFFFFF;
@@ -233,17 +395,12 @@ int LinuxSwapBuffers(){
 					int len;
 					KeySym keysym;
 					len = XLookupString(&event.xkey, str, 25, &keysym, NULL);
-				//	printf("input : '%s' [%d] (%d)\n", str, (u8)str[0], len);
 					last_pressed = (u8)str[0];
 				}
-				//printf("----------------- PRESS KEY %d ---------------------\n", key);
 				keys_pressed[key] = true;
 				keys_released[key] = false;
 				if(keys_pressed[GEK_LALT] && keys_pressed[GEK_F4]){
 					finished = true;
-					/*
-					ge_event.type = GE_EVENT_WINDOW_CLOSE;
-					*/
 				}
 				break;
 			case KeyRelease:
@@ -258,12 +415,10 @@ int LinuxSwapBuffers(){
 				keys_released[key] = true;
 				break;
 			case ButtonPress:
-			//	printf("----------------- PRESS BUTTON %d ---------------------\n", event.xbutton.button);
 				keys_pressed[event.xbutton.button] = true;
 				keys_released[event.xbutton.button] = false;
 				break;
 			case ButtonRelease:
-			//	printf("----------------- RELEASE BUTTON %d ---------------------\n", event.xbutton.button);
 				if(event.xbutton.button == GEK_MWHEELUP){
 					pending_wup_release = true;
 				}else
@@ -280,28 +435,6 @@ int LinuxSwapBuffers(){
 					continue;
 				}
 				if(libge_context->mouse_round){
-					/*
-					if(libge_context->mouse_x <= 100){
-						libge_context->mouse_x = libge_context->width-150;
-						mouse_last_x += libge_context->width-250;
-						changed = true;
-					}
-					if(libge_context->mouse_x >= libge_context->width-100){
-						libge_context->mouse_x = 150;
-						mouse_last_x -= libge_context->width-250;
-						changed = true;
-					}
-					if(libge_context->mouse_y <= 100){
-						libge_context->mouse_y = libge_context->height-150;
-						mouse_last_y += libge_context->height-250;
-						changed = true;
-					}
-					if(libge_context->mouse_y >= libge_context->height-100){
-						libge_context->mouse_y = 150;
-						mouse_last_y -= libge_context->height-250;
-						changed = true;
-					}
-					*/
 					mouse_warp_x = event.xmotion.x - libge_context->width / 2;
 					mouse_warp_y = event.xmotion.y - libge_context->height / 2;
 					libge_context->mouse_x = libge_context->width / 2;
@@ -334,7 +467,7 @@ int LinuxSwapBuffers(){
 	changed = false;
 	return (current_buf^=1);
 }
-
+*/
 void geCursorPosition(int* x, int* y){
 	*x = libge_context->mouse_x;
 	*y = libge_context->mouse_y;

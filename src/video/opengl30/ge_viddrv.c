@@ -111,13 +111,25 @@ void geInitVideo(){
 void InitMipmaps(ge_Image* image, int max){
 	if(!max)return;
 	int i = 0;
-	int w=image->textureWidth, h=image->textureHeight;
+	int w=image->textureWidth, h=image->textureHeight, d=0;
+	if((image->flags & GE_IMAGE_3D) || (image->flags & GE_IMAGE_ARRAY)){
+		d = ((ge_Image3D*)image)->textureDepth;
+	}
 
-	for(i=0; i<max; i++){
+	for(i=0; i<max && w>0 && h>0; i++){
 		w /= 2;
 		h /= 2;
-		glTexImage2D(GL_TEXTURE_2D, i+1, GL_RGBA/*4*/, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		libge_context->gpumem += w*h*sizeof(u32);
+		if(image->flags & GE_IMAGE_3D){
+			d /= 2;
+			glTexImage3D(GL_TEXTURE_3D, i+1, GL_RGBA8, w, h, d, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			libge_context->gpumem += w*h*d*sizeof(u32);
+		}else if(image->flags & GE_IMAGE_ARRAY){
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, i+1, GL_RGBA8, w, h, d, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			libge_context->gpumem += w*h*d*sizeof(u32);
+		}else{
+			glTexImage2D(GL_TEXTURE_2D, i+1, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			libge_context->gpumem += w*h*sizeof(u32);
+		}
 	}
 }
 
@@ -310,25 +322,68 @@ void UpdateGlTexture3D(ge_Image3D* image){
 	image->v = (float)image->height / (float)image->textureHeight;
 	printf("UpdateGlTexture3D 2\n");
 
+	int target = image->flags & GE_IMAGE_ARRAY ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_3D;
+
 	if(!image->id){
 		glGenTextures(1, &image->id);
-		glBindTexture(GL_TEXTURE_3D, image->id);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA/*4*/, image->textureWidth, image->textureHeight, image->textureDepth, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glBindTexture(target, image->id);
+		glTexImage3D(target, 0, GL_RGBA8, image->textureWidth, image->textureHeight, image->textureDepth, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		libge_context->gpumem += image->textureWidth*image->textureHeight*sizeof(u32);
-	//	InitMipmaps(image, mipmap_detail);
+/*
+		if(!(image->flags & GE_IMAGE_NO_MIPMAPS)){
+			glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 1);
+			InitMipmaps((ge_Image*)image, 8);
+		}
+*/
 	}
 	
 	printf("UpdateGlTexture3D 3\n");
-	glBindTexture(GL_TEXTURE_3D, image->id);
-	glTexSubImage3D(GL_TEXTURE_3D, 0, 0, 0, 0, image->textureWidth, image->textureHeight, image->textureDepth, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+	glBindTexture(target, image->id);
+	glTexSubImage3D(target, 0, 0, 0, 0, image->textureWidth, image->textureHeight, image->textureDepth, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+
+	if(!(image->flags & GE_IMAGE_NO_MIPMAPS)){
+		if(image->flags & GE_IMAGE_3D){
+			glGenerateMipmap(GL_TEXTURE_3D);
+		}else if(image->flags & GE_IMAGE_ARRAY){
+			gePrintDebug(0x100, "Making 3D mipmaps at %d level\n", 8);
+			glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+/*
+			int i, j;
+			int w=image->textureWidth, h=image->textureHeight, d=image->textureDepth;
+			u32* mipmaps[16];
+			mipmaps[0] = image->data;
+			for(i=0; i<8 && w>0 && h>0; i++){
+				w /= 2;
+				h /= 2;
+				u32* mipmap = (u32*)geMalloc(sizeof(u32) * w * h * d);
+				mipmaps[i+1] = mipmap;
+				for(j=0; j<d; j++){
+				//	MakeSubImage(&mipmaps[i+1][w*h*j], &mipmaps[i][w*2*h*2*j], w*2, h*2, 1, 2.0);
+				}
+				memset(mipmap, 0xFF, sizeof(u32) * w * h * d);
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, i+1, 0, 0, 0, w, h, d, GL_RGBA, GL_UNSIGNED_BYTE, mipmap);
+			//	libge_context->gpumem += w*h*d*sizeof(u32);
+				if(i>0)geFree(mipmaps[i]);
+			}
+			geFree(mipmaps[i]);
+*/
+		}
+		glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//	glTexParameterf(target, GL_TEXTURE_MIN_LOD, -2.0);
+	//	glTexParameterf(target, GL_TEXTURE_MAX_LOD, 8-1);
+	}else{
+		glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
 	printf("UpdateGlTexture3D 4\n");
 
-	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glBindTexture(GL_TEXTURE_3D, 0);
+	glBindTexture(target, 0);
 	printf("UpdateGlTexture3D 5\n");
 }
 
@@ -420,7 +475,11 @@ ge_Image* geAddTexture(ge_Image* tex){
 }
 
 void geUpdateImage(ge_Image* img){
-	UpdateGlTexture(img, 0);
+	if((img->flags & GE_IMAGE_3D) || (img->flags & GE_IMAGE_ARRAY)){
+		UpdateGlTexture3D((ge_Image3D*)img);
+	}else{
+		UpdateGlTexture(img, 0);
+	}
 }
 
 void geDeleteImage(ge_Image* img){
@@ -431,6 +490,10 @@ void geDeleteImage(ge_Image* img){
 void geTextureImage(int unit, ge_Image* img){
 	if(img){
 		glActiveTexture(GL_TEXTURE0+unit);
+		if(img->flags & GE_IMAGE_ARRAY){
+			glBindTexture(GL_TEXTURE_2D_ARRAY, img->id);
+			glEnable(GL_TEXTURE_3D);
+		}else
 		if(img->flags & GE_IMAGE_3D){
 			glBindTexture(GL_TEXTURE_3D, img->id);
 			glEnable(GL_TEXTURE_3D);

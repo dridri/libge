@@ -31,6 +31,7 @@ typedef struct LibGE_LinuxContext {
 	int depth;
 	
 	Display *dpy;
+	XVisualInfo *vi;
 	int screen;
 	Window win;
 	GLXContext ctx;
