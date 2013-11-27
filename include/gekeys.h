@@ -230,6 +230,23 @@ typedef struct ge_KeysExtension {
 
 #define GE_KEYS_COUNT	255
 
+#elif(defined(PLATFORM_mac))
+
+#define GEK_LBUTTON		1
+#define GEK_MBUTTON		2
+#define GEK_RBUTTON		3
+#define GEK_MWHEELUP	4
+#define GEK_MWHEELDOWN	5
+
+#define GEK_ENTER		0
+#define GEK_BACK		0
+#define GEK_UP			0
+#define GEK_DOWN		0
+#define GEK_LEFT		0
+#define GEK_RIGHT		0
+#define GEK_SPACE		62
+
+#define GE_KEYS_COUNT 0xff
 
 #else //Assume Linux
 //#elif(defined(LINUX))

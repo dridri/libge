@@ -229,10 +229,12 @@ void LoadRenderer(const char* path, ge_File* fp, ge_Scene* scene, ge_Renderer* r
 			geShaderLoadFragmentSource(render->shader, fl);
 		}
 	}
-	
+
+//#ifndef PLATFORM_mac
 	if(render->tesselated){
 		render->draw_mode = GE_PATCHES;
 	}
+//#endif
 	gePrintDebug(0x100, "LoadRenderer 3\n");
 	geRendererCreateContext(scene, render);
 	gePrintDebug(0x100, "LoadRenderer 4\n");

@@ -68,12 +68,15 @@ void geInitVideo(){
 	load_func(glBlendEquation);
 	load_func(glBlendColor);
 */
+
 #ifdef WIN32
 	load_func(glBlendEquation);
 	load_func(glTexImage3D);
 	load_func(glTexSubImage3D);
 	load_func(glTexImage2DMultisample);
 #endif
+
+#ifndef PLATFORM_mac
 	load_func(glActiveTexture);
 
 	load_func(glGenBuffers);
@@ -104,8 +107,10 @@ void geInitVideo(){
 	load_func(glBindRenderbuffer);
 	load_func(glRenderbufferStorageMultisample);
 	load_func(glFramebufferRenderbuffer);
+#endif // PLATFORM_mac
 	
 	load_func(glPatchParameteri);
+
 }
 
 void InitMipmaps(ge_Image* image, int max){
