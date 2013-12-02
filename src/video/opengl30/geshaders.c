@@ -37,11 +37,12 @@ int geInitShaders(){
 	ext += geCheckExtensionAvailable("GL_ARB_shader_objects");
 	ext += geCheckExtensionAvailable("GL_ARB_vertex_shader");
 	ext += geCheckExtensionAvailable("GL_ARB_fragment_shader");
-	if(ext == 4){
+	if(true){ // OpenGL 3.0+ should support shaders
 		libge_context->shaders_available = true;
 	}
 
 	if(libge_context->shaders_available){
+#ifndef PLATFORM_mac
 		load_func(glCreateShader);
 		load_func(glShaderSource);
 		load_func(glCompileShader);
@@ -75,6 +76,7 @@ int geInitShaders(){
 		load_func(glUniformMatrix3fv);
 		load_func(glUniformMatrix4fv);
 		load_func(glGetUniformfv);
+#endif
 	}else{
 		return -1;
 	}
@@ -237,11 +239,19 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 		buf = (char*)geMalloc(sizeof(char)*(srclen + headerlen + 256));
 		sprintf(fullheader, "%s\n", header);
 		//sprintf(buf, "%s%s", fullheader, src);
+#ifdef PLATFORM_mac
+		sprintf(buf, "#version 150\n%s%s", fullheader, src);
+#else
 		sprintf(buf, "#version 130\n%s%s", fullheader, src);
+#endif
 	}else{
 		buf = (char*)geMalloc(sizeof(char)*(srclen + 256));
 	//	strcpy(buf, src);
+#ifdef PLATFORM_mac
+		sprintf(buf, "#version 150\n%s", src);
+#else
 		sprintf(buf, "#version 130\n%s", src);
+#endif
 	}
 	gePrintDebug(0x100, "_geShaderSource : File computed\n");
 	glShaderSource(glId, 1, (const GLchar**)&buf, NULL);

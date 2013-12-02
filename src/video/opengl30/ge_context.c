@@ -21,6 +21,9 @@
 
 static char _ge_shader_ogl3_generic_2d_vert[] = 
 	"#define NO_DEFAULT_INCLUDE\n"
+#ifdef PLATFORM_mac
+	"#define smooth\n"
+#endif
 	"in vec3 ge_VertexTexcoord;\n"
 	"in vec4 ge_VertexColor;\n"
 	"in vec3 _ge_VertexPosition;\n"
@@ -35,6 +38,9 @@ static char _ge_shader_ogl3_generic_2d_vert[] =
 
 static char _ge_shader_ogl3_generic_2d_frag[] = 
 	"#define NO_DEFAULT_INCLUDE\n"
+#ifdef PLATFORM_mac
+	"#define smooth\n"
+#endif
 	"smooth in vec4 ge_Color;\n"
 	"smooth in vec2 ge_TexCoord0;\n"
 	"uniform sampler2D ge_Texture;\n"
@@ -153,8 +159,9 @@ int geDrawingMode(int mode){
 		if(mode & GE_DRAWING_MODE_2D){
 			glActiveTexture(GL_TEXTURE0);
 			glDisable(GL_CULL_FACE);
-		
+#ifndef PLATFORM_mac
 			glEnable(GL_ALPHA_TEST);
+#endif
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

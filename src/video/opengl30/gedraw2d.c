@@ -154,7 +154,7 @@ void geDrawLineScreenFadeDepth(int x0, int y0, int z0, int x1, int y1, int z1, u
 	geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 0.0);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glDisable(GL_ALPHA_TEST);
+//	glDisable(GL_ALPHA_TEST);
 	
 	InitDraw(NULL, GL_LINES);
 	ge_Vertex* vertex = ReserveVertices(2);
@@ -253,10 +253,10 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	}
 
 	if(flags & GE_BLIT_NOALPHA){
-		glDisable(GL_ALPHA_TEST);
+//		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
 	}else{
-		glEnable(GL_ALPHA_TEST);
+//		glEnable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
@@ -359,10 +359,10 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	}
 	
 	if(flags & GE_BLIT_NOALPHA){
-		glDisable(GL_ALPHA_TEST);
+//		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
 	}else{
-		glEnable(GL_ALPHA_TEST);
+//		glEnable(GL_ALPHA_TEST);
 		glEnable(GL_BLEND);
 		int b_src = libge_context->blend_src;
 		int b_dst = libge_context->blend_dst;
@@ -443,7 +443,7 @@ void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColo
 	y += font->size;
 	int z = 0;
 
-	glEnable(GL_ALPHA_TEST);
+//	glEnable(GL_ALPHA_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

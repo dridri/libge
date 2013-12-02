@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x -g3")
 add_definitions(-DLIBGE_LIB)
 #add_definitions(-DOPENCL)
@@ -14,6 +14,8 @@ option(video "video" )
 if(${target} MATCHES OFF)
 	if(WIN32)
 		set(target win)
+	elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		set(target mac)
 	elseif(UNIX)
 		set(target linux)
 	endif()
@@ -23,6 +25,10 @@ if("${target}" MATCHES "win*")
 	set(ARCH 64) ## TODO
 	set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
 	set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+elseif("${target}" MATCHES "mac*")
+	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	set(CMAKE_C_COMPILER gcc)
+	set(CMAKE_CXX_COMPILER g++)
 elseif("${target}" MATCHES "linux*")
 	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
 	set(platform linux)
@@ -127,6 +133,8 @@ endif()
 
 if(WIN32)
 	set(SOURCES ${SOURCES} src/system/win/gewinkeyboard.c)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(SOURCES ${SOURCES} src/system/mac/mac.m)
 elseif(UNIX)
 	set(SOURCES ${SOURCES} src/system/linux/gelinuxkeyboard.c)
 endif()
@@ -207,6 +215,22 @@ if(WIN32)
 		gdi32
 		user32
 		winmm)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
+	set(LIBS
+		objc
+		m
+		mad
+		${OPENGL_LIBRARIES}
+		${LUA_LIBRARY}
+		${JPEG_LIBRARY}
+		${PNG_LIBRARY}
+		${ZLIB_LIBRARY}
+		${FREETYPE_LIBRARY}
+		${ALSA_LIBRARY}
+		pthread
+		)
 elseif(UNIX)
 	set(LIBS
 		m

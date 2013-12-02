@@ -19,8 +19,16 @@
 #ifndef __GE_GL_H__
 #define __GE_GL_H__
 
+#ifdef PLATFORM_mac
+//#define GL3_PROTOTYPES 1
+#include <OpenGL/gl3.h>
+//#include <OpenGL/gl3ext.h>
+#include <GL/glext.h>
+#else
 #include <GL/gl.h>
 #include <GL/glext.h>
+#endif
+
 #ifdef WIN32
 #include <GL/wglext.h>
 #endif
@@ -30,10 +38,14 @@
 #define GLAPIENTRY APIENTRY
 #endif
 #define BUFFER_OFFSET(a) ((char*)NULL + (a))
-
+/*
+#ifndef GLsizeiptrARB
 typedef ptrdiff_t GLsizeiptrARB;
+#endif
+#ifndef GLintptrARB
 typedef ptrdiff_t GLintptrARB;
-
+#endif
+*/
 void* geglImportFunction(const char* func_name);
 int geCheckExtensionAvailable(const char* name);
 void UpdateGlTexture(ge_Image*, int);
@@ -44,6 +56,10 @@ typedef struct LibGE_VideoContext {
 } LibGE_VideoContext;
 
 LibGE_VideoContext* _ge_GetVideoContext();
+
+#ifndef GL_INTENSITY
+#define GL_INTENSITY 0x8049
+#endif
 
 #define define_proc(base, name) \
 	PFNGL##base##PROC name
@@ -99,6 +115,7 @@ define_proc(TEXSUBIMAGE3D, glTexSubImage3D);
 define_proc(TEXIMAGE2DMULTISAMPLE, glTexImage2DMultisample);
 #endif
 
+#ifndef PLATFORM_mac
 //Texturing
 define_proc(ACTIVETEXTURE, _glActiveTexture);
 #define glActiveTexture _glActiveTexture
@@ -175,6 +192,7 @@ define_proc(UNIFORMMATRIX3FV, glUniformMatrix3fv);
 define_proc(UNIFORMMATRIX4FV, glUniformMatrix4fv);
 define_proc(GETUNIFORMFV, glGetUniformfv);
 define_proc(VERTEXATTRIBPOINTER, glVertexAttribPointer);
+#endif // PLATFORM_mac
 
 //Tesselation
 define_proc(PATCHPARAMETERI, glPatchParameteri);

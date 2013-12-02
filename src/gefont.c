@@ -105,9 +105,9 @@ void geFreeFont(ge_Font* font){
 void geFontSize(ge_Font* font, int px){
 	ge_Font* tmp_font = NULL;
 	int i, x, y;
-	font->size = px;
 	switch(font->type){
 		case GE_FONT_SYS :
+			px = geGetNextPower2(px);
 			tmp_font = _ge_FontSetupDebug();
 			geFreeImage(font->texture);
 			font->texture = geResizeImage(tmp_font->texture, px*16, px*16, GE_NEAREST);
@@ -119,9 +119,9 @@ void geFontSize(ge_Font* font, int px){
 				font->positions[i].x = x;
 				font->positions[i].y = y;
 			//	font->positions[i].w = px;
-				font->positions[i].w = 6 * px / 8;
+				font->positions[i].w = 6.0f * px / 8.0f;
 				font->positions[i].h = px;
-				font->positions[i].advX = 6 * px / 8;
+				font->positions[i].advX = 6.0f * px / 8.0f;
 				font->positions[i].posY = px;
 			//	int adv = (font->texture->textureWidth/16);
 				int adv = px;
@@ -141,6 +141,7 @@ void geFontSize(ge_Font* font, int px){
 		default :
 			break;
 	}
+	font->size = px;
 }
 
 void geFontSetEncoding(ge_Font* font, int encoding){
