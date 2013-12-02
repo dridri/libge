@@ -91,7 +91,7 @@ void geGraphicsInit(){
 		geFreeImage(libge_context->fontbuf);
 		libge_context->fontbuf = NULL;
 	}
-	libge_context->fontbuf = geCreateSurface(libge_context->width, libge_context->height, 0x00000000);
+//	libge_context->fontbuf = geCreateSurface(libge_context->width, libge_context->height, 0x00000000);
 }
 
 int geEnable(int what){
