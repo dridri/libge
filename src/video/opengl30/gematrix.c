@@ -500,7 +500,9 @@ void geUpdateMatrix(){
 	glActiveTexture(GL_TEXTURE0);
 	if(!ge_current_shader)return;
 	GLdouble cp[4] = { ge_clip_plane[0], ge_clip_plane[1], ge_clip_plane[2], ge_clip_plane[3] };
+#ifndef PLATFORM_mac
 	glClipPlane(GL_CLIP_PLANE0, cp);
+#endif
 }
 
 void geUpdateCurrentMatrix(){

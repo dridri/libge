@@ -75,6 +75,7 @@ int ge_clouds_thread(int args, void* argp){
 
 ge_Object* ref = NULL;
 void DrawClouds(ge_Scene* scene){
+/*
 	glEnable(GL_BLEND);
 	glDepthFunc(GL_ALWAYS);
 //	glDepthFunc(GL_LEQUAL);
@@ -118,13 +119,7 @@ void DrawClouds(ge_Scene* scene){
 		
 		cloud->x += 10.0;
 		float cloud_z = 1.0;
-/*
-		if(abs(cloud->x) > scene->cloudsGenerator->map_size_x/2.0*0.5){
-			cloud_z = (1.0 - (abs(cloud->x) - scene->cloudsGenerator->map_size_x/2.0*0.5) / (scene->cloudsGenerator->map_size_x/2.0*0.5));
-		}
-			cloud_z *=  (1.0 - (abs(cloud->y) - scene->cloudsGenerator->map_size_y/2.0*0.5) / (scene->cloudsGenerator->map_size_y/2.0*0.5));
-			cloud_z = cloud->z * cloud_z;
-*/
+
 		float _x = cloud->x;// + scene->cloudsGenerator->map_size_x/2;
 		float z_x = -(1.0/(scene->cloudsGenerator->map_size_x))*_x*_x + scene->cloudsGenerator->map_size_x/2;
 		float z_y = -(1.0/(scene->cloudsGenerator->map_size_y))*cloud->y*cloud->y + scene->cloudsGenerator->map_size_y/2;
@@ -158,6 +153,7 @@ void DrawClouds(ge_Scene* scene){
 	}
 	glDisable(GL_BLEND);
 	glDepthFunc(GL_LESS);
+*/
 }
 
 void GenerateCloud(ge_Scene* scene, ge_Cloud* cloud, int j){

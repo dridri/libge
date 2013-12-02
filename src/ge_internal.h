@@ -37,6 +37,9 @@
 	#ifdef PLATFORM_win
 	#include "system/win/ge_context.h"
 	#endif
+	#ifdef PLATFORM_mac
+	#include "system/mac/ge_context.h"
+	#endif
 	#ifdef PLATFORM_linux_low
 	#include "system/linux_low/ge_context.h"
 	#endif

@@ -26,9 +26,11 @@ extern "C" {
 #ifndef WIN32
 #include <unistd.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#else
+#include <malloc.h>
 #endif
 
-#include <malloc.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
