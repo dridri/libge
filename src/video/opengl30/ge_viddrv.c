@@ -73,6 +73,7 @@ void geInitVideo(){
 	load_func(glTexImage3D);
 	load_func(glTexSubImage3D);
 	load_func(glTexImage2DMultisample);
+	load_func(glGenerateMipmap);
 #endif
 	load_func(glActiveTexture);
 

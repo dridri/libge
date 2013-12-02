@@ -21,9 +21,9 @@
 char* load_source(const char* file, int* _size);
 static void _geShaderSource(ge_Shader* shader, int type, char* src);
 
-ge_Shader* ge_current_shader = NULL;
-ge_Shader* ge_force_shader = NULL;
-ge_Shader* ge_line_shader = NULL;
+ge_Shader* ge_current_shader = 0;
+ge_Shader* ge_force_shader = 0;
+ge_Shader* ge_line_shader = 0;
 
 void geMatrixLocations();
 
@@ -37,7 +37,7 @@ int geInitShaders(){
 	ext += geCheckExtensionAvailable("GL_ARB_shader_objects");
 	ext += geCheckExtensionAvailable("GL_ARB_vertex_shader");
 	ext += geCheckExtensionAvailable("GL_ARB_fragment_shader");
-	if(ext == 4){
+	if(true/*ext == 4*/){ //Asume shaders available in OpenGL 3.0+
 		libge_context->shaders_available = true;
 	}
 
@@ -193,6 +193,7 @@ void ge_ParseLog(char* log, char* header){
 }
 
 static void _geShaderSource(ge_Shader* shader, int type, char* src){
+	printf("shader 1 : %p\n", shader);
 	if(!libge_context->shaders_available)return;
 	gePrintDebug(0x100, "_geShaderSource(0x%08lX, %d, \"...\")\n", shader, type);
 	u32 glId = glCreateShader(type);
@@ -202,6 +203,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	if(type==GL_TESS_CONTROL_SHADER)shader->tcShaderId=glId;
 	if(type==GL_TESS_EVALUATION_SHADER)shader->teShaderId=glId;
 	gePrintDebug(0x100, "_geShaderSource : shader initialized\n");
+	printf("shader 2 : %p\n", shader);
 
 	char* buf = NULL;
 	int srclen = strlen(src);
@@ -222,6 +224,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 			}
 		}
 	}
+	printf("shader 3 : %p\n", shader);
 	if(no_include == false && type == GL_VERTEX_SHADER){
 		header = load_source("default_shaders/geshader_gl3v.h", &headerlen);
 	}
@@ -231,6 +234,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	if(no_include == false && type == GL_FRAGMENT_SHADER){
 		header = load_source("default_shaders/geshader_gl3f.h", &headerlen);
 	}
+	printf("shader 4 : %p\n", shader);
 	if(no_include == false && header != NULL){
 		gePrintDebug(0x100, "_geShaderSource : Header loaded\n");
 		fullheader = (char*)geMalloc(sizeof(char)*(headerlen + 256));
@@ -241,12 +245,14 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	}else{
 		buf = (char*)geMalloc(sizeof(char)*(srclen + 256));
 	//	strcpy(buf, src);
-		sprintf(buf, "#version 130\n%s", src);
+		sprintf(buf, "#version 150\n%s", src);
 	}
+	printf("shader 5 : %p\n", shader);
 	gePrintDebug(0x100, "_geShaderSource : File computed\n");
 	glShaderSource(glId, 1, (const GLchar**)&buf, NULL);
 	glCompileShader(glId);
 	gePrintDebug(0x100, "_geShaderSource : Shader compiled\n");
+	printf("shader 6 : %p\n", shader);
 
 	char log[4096] = "";
 	int logsize = 4096;
@@ -259,22 +265,27 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	}else{
 		gePrintDebug(0x100, "Compilation infos: \n    %s", log);
 	}
+	printf("shader 7 : %p\n", shader);
 
 	glAttachShader(shader->programId, glId);
 	gePrintDebug(0x100, "_geShaderSource : Shader attached\n");
+	printf("shader 8 : %p\n", shader);
 
 	glBindAttribLocation(shader->programId, 0, "ge_VertexColor");
 	glBindAttribLocation(shader->programId, 1, "ge_VertexTexcoord");
 	glBindAttribLocation(shader->programId, 2, "ge_VertexNormal");
 	glBindAttribLocation(shader->programId, 3, "_ge_VertexPosition");
+	printf("shader 9 : %p\n", shader);
 
 	glLinkProgram(shader->programId);
 	gePrintDebug(0x100, "_geShaderSource : Shader linked\n");
+	printf("shader 10 : %p\n", shader);
 
 	memset(log, 0, 4096);
 	logsize = 4096;
 	glGetProgramInfoLog(shader->programId, logsize, &logsize, log);
 	gePrintDebug(0x100, "program linking infos: \n    %s", log);
+	printf("shader 11 : %p\n", shader);
 
 	
 	shader->loc_time = geShaderUniformID(shader, "ge_Time");
@@ -309,16 +320,20 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	shader->loc_fog_color = geShaderUniformID(shader, "ge_Fog.color");
 	shader->loc_fog_start = geShaderUniformID(shader, "ge_Fog.start");
 	shader->loc_fog_end = geShaderUniformID(shader, "ge_Fog.end");
+	printf("shader 12 : %p\n", shader);
 
 	gePrintDebug(0x100, "_geShaderSource : Uniforms Ok\n");
 	
 	gePrintDebug(0x100, "_geShaderSource : Free..");
 	if(header)geFree(header);
 	gePrintDebug(3, "1..");
+	printf("shader 13 : %p\n", shader);
 	if(fullheader)geFree(fullheader);
 	gePrintDebug(3, "2..");
+	printf("shader 14 : %p\n", shader);
 	if(buf)geFree(buf);
-	gePrintDebug(3, "3");
+	gePrintDebug(3, "3\n");
+	printf("shader 15 : %p\n", shader);
 }
 
 void geShaderUse(ge_Shader* shader){
