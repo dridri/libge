@@ -554,7 +554,7 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 
 		geMatrixMode(GE_MATRIX_PROJECTION);
 		geLoadIdentity();
-		if(1 && light->type == GE_LIGHT_TYPE_SPOT){
+		if(light->type == GE_LIGHT_TYPE_SPOT){
 			gePerspective(90.0, 1.0, 0.001, 500.0);
 			//light->spot_cutoff
 		}else{
