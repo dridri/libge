@@ -13,3 +13,4 @@ data
 Makefile.win_low2
 testsrc
 testobj
+ge.log

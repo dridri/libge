@@ -27,6 +27,7 @@ extern ge_Camera* ge_current_camera;
 extern u32 shadow_map;
 extern ge_Shader* ge_line_shader;
 extern ge_Shader* ge_current_shader;
+static ge_Image3D* _ge_shadow_jitter = NULL;
 
 extern struct {
 	int used;
@@ -326,6 +327,12 @@ void geRendererUpdate(ge_Renderer* render){
 			glEnable(GL_TEXTURE_3D);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
 			glUniform1i(render->shader->loc_lights[j].loc_shadow, 7);
+			
+			glActiveTexture(GL_TEXTURE6);
+			glDisable(GL_TEXTURE_2D);
+			glEnable(GL_TEXTURE_3D);
+			glBindTexture(GL_TEXTURE_3D, _ge_shadow_jitter->id);
+			glUniform1i(glGetUniformLocation(render->shader->programId, "ge_LightShadowJitter"), 6);
 		}
 	}
 }
@@ -422,6 +429,7 @@ void geSceneUpdateMatrices(ge_Scene* scene){
 
 
 
+
 void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, float size_factor){
 	light->shadow_depth = depth;
 	light->shadow_factor = size_factor;
@@ -459,6 +467,20 @@ void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, 
 		light->shadow_shader = geCreateShader();
 		geShaderLoadVertexSource(light->shadow_shader, "scene/shaders/generic_shadow.vert");
 		geShaderLoadFragmentSource(light->shadow_shader, "scene/shaders/generic_shadow.frag");
+	}
+
+	if(!_ge_shadow_jitter){
+		_ge_shadow_jitter = geCreateSurface3D(256, 256, 32, 0x00000000);
+		int i;
+		for(i=0; i<256*256*32; i++){
+			u8 r = rand() % 255;
+			u8 g = rand() % 255;
+			u8 b = rand() % 255;
+			u8 a = rand() % 255;
+			_ge_shadow_jitter->data[i] = RGBA(r, g, b, a);
+		}
+		geTextureMode((ge_Image*)_ge_shadow_jitter, GE_NEAREST);
+		geUpdateImage((ge_Image*)_ge_shadow_jitter);
 	}
 }
 

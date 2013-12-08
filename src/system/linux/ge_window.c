@@ -23,10 +23,13 @@ void LinuxInit();
 void CloseFullScreen();
 
 bool initializing = false;
-
+/*
+	GLX_SAMPLE_BUFFERS, (_config.samples > 1 ? 1 : 0),
+	GLX_SAMPLES, (_config.samples > 1 ? static_cast<int>(_config.samples) : 0),
+*/
 static XWMHints* win_hints = NULL;
 static XSizeHints* win_size_hints = NULL;
-static int attributes[] = { GLX_RGBA, GLX_DOUBLEBUFFER, GLX_RED_SIZE, 8, GLX_GREEN_SIZE, 8, GLX_BLUE_SIZE, 8, GLX_ALPHA_SIZE, 8, GLX_DEPTH_SIZE, 16, None};
+static int attributes[] = { GLX_RGBA, GLX_DOUBLEBUFFER, GLX_RED_SIZE, 8, GLX_GREEN_SIZE, 8, GLX_BLUE_SIZE, 8, GLX_ALPHA_SIZE, 8, GLX_DEPTH_SIZE, 16, GLX_SAMPLE_BUFFERS, 1, GLX_SAMPLES, 8, None};
 static Cursor invisible_cursor;
 static XEvent event;
 static int event_mask = ExposureMask | PointerMotionMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask;
@@ -50,6 +53,17 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	libge_context->width = Width;
 	libge_context->height = Height;
 	context->fs = flags & GE_WINDOW_FULLSCREEN;
+
+	int nSamples = 1;
+	if(flags & GE_WINDOW_MSAA2X){
+		nSamples = 2;
+	}
+	if(flags & GE_WINDOW_MSAA4X){
+		nSamples = 4;
+	}
+	if(flags & GE_WINDOW_MSAA8X){
+		nSamples = 8;
+	}
 
 	Colormap cmap;
 	Window winDummy;
@@ -171,6 +185,9 @@ static int current_buf = 0;
 static bool pending_wup_release = false;
 static bool pending_wdown_release = false;
 
+static int wup = 0;
+static int wdown = 0;
+
 static bool changed = false;
 static bool _to_close = false;
 static bool reset = false;
@@ -179,19 +196,32 @@ static ge_Thread* ev_thid = NULL;
 
 static int new_w=0, new_h=0;
 
+static XButtonEvent wheel_ev[32];
+static int wheel_i = -1;
+static int wheel_j = -1;
+
 int _ev_thread(int args, void* argp){
 	LibGE_LinuxContext* context = (LibGE_LinuxContext*)argp;
 	u32 ticks = geGetTick();
 	bool finished = false;
 	int key = 0;
 
+	if(wheel_j == -1){
+		while(wheel_i == -1);
+		wheel_j = 0;
+	}
+
 	while(1){
 //		mouse_warp_x = mouse_warp_y = 0;
 		while(XPending(context->dpy)){
 			XNextEvent(context->dpy, &event);
 		//	if(event.type)printf("event: %d\n", event.type);
+			if((event.type == ButtonPress || event.type == ButtonRelease) && (event.xbutton.button == GEK_MWHEELUP || event.xbutton.button == GEK_MWHEELDOWN)){
+				memcpy(&wheel_ev[wheel_j], &event.xbutton, sizeof(XButtonEvent));
+				wheel_j = (wheel_j + 1) % 32;
+			}
 			switch (event.type){
-				case ClientMessage:	
+				case ClientMessage:
 					if (*XGetAtomName(context->dpy, event.xclient.message_type) == *"WM_PROTOCOLS"){
 						finished = true;
 					}
@@ -250,8 +280,16 @@ int _ev_thread(int args, void* argp){
 					keys_released[key] = true;
 					break;
 				case ButtonPress:
-					keys_pressed[event.xbutton.button] = true;
-					keys_released[event.xbutton.button] = false;
+					
+					if(event.xbutton.button == GEK_MWHEELUP){
+						wup = 1;
+					}else
+					if(event.xbutton.button == GEK_MWHEELDOWN){
+						wdown = 1;
+					}else{
+						keys_pressed[event.xbutton.button] = true;
+						keys_released[event.xbutton.button] = false;
+					}
 					break;
 				case ButtonRelease:
 					if(event.xbutton.button == GEK_MWHEELUP){
@@ -314,18 +352,40 @@ int LinuxSwapBuffers(){
 		ev_thid = geCreateThread("LibGE Event Thread", _ev_thread, 0);
 		geThreadStart(ev_thid, sizeof(LibGE_LinuxContext*), context);
 	}
-
-	if(pending_wup_release){
+/*
+	if(pending_wup_release && keys_pressed[GEK_MWHEELUP]){
 		keys_pressed[GEK_MWHEELUP] = false;
 		keys_released[GEK_MWHEELUP] = true;
 		pending_wup_release = false;
 	}
-	if(pending_wdown_release){
+	if(pending_wdown_release && keys_pressed[GEK_MWHEELDOWN]){
 		keys_pressed[GEK_MWHEELDOWN] = false;
 		keys_released[GEK_MWHEELDOWN] = true;
 		pending_wdown_release = false;
 	}
-/*
+*/
+
+	if(wheel_i == -1){
+		int i = 0;
+		for(i=0; i<32; i++){
+			wheel_ev[i].type = -1;
+		}
+		wheel_i = 0;
+	}
+
+	if(wheel_ev[wheel_i].type >= 0){
+		if(wheel_ev[wheel_i].button == GEK_MWHEELUP){
+			keys_pressed[GEK_MWHEELUP] = (wheel_ev[wheel_i].type == ButtonPress);
+			keys_released[GEK_MWHEELUP] = (wheel_ev[wheel_i].type == ButtonRelease);
+		}
+		if(wheel_ev[wheel_i].button == GEK_MWHEELDOWN){
+			keys_pressed[GEK_MWHEELDOWN] = (wheel_ev[wheel_i].type == ButtonPress);
+			keys_released[GEK_MWHEELDOWN] = (wheel_ev[wheel_i].type == ButtonRelease);
+		}
+		wheel_ev[wheel_i].type = -1;
+		wheel_i = (wheel_i + 1) % 32;
+	}
+	/*
 	mouse_warp_x = warp_x;
 	mouse_warp_y = warp_y;
 	reset = true;
