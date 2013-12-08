@@ -576,7 +576,7 @@ void geSendMatrix(int type, float* m){
 		i = loc_texture5;
 	else if(type == GE_MATRIX_TEXTURE6)
 		i = loc_texture6;
-	else if(type == GE_MATRIX_TEXTURE0)
+	else if(type == GE_MATRIX_TEXTURE7)
 		i = loc_texture7;
 	else if(type == GE_MATRIX_SUBMODEL)
 		i = loc_submodel;

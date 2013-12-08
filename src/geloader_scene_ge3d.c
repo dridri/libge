@@ -41,7 +41,8 @@ void LoadLight(ge_File* fp, ge_Light* light){
 	char buffer[1024] = "";
 	char options[32][64] = { "" };
 	int rgba[4] = { 0 };
-	int v = 0;
+	float frgba[4] = { 0 };
+	int v = 0, i;
 	memset(light, 0, sizeof(ge_Light));
 	light->position.w = light->target.w = 1.0;
 	light->attenuation = -2.0;
@@ -53,13 +54,22 @@ void LoadLight(ge_File* fp, ge_Light* light){
 			if(v)light->type=GE_LIGHT_TYPE_SPOT;
 		}
 		if(geGetParamIntMulti(buffer, "diffuse", rgba, 3)){
-			SET_COLOR_RGBAf(light->diffuse, rgba[0] / 255.0, rgba[1] / 255.0, rgba[2] / 255.0, 0.0);
+			for(i=0; i<4; i++){
+				frgba[i] = (float)rgba[i];
+			}
+			SET_COLOR_RGBAf(light->diffuse, frgba[0] / 255.0, frgba[1] / 255.0, frgba[2] / 255.0, 0.0);
 		}
 		if(geGetParamIntMulti(buffer, "ambient", rgba, 3)){
-			SET_COLOR_RGBAf(light->ambient, rgba[0] / 255.0, rgba[1] / 255.0, rgba[2] / 255.0, 1.0);
+			for(i=0; i<4; i++){
+				frgba[i] = (float)rgba[i];
+			}
+			SET_COLOR_RGBAf(light->ambient, frgba[0] / 255.0, frgba[1] / 255.0, frgba[2] / 255.0, 1.0);
 		}
 		if(geGetParamIntMulti(buffer, "specular", rgba, 3)){
-			SET_COLOR_RGBAf(light->specular, rgba[0] / 255.0, rgba[1] / 255.0, rgba[2] / 255.0, 1.0);
+			for(i=0; i<4; i++){
+				frgba[i] = (float)rgba[i];
+			}
+			SET_COLOR_RGBAf(light->specular, frgba[0] / 255.0, frgba[1] / 255.0, frgba[2] / 255.0, 1.0);
 		}
 		if(strstr(buffer, "options")){
 			int n = geGetStringList(buffer, (char**)options, 64, 32);

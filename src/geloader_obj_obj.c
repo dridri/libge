@@ -142,9 +142,9 @@ MTL* LoadObjMtl(const char* file){
 			mtl->mats[i].diffuse[3] *= dissolve;
 			gePrintDebug(0x100, "Material [%d] :\n", i);
 			gePrintDebug(0x100, "  name: \"%s\"\n", mtl->mats[i].name);
-			gePrintDebug(0x100, "  ambient: 0x%08X\n", mtl->mats[i].ambient);
-			gePrintDebug(0x100, "  diffuse: 0x%08X\n", mtl->mats[i].diffuse);
-			gePrintDebug(0x100, "  specular: 0x%08X\n", mtl->mats[i].specular);
+			gePrintDebug(0x100, "  ambient: 0x%08X\n", fRGBA(mtl->mats[i].ambient));
+			gePrintDebug(0x100, "  diffuse: 0x%08X\n", fRGBA(mtl->mats[i].diffuse));
+			gePrintDebug(0x100, "  specular: 0x%08X\n", fRGBA(mtl->mats[i].specular));
 			gePrintDebug(0x100, "  texture: \"%s\"\n", mtl->mats[i].texture);
 			gePrintDebug(0x100, "  bump_map: \"%s\"\n", mtl->mats[i].bump_map);
 			gePrintDebug(0x100, "  bump_force: %f\n", mtl->mats[i].bump_force);

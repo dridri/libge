@@ -79,6 +79,7 @@ static void fontPrintTextImpl2(FT_Bitmap* bitmap, int xofs, int yofs, u32 color,
 }
 
 void geCreateFontTtf(ge_Font* font){
+	if(font->size <= 0)return;
 	FT_GlyphSlot slot = ((FT_Face)font->face)->glyph;
 	u16 n;
 	u16 chr = 0;
