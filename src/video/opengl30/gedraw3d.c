@@ -27,6 +27,7 @@ extern ge_Camera* ge_current_camera;
 extern u32 shadow_map;
 extern ge_Shader* ge_line_shader;
 extern ge_Shader* ge_current_shader;
+static ge_Image3D* _ge_shadow_jitter = NULL;
 
 extern struct {
 	int used;
@@ -326,6 +327,15 @@ void geRendererUpdate(ge_Renderer* render){
 			glEnable(GL_TEXTURE_3D);
 			glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
 			glUniform1i(render->shader->loc_lights[j].loc_shadow, 7);
+
+			int loc_jitter = glGetUniformLocation(render->shader->programId, "ge_LightShadowJitter");
+			if(loc_jitter >= 0){
+				glActiveTexture(GL_TEXTURE6);
+				glDisable(GL_TEXTURE_2D);
+				glEnable(GL_TEXTURE_3D);
+				glBindTexture(GL_TEXTURE_3D, _ge_shadow_jitter->id);
+				glUniform1i(loc_jitter, 6);
+			}
 		}
 	}
 }
@@ -422,6 +432,7 @@ void geSceneUpdateMatrices(ge_Scene* scene){
 
 
 
+
 void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, float size_factor){
 	light->shadow_depth = depth;
 	light->shadow_factor = size_factor;
@@ -457,18 +468,35 @@ void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, 
 		light->shadow_shader = shader;
 	}else{
 		light->shadow_shader = geCreateShader();
-		geShaderLoadVertexSource(light->shadow_shader, "scene/shaders/generic_shadow.vert");
-		geShaderLoadFragmentSource(light->shadow_shader, "scene/shaders/generic_shadow.frag");
+		geShaderLoadVertexSource(light->shadow_shader, "default_shaders/generic_shadow.vert");
+		geShaderLoadFragmentSource(light->shadow_shader, "default_shaders/generic_shadow.frag");
+	}
+
+	if(!_ge_shadow_jitter){
+		_ge_shadow_jitter = geCreateSurface3D(256, 256, 32, 0x00000000);
+		int i;
+		for(i=0; i<256*256*32; i++){
+			u8 r = rand() % 255;
+			u8 g = rand() % 255;
+			u8 b = rand() % 255;
+			u8 a = rand() % 255;
+			_ge_shadow_jitter->data[i] = RGBA(r, g, b, a);
+		}
+		geUpdateImage((ge_Image*)_ge_shadow_jitter);
 	}
 }
 
 void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*), void* udata){
 	geFramebufferUse(light->shadow_fbo);
-	glDisable(GL_SCISSOR_TEST);
 	geViewport(0, 0, light->shadow_fbo->depth->width, light->shadow_fbo->depth->height);
-		
+	glDisable(GL_SCISSOR_TEST);
+
+	float save_proj[16];
+	memcpy(save_proj, geGetMatrix(GE_MATRIX_PROJECTION), sizeof(float) * 16);
+	u32 save_clear_color = libge_context->clear_color;
+
 	geClearColor(0xFFFFFFFF);
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+//	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		
 	//glDisable(GL_CULL_FACE);
 	//glEnable(GL_CULL_FACE);
@@ -479,6 +507,7 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 	geMatrixMode(GE_MATRIX_VIEW);
 	geLoadIdentity();
 	float l_pos[3] = { light->position.x, light->position.y, light->position.z };
+/*
 	geNormalize(l_pos);
 	l_pos[0] *= 1000.0;
 	l_pos[1] *= 1000.0;
@@ -492,6 +521,22 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 	l_pos[1] += cCam[1];
 	l_pos[2] += cCam[2];
 	geLookAt(l_pos[0], l_pos[1], l_pos[2], light->target.x + cCam[0], light->target.y + cCam[1], light->target.z + cCam[2]);
+*/
+/*
+	float cCam[3] = { cam->cX - cam->x, cam->cY - cam->y, cam->cZ - cam->z };
+	geNormalize(cCam);
+	cCam[0] = cCam[0] * 20.0 + cam->x;
+	cCam[1] = cCam[1] * 20.0 + cam->y;
+	cCam[2] = cCam[2] * 20.0 + cam->z;
+
+	l_pos[0] += cCam[0];
+	l_pos[1] += cCam[1];
+	l_pos[2] += cCam[2];
+
+	geLookAt(l_pos[0], l_pos[1], l_pos[2], light->target.x + cCam[0], light->target.y + cCam[1], light->target.z + cCam[2]);
+*/
+
+	geLookAt(light->position.x, light->position.y, light->position.z, light->position.x + light->target.x * 10.0, light->position.y + light->target.y * 10.0, light->position.z + light->target.z * 10.0);
 
 	int i, j;
 	light->iShadow = max(1, (light->iShadow + 1) % light->shadow_depth);
@@ -506,13 +551,18 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 		//glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light->shadow->id, 0, i);
 
 		geClearScreen();
-	
+
 		geMatrixMode(GE_MATRIX_PROJECTION);
 		geLoadIdentity();
-		//float range = 10.0 * expf((float)i * 1.0);
-		float range = 10.0 * powf(4.0, (float)i * light->shadow_factor);
-		//float range = 10.0 * powf(2.0, (float)i * 1.0);
-		geOrthogonal(-range, range, -range, range, 1.0, 5000.0);
+		if(1 && light->type == GE_LIGHT_TYPE_SPOT){
+			gePerspective(90.0, 1.0, 0.001, 500.0);
+			//light->spot_cutoff
+		}else{
+			//float range = 10.0 * expf((float)i * 1.0);
+			float range = 10.0 * powf(4.0, (float)i * light->shadow_factor);
+			//float range = 10.0 * powf(2.0, (float)i * 1.0);
+			geOrthogonal(-range, range, -range, range, 1.0, 5000.0);
+		}
 
 
 		float bias[16] = {
@@ -545,4 +595,9 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 	glEnable(GL_SCISSOR_TEST);
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	geViewport(0, 0, geGetContext()->width, geGetContext()->height);
+
+	geClearColor(save_clear_color);
+
+	memcpy(libge_context->projection_matrix, save_proj, sizeof(float)*16);
+	memcpy(geGetMatrix(GE_MATRIX_PROJECTION), save_proj, sizeof(float)*16);
 }
