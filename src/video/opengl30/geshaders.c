@@ -284,7 +284,11 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	memset(log, 0, 4096);
 	logsize = 4096;
 	glGetProgramInfoLog(shader->programId, logsize, &logsize, log);
-	gePrintDebug(0x100, "program linking infos: \n    %s", log);
+	if(strstr(log, "ERROR")){
+		gePrintDebug(0x102, "Errors compiling shader\nCompilation infos: \n    %s", log);
+	}else{
+		gePrintDebug(0x100, "program linking infos: \n    %s", log);
+	}
 
 	
 	shader->loc_time = geShaderUniformID(shader, "ge_Time");
