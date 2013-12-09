@@ -2,14 +2,21 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -g3")
+<<<<<<< HEAD
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99") # -g3
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x") # -g3
+=======
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x -g3")
+>>>>>>> a856bc891ae3b2c9b4b481e102e1ff17324e6d09
 add_definitions(-DLIBGE_LIB)
 #add_definitions(-DOPENCL)
 
 option(target "target" )
 option(video "video" )
+option(static "static" )
 
 if(${target} MATCHES OFF)
 	if(WIN32)
@@ -197,7 +204,12 @@ message(STATUS "LibGE will be compiled for '${target}' in ${ARCH_MSG}${VID_MSG}"
 
 AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
-add_library(ge SHARED ${SOURCES})
+if(static)
+	add_library(ge_static STATIC ${SOURCES})
+else()
+	add_library(ge SHARED ${SOURCES})
+endif()
+
 add_executable(test ${TEST_SOURCES} ${SOURCES})
 
 if(WIN32)
@@ -249,9 +261,13 @@ endif()
 
 message(STATUS "LIBS : ${LIBS}")
 
-target_link_libraries(ge ${LIBS})
+if(static)
+	target_link_libraries(ge_static ${LIBS})
+	INSTALL(TARGETS ge_static ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
+else()
+	target_link_libraries(ge ${LIBS})
+	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
+endif()
 
 target_link_libraries(test ${LIBS})
-
-INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 INSTALL(FILES ${INCLUDES} DESTINATION include/libge)

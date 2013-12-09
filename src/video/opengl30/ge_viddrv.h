@@ -113,6 +113,7 @@ define_proc(BLENDEQUATION, glBlendEquation);
 define_proc(TEXIMAGE3D, glTexImage3D);
 define_proc(TEXSUBIMAGE3D, glTexSubImage3D);
 define_proc(TEXIMAGE2DMULTISAMPLE, glTexImage2DMultisample);
+define_proc(GENERATEMIPMAP, glGenerateMipmap);
 #endif
 
 #ifndef PLATFORM_mac

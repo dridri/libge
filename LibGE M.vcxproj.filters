@@ -55,6 +55,9 @@
     <Filter Include="include">
       <UniqueIdentifier>{6fffac7e-a7d8-49aa-b4c6-a277601076b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="system\win">
+      <UniqueIdentifier>{ddd79872-a3ad-466d-a974-d6762c2a84f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\audio\geaudio_fx.c">
@@ -367,6 +370,27 @@
     <ClCompile Include="src\geanimation.c" />
     <ClCompile Include="src\gecamera.c" />
     <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\system\win\ge_window.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\gekeys.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\gememory.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\genet.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\gesystem.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\gethreads.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\win\gewinkeyboard.c">
+      <Filter>system\win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\system\android\ge_context.h">
@@ -399,61 +423,64 @@
     <ClInclude Include="src\video\opengl30\ge_viddrv.h">
       <Filter>video\opengl30</Filter>
     </ClInclude>
-    <ClInclude Include="src\geresources.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gesocket.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gesys.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\getimers.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\getypes.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\geutils.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="src\libge.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="src\ge_internal.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\geaudio.h">
+    <ClInclude Include="src\system\win\ge_context.h">
+      <Filter>system\win</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gecl.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gecl.h">
+    <ClInclude Include="include\geenums.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\geenums.h">
+    <ClInclude Include="include\geerror.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\geerror.h">
+    <ClInclude Include="include\gefile.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gefile.h">
+    <ClInclude Include="include\gefont.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gefont.h">
+    <ClInclude Include="include\gegfx.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gegfx.h">
+    <ClInclude Include="include\gegui.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gegui.h">
+    <ClInclude Include="include\gekeys.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gekeys.h">
+    <ClInclude Include="include\gelua.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gelua.h">
+    <ClInclude Include="include\gephysics.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\gephysics.h">
+    <ClInclude Include="include\geresources.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gesocket.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gesys.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\getimers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\getypes.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\geutils.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\libge.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\geaudio.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

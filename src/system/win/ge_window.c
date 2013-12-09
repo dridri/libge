@@ -148,6 +148,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	wglMakeCurrent(GetDC(context->window), context->hRC);
 	printf("geCreateMainWindow 6\n");
 	
+//	PFNWGLGETERRORPROC glGetError = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 	printf("geCreateMainWindow 6.1\n");
@@ -161,10 +162,10 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
 			WGL_COLOR_BITS_ARB, 24,
 			WGL_ALPHA_BITS_ARB, 8,
-			WGL_DEPTH_BITS_ARB, 24,
+			WGL_DEPTH_BITS_ARB, 16,
 			WGL_STENCIL_BITS_ARB, 0,
 //			WGL_STEREO_ARB, GL_TRUE,
-			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+//			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
 			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
 			WGL_SAMPLE_BUFFERS_ARB, nSamples > 1 ? GL_TRUE : GL_FALSE,
 			WGL_SAMPLES_ARB, nSamples,
@@ -184,6 +185,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		context->hDC = GetDC(context->window);
 		SetPixelFormat(context->hDC, pixelFormat, NULL);
 		if(wglCreateContextAttribsARB){
+			gePrintDebug(0x101, "Error base : %d\n", glGetError());
 			int attribList[] = {
 				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
 				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
@@ -193,23 +195,25 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 			};
 			context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
 			if(!context->hRC){
-				gePrintDebug(0x101, "Cannot create OpenGL 4.2 context, trying 4.0 version...\n");
+				gePrintDebug(0x101, "Cannot create OpenGL 4.2 context (%d), trying 4.0 version...\n", glGetError());
 				attribList[1] = 4;
 				attribList[3] = 0;
 				context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
 				if(!context->hRC){
-					gePrintDebug(0x101, "Cannot create OpenGL 4.0 context, trying 3.2 version...\n");
+					gePrintDebug(0x101, "Cannot create OpenGL 4.0 context (%d), trying 3.2 version...\n", glGetError());
 					attribList[1] = 3;
 					attribList[3] = 2;
 					context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
 					if(!context->hRC){
-						gePrintDebug(0x101, "Cannot create OpenGL 3.3 context, trying 3.0 version...\n");
+						gePrintDebug(0x101, "Cannot create OpenGL 3.3 context (%d), trying 3.0 version...\n", glGetError());
 						attribList[1] = 3;
 						attribList[3] = 0;
 						context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
 						if(!context->hRC){
-							gePrintDebug(0x102, "Incompatible hardware with OpenGL 3.0+\n");
-							exit(0);
+							gePrintDebug(0x101, "Incompatible hardware with OpenGL 3.0+ (%d)\n", glGetError());
+							gePrintDebug(0x101, "Falling back to old-style context\n");
+							context->hRC = wglCreateContext(context->hDC);
+						//	exit(0);
 						}
 					}
 				}
@@ -230,6 +234,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	WindowsInit();
 	
 	gePrintDebug(0x100, "Current OpenGL version: %s\n", (const char*)glGetString(GL_VERSION));
+	gePrintDebug(0x100, "GPU : %s - %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER));
 	geInitVideo();
 	geInitShaders();
 	geGraphicsInit();

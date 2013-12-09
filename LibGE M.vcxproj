@@ -95,6 +95,13 @@
     <ClCompile Include="src\system\psp\gesystem.c" />
     <ClCompile Include="src\system\psp\gethreads.c" />
     <ClCompile Include="src\system\psp\ge_window.c" />
+    <ClCompile Include="src\system\win\gekeys.c" />
+    <ClCompile Include="src\system\win\gememory.c" />
+    <ClCompile Include="src\system\win\genet.c" />
+    <ClCompile Include="src\system\win\gesystem.c" />
+    <ClCompile Include="src\system\win\gethreads.c" />
+    <ClCompile Include="src\system\win\gewinkeyboard.c" />
+    <ClCompile Include="src\system\win\ge_window.c" />
     <ClCompile Include="src\system\win_low\gekeys.c" />
     <ClCompile Include="src\system\win_low\gememory.c" />
     <ClCompile Include="src\system\win_low\genet.c" />
@@ -147,28 +154,29 @@
     <ClCompile Include="src\video\psp\ge_viddrv.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\geaudio.h" />
-    <ClInclude Include="src\gecl.h" />
-    <ClInclude Include="src\geenums.h" />
-    <ClInclude Include="src\geerror.h" />
-    <ClInclude Include="src\gefile.h" />
-    <ClInclude Include="src\gefont.h" />
-    <ClInclude Include="src\gegfx.h" />
-    <ClInclude Include="src\gegui.h" />
-    <ClInclude Include="src\gekeys.h" />
-    <ClInclude Include="src\gelua.h" />
-    <ClInclude Include="src\gephysics.h" />
-    <ClInclude Include="src\geresources.h" />
-    <ClInclude Include="src\gesocket.h" />
-    <ClInclude Include="src\gesys.h" />
-    <ClInclude Include="src\getimers.h" />
-    <ClInclude Include="src\getypes.h" />
-    <ClInclude Include="src\geutils.h" />
+    <ClInclude Include="include\geaudio.h" />
+    <ClInclude Include="include\gecl.h" />
+    <ClInclude Include="include\geenums.h" />
+    <ClInclude Include="include\geerror.h" />
+    <ClInclude Include="include\gefile.h" />
+    <ClInclude Include="include\gefont.h" />
+    <ClInclude Include="include\gegfx.h" />
+    <ClInclude Include="include\gegui.h" />
+    <ClInclude Include="include\gekeys.h" />
+    <ClInclude Include="include\gelua.h" />
+    <ClInclude Include="include\gephysics.h" />
+    <ClInclude Include="include\geresources.h" />
+    <ClInclude Include="include\gesocket.h" />
+    <ClInclude Include="include\gesys.h" />
+    <ClInclude Include="include\getimers.h" />
+    <ClInclude Include="include\getypes.h" />
+    <ClInclude Include="include\geutils.h" />
+    <ClInclude Include="include\libge.h" />
     <ClInclude Include="src\ge_internal.h" />
-    <ClInclude Include="src\libge.h" />
     <ClInclude Include="src\system\android\ge_context.h" />
     <ClInclude Include="src\system\linux_low\ge_context.h" />
     <ClInclude Include="src\system\psp\ge_context.h" />
+    <ClInclude Include="src\system\win\ge_context.h" />
     <ClInclude Include="src\system\win_low\ge_context.h" />
     <ClInclude Include="src\video\android\ge_viddrv.h" />
     <ClInclude Include="src\video\opengl21\ge_viddrv.h" />
@@ -217,13 +225,14 @@
     <NMakeBuildCommandLine>cd build &amp;&amp; mingw32-make</NMakeBuildCommandLine>
     <NMakeOutput>build/test.exe</NMakeOutput>
     <NMakeCleanCommandLine>cd build &amp;&amp; mingw32-make clean</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions>PLATFORM_win32_low;WIN32;LIBGE_STATIC</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>PLATFORM_win;WIN32;LIBGE_STATIC</NMakePreprocessorDefinitions>
     <ExecutablePath>$(PATH);</ExecutablePath>
     <IncludePath>C:\mingw\include</IncludePath>
     <ReferencePath />
     <LibraryPath />
     <SourcePath />
     <ExcludePath />
+    <NMakeIncludeSearchPath>include</NMakeIncludeSearchPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>mingw32-make -j4 platform=win_low ARCH=32</NMakeBuildCommandLine>

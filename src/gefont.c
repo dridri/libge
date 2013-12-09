@@ -173,6 +173,10 @@ void geFontPrintScreenOutline(int x, int y, ge_Font* font, const char* text, u32
 }
 
 void geFontPrintScreenUnicode(int x, int y, ge_Font* font, const unsigned short* text, u32 color){
+	if(libge_context->fontbuf->width != libge_context->width || libge_context->fontbuf->height != libge_context->height){
+		geFreeImage(libge_context->fontbuf);
+		libge_context->fontbuf = NULL;
+	}
 	if(!libge_context->fontbuf){
 		libge_context->fontbuf = geCreateSurface(libge_context->width, libge_context->height, 0);
 	}

@@ -74,6 +74,7 @@ void geInitVideo(){
 	load_func(glTexImage3D);
 	load_func(glTexSubImage3D);
 	load_func(glTexImage2DMultisample);
+	load_func(glGenerateMipmap);
 #endif
 
 #ifndef PLATFORM_mac
@@ -287,13 +288,11 @@ void UpdateGlTexture(ge_Image* image, int mipmapping){
 		glGenTextures(1, &image->id);
 		glBindTexture(tex_mode, image->id);
 		glTexImage2D(tex_mode, 0, GL_RGBA8, image->textureWidth, image->textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
-		printf("err0 : %d\n", glGetError());
 		libge_context->gpumem += image->textureWidth*image->textureHeight*sizeof(u32);
 	//	InitMipmaps(image, mipmap_detail);
 	}else{
 		glBindTexture(tex_mode, image->id);
 		glTexSubImage2D(tex_mode, 0, 0, 0, image->textureWidth, image->textureHeight, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
-		printf("err1 : %d\n", glGetError());
 	}
 
 	if(mipmap_detail){
@@ -321,11 +320,9 @@ void UpdateGlTexture(ge_Image* image, int mipmapping){
 
 void UpdateGlTexture3D(ge_Image3D* image){
 	if(!image)return;
-	
-	printf("UpdateGlTexture3D 1\n");
+
 	image->u = (float)image->width / (float)image->textureWidth;
 	image->v = (float)image->height / (float)image->textureHeight;
-	printf("UpdateGlTexture3D 2\n");
 
 	int target = image->flags & GE_IMAGE_ARRAY ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_3D;
 
@@ -342,8 +339,7 @@ void UpdateGlTexture3D(ge_Image3D* image){
 		}
 */
 	}
-	
-	printf("UpdateGlTexture3D 3\n");
+
 	glBindTexture(target, image->id);
 	glTexSubImage3D(target, 0, 0, 0, 0, image->textureWidth, image->textureHeight, image->textureDepth, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
 
@@ -383,13 +379,10 @@ void UpdateGlTexture3D(ge_Image3D* image){
 		glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	printf("UpdateGlTexture3D 4\n");
-
 	glTexParameterf(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(target, 0);
-	printf("UpdateGlTexture3D 5\n");
 }
 
 #ifndef max
