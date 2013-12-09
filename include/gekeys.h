@@ -238,13 +238,16 @@ typedef struct ge_KeysExtension {
 #define GEK_MWHEELUP	4
 #define GEK_MWHEELDOWN	5
 
-#define GEK_ENTER		0
-#define GEK_BACK		0
-#define GEK_UP			0
-#define GEK_DOWN		0
-#define GEK_LEFT		0
-#define GEK_RIGHT		0
-#define GEK_SPACE		62
+// These are virtuals
+#define GEK_ENTER		6
+#define GEK_BACK		7
+#define GEK_SHIFT		8
+#define GEK_UP			9
+#define GEK_DOWN		10
+#define GEK_LEFT		11
+#define GEK_RIGHT		12
+
+#define GEK_SPACE		32
 
 #define GE_KEYS_COUNT 0xff
 

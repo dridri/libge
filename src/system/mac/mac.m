@@ -5,6 +5,7 @@
 #include <OpenGL/OpenGL.h>
 #include "../../../include/getypes.h"
 #include "../../../include/gekeys.h"
+#include "../../../include/geenums.h"
 
 #define DEFAULT_OPENGL  "/System/Library/Frameworks/OpenGL.framework/Libraries/libGL.dylib"
 
@@ -147,6 +148,16 @@ void MacOpenWindow(int width, int height, int flags){
 	[NSApp finishLaunching];
 
 
+	int samples = 1;
+	if(flags & GE_WINDOW_MSAA2X){
+		samples = 2;
+	}
+	if(flags & GE_WINDOW_MSAA4X){
+		samples = 4;
+	}
+	if(flags & GE_WINDOW_MSAA8X){
+		samples = 8;
+	}
 
 	NSRect contRect;
 	contRect = NSMakeRect(0, 0, width, height);
@@ -154,7 +165,14 @@ void MacOpenWindow(int width, int height, int flags){
 	unsigned int winStyle=NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
 	
 	ysWnd = [YsOpenGLWindow alloc];
-	[ysWnd initWithContentRect:contRect styleMask:winStyle backing:NSBackingStoreBuffered defer:NO];
+	if(flags & GE_WINDOW_FULLSCREEN){
+		[ysWnd initWithContentRect:[[NSScreen mainScreen] frame] styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+		[ysWnd setLevel:NSMainMenuWindowLevel+1];
+		[ysWnd setOpaque:YES];
+		[ysWnd setHidesOnDeactivate:YES];
+	}else{
+		[ysWnd initWithContentRect:contRect styleMask:winStyle backing:NSBackingStoreBuffered defer:NO];
+	}
 	NSOpenGLPixelFormatAttribute formatAttrib[] =
 	{
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -165,6 +183,7 @@ void MacOpenWindow(int width, int height, int flags){
         NSOpenGLPFADoubleBuffer ,
 		NSOpenGLPFAAccelerated  ,
 		NSOpenGLPFANoRecovery   ,
+		samples > 1 ? NSOpenGLPFASamples : 0, samples > 1 ? samples : 0,
 	//	NSOpenGLPFAWindow,
 		0
 	};
@@ -238,6 +257,8 @@ void MacSwapBuffer(void){
 	NSEvent* event;
  	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 
+ 	keys[GEK_MWHEELUP] = false;
+ 	keys[GEK_MWHEELDOWN] = false;
 	_ge_mac_mouse_warp_x = 0;
 	_ge_mac_mouse_warp_y = 0;
 	warped = false;
@@ -269,17 +290,29 @@ void MacSwapBuffer(void){
 		if([event type] == NSOtherMouseUp){
 			keys[GEK_RBUTTON] = 0;
 		}
+		if([event type] == NSScrollWheel){
+		//	printf("scroll : %f\n", [event deltaY]);
+			if([event deltaY] >= 0.1f){
+				keys[GEK_MWHEELUP] = true;
+			}
+			if([event deltaY] <= -0.1f){
+				keys[GEK_MWHEELDOWN] = true;
+			}
+		}
+		if([event type] == NSFlagsChanged){
+  			keys[GEK_SHIFT] = [event modifierFlags] & NSShiftKeyMask ? true : false;
+		}
 		if([event type] == NSKeyDown){
-			printf("down\n");
+		//	printf("down\n");
 			int key = [[event characters] characterAtIndex:0];
 			key = toupper(key);
-		    printf("key down event : %c\n", key);
+		 //   printf("key down event : %c\n", key);
 			keys[key] = true;
 		}
 		if([event type] == NSKeyUp){
 			int key = [[event characters] characterAtIndex:0];
 			key = toupper(key);
-		    printf("key up event : %c\n", key);
+		//    printf("key up event : %c\n", key);
 			keys[key] = false;
 		}
 		if(event != nil && [event type] != 0){
@@ -330,4 +363,12 @@ void MacSetWarpMode(int en){
 
 void MacGetPressedKeys(u8* k){
 	memcpy(k, keys, GE_KEYS_COUNT*sizeof(u8));
+}
+
+void geCursorVisible(bool visible){
+	if(visible){
+		[NSCursor unhide];
+	}else{
+		[NSCursor hide];
+	}
 }

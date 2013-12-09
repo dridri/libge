@@ -90,14 +90,6 @@ void geCursorRoundMode(bool active){
 	}
 }
 
-void geCursorVisible(bool visible){
-	LibGE_MacContext* context = (LibGE_MacContext*)libge_context->syscontext;
-	if(!visible){
-
-	}else{
-	}
-}
-
 int MacGetLastPressed(){
 	int ret = last_pressed;
 	last_pressed = 0;
