@@ -240,11 +240,11 @@ void LoadRenderer(const char* path, ge_File* fp, ge_Scene* scene, ge_Renderer* r
 		}
 	}
 
-//#ifndef PLATFORM_mac
+#ifndef PLATFORM_mac
 	if(render->tesselated){
 		render->draw_mode = GE_PATCHES;
 	}
-//#endif
+#endif
 	gePrintDebug(0x100, "LoadRenderer 3\n");
 	geRendererCreateContext(scene, render);
 	gePrintDebug(0x100, "LoadRenderer 4\n");

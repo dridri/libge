@@ -170,12 +170,6 @@ void geMatrixInverse(float* ret, float* base_mat, int size){
 	for(i=0,I=0; i<size; i++, I+=size){
 		ret[I+i] = 1.0 / temp_matrix[I+i];
 		for(j=0; j<size; j++){
-			if(!(u32)temp_matrix[I+i]){ //det is null
-			//	gePrintDebug(0x100, "Null matrix determinant\n");
-			//	memcpy(ret, base_mat, size*size*sizeof(float));
-			//	geMatrixPseudoInverse(ret, (ge_Matrix4f*)base_mat);
-			//	return;
-			}
 			if(j != i)
 				ret[I+j] = -temp_matrix[I+j] / temp_matrix[I+i];
 

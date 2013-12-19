@@ -35,6 +35,7 @@
 - (void) drawRect: (NSRect) bounds;
 @end
 
+static int win_flags = 0;
 static NSOpenGLPixelFormat* gl_format;
 static YsOpenGLWindow* ysWnd = nil;
 static YsOpenGLView* ysView = nil;
@@ -80,12 +81,17 @@ static u8 keys[GE_KEYS_COUNT + 32] = { 0 };
 
 - (BOOL)canBecomeKeyWindow
 {
-    return YES;
+    return !(win_flags & 0xF0000000);
 }
 
 - (BOOL)canBecomeMainWindow
 {
-    return YES;
+    return TRUE;
+}
+
+- (BOOL)willUseFullScreenContentSize
+{
+    return (win_flags & GE_WINDOW_FULLSCREEN);
 }
 
 @end
@@ -111,7 +117,12 @@ static u8 keys[GE_KEYS_COUNT + 32] = { 0 };
 
 - (BOOL)acceptsFirstResponder {
 	printf("%s\n",__FUNCTION__);
-    return YES;
+    return !(win_flags & 0xF0000000);
+}
+
+- (BOOL) isOpaque
+{
+	return FALSE;
 }
 
 - (void) flagsChanged: (NSEvent *)theEvent
@@ -134,7 +145,7 @@ static u8 keys[GE_KEYS_COUNT + 32] = { 0 };
 
 @end
 
-void MacOpenWindow(int width, int height, int flags){
+void MacOpenWindow(int* Width, int* Height, int flags){
 	NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 
 	[NSApplication sharedApplication];
@@ -147,6 +158,16 @@ void MacOpenWindow(int width, int height, int flags){
 	
 	[NSApp finishLaunching];
 
+	win_flags = flags;
+	int width = *Width;
+	int height = *Height;
+
+	if(width < 0){
+		*Width = width = [[NSScreen mainScreen] frame].size.width;
+	}
+	if(height < 0){
+		*Height = height = [[NSScreen mainScreen] frame].size.height;
+	}
 
 	int samples = 1;
 	if(flags & GE_WINDOW_MSAA2X){
@@ -166,13 +187,18 @@ void MacOpenWindow(int width, int height, int flags){
 	
 	ysWnd = [YsOpenGLWindow alloc];
 	if(flags & GE_WINDOW_FULLSCREEN){
-		[ysWnd initWithContentRect:[[NSScreen mainScreen] frame] styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+		[ysWnd initWithContentRect:[[NSScreen mainScreen] frame] styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 		[ysWnd setLevel:NSMainMenuWindowLevel+1];
 		[ysWnd setOpaque:YES];
-		[ysWnd setHidesOnDeactivate:YES];
 	}else{
 		[ysWnd initWithContentRect:contRect styleMask:winStyle backing:NSBackingStoreBuffered defer:NO];
 	}
+	if(flags & 0xF0000000){
+	//	[ysWnd setBackgroundColor:[NSColor colorWithDeviceRed:0.0 green:0.0 blue:1.0 alpha:0.5]];
+		[ysWnd setBackgroundColor:[NSColor clearColor]];
+		[ysWnd setOpaque:NO];
+	}
+
 	NSOpenGLPixelFormatAttribute formatAttrib[] =
 	{
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
@@ -192,7 +218,11 @@ void MacOpenWindow(int width, int height, int flags){
 	[gl_format initWithAttributes: formatAttrib];
 	
 	ysView = [YsOpenGLView alloc];
-	contRect = NSMakeRect(0, 0, width, height);
+	if(flags & GE_WINDOW_FULLSCREEN){
+		contRect = NSMakeRect(0, 0, [[NSScreen mainScreen] frame].size.width, [[NSScreen mainScreen] frame].size.height);
+	}else{
+		contRect = NSMakeRect(0, 0, width, height);
+	}
 	[ysView initWithFrame:contRect pixelFormat:gl_format];
 
 	[ysWnd setContentView:ysView];
@@ -202,18 +232,26 @@ void MacOpenWindow(int width, int height, int flags){
 	[ysWnd makeFirstResponder:ysView];
 */
 	[ysWnd makeMainWindow];
-[NSApp setActivationPolicy: NSApplicationActivationPolicyRegular];
-	[ysWnd makeKeyAndOrderFront:ysWnd];
+//	[ysWnd makeKeyAndOrderFront:ysWnd];
 	[ysWnd orderFrontRegardless];
- 	[ysWnd makeKeyWindow]; 
-
-	[NSApp activateIgnoringOtherApps:YES];
+	if(flags & 0xF0000000){
+		[ysWnd setLevel:NSMainMenuWindowLevel+1];
+ 	}else{
+ 		if(flags & GE_WINDOW_FULLSCREEN){
+			[ysWnd setHidesOnDeactivate:YES];
+ 		}
+		[NSApp setActivationPolicy: NSApplicationActivationPolicyRegular];
+ 		[ysWnd makeKeyWindow];
+		[NSApp activateIgnoringOtherApps:YES];
+ 	}
 
 //	YsAddMenu();
 
 	[pool release];
 
 	[[ysView openGLContext] makeCurrentContext];
+	long zeroOpacity = 0;
+	[[ysView openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
 
 /*
 	int i;
@@ -270,7 +308,13 @@ void MacSwapBuffer(void){
 		event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES];
 //		if([event type] != 0)printf("event type : %d\n", (int)[event type]);
 		if([event type] == NSMouseMoved){
-			MacWarpMouse([event locationInWindow].x, [event locationInWindow].y);
+			if(warp_mode){
+				MacWarpMouse([event locationInWindow].x, [event locationInWindow].y);
+			}else{
+				NSRect rect = [ysWnd contentRectForFrameRect:[ysWnd frame]];
+				mx = [event locationInWindow].x;
+				my = rect.size.height - [event locationInWindow].y;
+			}
 		}
 		if([event type] == NSLeftMouseDown){
 			keys[GEK_RBUTTON] = 1;
@@ -363,6 +407,11 @@ void MacSetWarpMode(int en){
 
 void MacGetPressedKeys(u8* k){
 	memcpy(k, keys, GE_KEYS_COUNT*sizeof(u8));
+}
+
+void MacGetMousePos(int*x, int* y){
+	*x = mx;
+	*y = my;
 }
 
 void geCursorVisible(bool visible){

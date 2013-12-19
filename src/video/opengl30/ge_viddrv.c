@@ -108,10 +108,9 @@ void geInitVideo(){
 	load_func(glBindRenderbuffer);
 	load_func(glRenderbufferStorageMultisample);
 	load_func(glFramebufferRenderbuffer);
-#endif // PLATFORM_mac
 	
 	load_func(glPatchParameteri);
-
+#endif // PLATFORM_mac
 }
 
 void InitMipmaps(ge_Image* image, int max){
@@ -597,7 +596,9 @@ ge_Framebuffer* geCreateFramebufferMultisample(int width, int height, int sample
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+#ifndef PLATFORM_mac
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+#endif
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

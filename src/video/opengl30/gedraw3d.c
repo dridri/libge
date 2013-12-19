@@ -110,9 +110,11 @@ void geRendererUse(ge_Renderer* render){
 	
 	glBindVertexArray(render->vao);
 
+#ifndef PLATFORM_mac
 	if(render->tesselated && glPatchParameteri){
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
+#endif
 	
 	if(render->depth_enabled){
 		glEnable(GL_DEPTH_TEST);
@@ -450,7 +452,9 @@ void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, 
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+#ifndef PLATFORM_mac
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+#endif
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light->shadow->id, 0, 0);

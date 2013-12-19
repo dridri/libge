@@ -23,7 +23,7 @@
 //#define GL3_PROTOTYPES 1
 #include <OpenGL/gl3.h>
 //#include <OpenGL/gl3ext.h>
-#include <GL/glext.h>
+//#include <GL/glext.h>
 #else
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -59,6 +59,9 @@ LibGE_VideoContext* _ge_GetVideoContext();
 
 #ifndef GL_INTENSITY
 #define GL_INTENSITY 0x8049
+#endif
+#ifndef GL_DEPTH_TEXTURE_MODE
+#define GL_DEPTH_TEXTURE_MODE 0x884B
 #endif
 
 #define define_proc(base, name) \
@@ -193,9 +196,9 @@ define_proc(UNIFORMMATRIX3FV, glUniformMatrix3fv);
 define_proc(UNIFORMMATRIX4FV, glUniformMatrix4fv);
 define_proc(GETUNIFORMFV, glGetUniformfv);
 define_proc(VERTEXATTRIBPOINTER, glVertexAttribPointer);
-#endif // PLATFORM_mac
 
 //Tesselation
 define_proc(PATCHPARAMETERI, glPatchParameteri);
+#endif // PLATFORM_mac
 
 #endif //__GE_GL_H__

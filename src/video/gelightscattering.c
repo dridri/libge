@@ -66,10 +66,10 @@ void geLightScatterRender(ge_LightScatter* scatter, float** lights_screen_coord,
 	geShaderUniform1f(scatter->loc_weight, scatter->weight);
 	geShaderUniform1f(scatter->loc_ScreenRatio, ratio);
 	geShaderUniform1i(scatter->loc_nLights, nLights);
-	geShaderUniform1i(scatter->loc_texture1, 1);
-	geShaderUniform1i(scatter->loc_texture0, 0);
 	geTextureImage(1, scatter->depth_buffer);
+	geShaderUniform1i(scatter->loc_texture1, 1);
 	geTextureImage(0, scatter->color_buffer);
+	geShaderUniform1i(scatter->loc_texture0, 0);
 	geBlitImageDepth(0, 0, -2047, scatter->color_buffer, 0, 0, w, h, GE_BLIT_VFLIP | GE_BLIT_NOALPHA);
 
 	geShaderUse(NULL);

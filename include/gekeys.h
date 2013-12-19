@@ -247,6 +247,7 @@ typedef struct ge_KeysExtension {
 #define GEK_LEFT		11
 #define GEK_RIGHT		12
 
+#define GEK_ESCAPE		27
 #define GEK_SPACE		32
 
 #define GE_KEYS_COUNT 0xff

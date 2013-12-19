@@ -2,15 +2,10 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-<<<<<<< HEAD
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99") # -g3
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x") # -g3
-=======
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x -g3")
->>>>>>> a856bc891ae3b2c9b4b481e102e1ff17324e6d09
+
 add_definitions(-DLIBGE_LIB)
 #add_definitions(-DOPENCL)
 
@@ -234,6 +229,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		objc
 		m
 		mad
+		bz2
 		${OPENGL_LIBRARIES}
 		${LUA_LIBRARY}
 		${JPEG_LIBRARY}

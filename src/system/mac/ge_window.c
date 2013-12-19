@@ -19,9 +19,10 @@
 #include "../../ge_internal.h"
 #include <stdlib.h>
 
-void MacOpenWindow(int width, int height, int flags);
+void MacOpenWindow(int* width, int* height, int flags);
 void MacSwapBuffer(void);
 void MacSetWarpMode(int en);
+void MacGetMousePos(int*x, int* y);
 
 bool initializing = false;
 static int cbuffer = 0;
@@ -38,7 +39,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	int width = Width;
 	int height = Height;
 
-	MacOpenWindow(Width, Height, flags);
+	MacOpenWindow(&width, &height, flags);
 
 	libge_context->width = width;
 	libge_context->height = height;
@@ -69,6 +70,7 @@ void geWaitVsync(int enabled){
 
 int MacSwapBuffers(){
 	MacSwapBuffer();
+	MacGetMousePos(&libge_context->mouse_x, &libge_context->mouse_y);
 	return cbuffer ^= 1;
 }
 
