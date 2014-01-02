@@ -86,7 +86,8 @@ ge_Cl* geCreateCl(const char* name, int preferred_type, const char* file){
 	
 	int size = 0;
 	char* source = load_source(file, NULL);
-	cl->program = clCreateProgramWithSource(cl->context, 1, (const char **)&source, (const size_t*)&size, &cl->err);
+//	printf("GE::CL::clCreateProgramWithSource :\n%s\n", source);
+	cl->program = clCreateProgramWithSource(cl->context, 1, (const char **)&source, NULL/*(const size_t*)&size*/, &cl->err);
 
 	printf("GE::CL::building the program\n");
 	cl->err = clBuildProgram(cl->program, 0, NULL, NULL, NULL, NULL);

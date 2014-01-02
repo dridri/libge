@@ -7,7 +7,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
 set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x") # -g3
 
 add_definitions(-DLIBGE_LIB)
-#add_definitions(-DOPENCL)
+
+add_definitions(-DOPENCL)
+set(SOURCES ${SOURCES} src/gecl.c)
+set(LIBS ${LIBS} -lOpenCL)
 
 option(target "target" )
 option(video "video" )
@@ -66,7 +69,7 @@ endif()
 
 add_definitions(-DPLATFORM_${target})
 
-set(SOURCES
+set(SOURCES ${SOURCES}
 	src/video/geimg.c
 	src/video/gelensflare.c
 	src/video/gelightscattering.c
@@ -116,7 +119,6 @@ set(SOURCES
 	src/gesocket.c
 	src/geutils.c
 	src/gesys.c
-#	src/gecl.c
 	)
 
 if("${ARCH}" MATCHES "64")
@@ -208,7 +210,7 @@ endif()
 add_executable(test ${TEST_SOURCES} ${SOURCES})
 
 if(WIN32)
-	set(LIBS
+	set(LIBS ${LIBS}
 		m
 		mad
 		png
@@ -225,7 +227,7 @@ if(WIN32)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
-	set(LIBS
+	set(LIBS ${LIBS}
 		objc
 		m
 		mad
@@ -240,7 +242,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		pthread
 		)
 elseif(UNIX)
-	set(LIBS
+	set(LIBS ${LIBS}
 		m
 		mad
 #		OpenCL
