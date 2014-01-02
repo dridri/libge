@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99") # -g3
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}") # -g3
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c99 -std=c++0x") # -g3
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x") # -g3
 
 add_definitions(-DLIBGE_LIB)
 
