@@ -35,6 +35,7 @@
 - (void) drawRect: (NSRect) bounds;
 @end
 
+void _ge_mac_resize(int w, int h);
 static int win_flags = 0;
 static NSOpenGLPixelFormat* gl_format;
 static YsOpenGLWindow* ysWnd = nil;
@@ -141,6 +142,22 @@ static u8 keys[GE_KEYS_COUNT + 32] = { 0 };
 
 - (void) mouseMoved:(NSEvent *)theEvent
 {
+}
+
+- (void)viewDidMoveToWindow
+{
+	[[NSNotificationCenter defaultCenter]
+		addObserver:self
+		selector:@selector(windowResized:)
+		name:NSWindowDidResizeNotification
+		object:[self window]];
+}
+
+- (void)windowResized:(NSNotification *)notification;
+{
+	NSSize size = [[self window] frame].size;
+	NSLog(@"window width = %f, window height = %f", size.width, size.height);
+	_ge_mac_resize(size.width, size.height);
 }
 
 @end
@@ -317,10 +334,10 @@ void MacSwapBuffer(void){
 			}
 		}
 		if([event type] == NSLeftMouseDown){
-			keys[GEK_RBUTTON] = 1;
+			keys[GEK_LBUTTON] = 1;
 		}
 		if([event type] == NSLeftMouseUp){
-			keys[GEK_RBUTTON] = 0;
+			keys[GEK_LBUTTON] = 0;
 		}
 		if([event type] == NSRightMouseDown){
 			keys[GEK_RBUTTON] = 1;
@@ -329,10 +346,10 @@ void MacSwapBuffer(void){
 			keys[GEK_RBUTTON] = 0;
 		}
 		if([event type] == NSOtherMouseDown){
-			keys[GEK_RBUTTON] = 1;
+			keys[GEK_MBUTTON] = 1;
 		}
 		if([event type] == NSOtherMouseUp){
-			keys[GEK_RBUTTON] = 0;
+			keys[GEK_MBUTTON] = 0;
 		}
 		if([event type] == NSScrollWheel){
 		//	printf("scroll : %f\n", [event deltaY]);
