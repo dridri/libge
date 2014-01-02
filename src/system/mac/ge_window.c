@@ -68,9 +68,21 @@ void CloseFullScreen(){
 void geWaitVsync(int enabled){
 }
 
+void _ge_mac_resize(int w, int h){
+	libge_context->width = w;
+	libge_context->height = h;
+	libge_context->projection_matrix[0] = (float)0xFFFFFFFF;
+	geGraphicsInit();
+	geDrawingMode(libge_context->drawing_mode | 0xF0000000);
+}
+
 int MacSwapBuffers(){
+	int x = 0;
+	int y = 0;
 	MacSwapBuffer();
-	MacGetMousePos(&libge_context->mouse_x, &libge_context->mouse_y);
+	MacGetMousePos(&x, &y);
+	libge_context->mouse_x = x;
+	libge_context->mouse_y = y;
 	return cbuffer ^= 1;
 }
 
