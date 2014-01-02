@@ -5,6 +5,19 @@ The Gamma Engine library is a fast and easy multiplatform game engine, currently
 Windows, PSP (open source SDK) and Android (NDK with GLES 2.0+) platforms
 
 
+Dependancies
+========
+
+You need the devel package for the following libraries :
+ * libpng
+ * libjpeg
+ * libfreetype
+ * liblua-5.2
+ * libmad
+ * libbz2
+ * libz
+The devel packages of OpenGL, X11 and Alsa are also needed on Linux
+
 
 Building
 ========
