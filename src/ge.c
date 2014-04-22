@@ -134,7 +134,9 @@ void geSwapFunction(int (*func)()){
 }
 
 int geSwapBuffers(){
+#ifndef LIBGE_MINI
 	WindowsRoutine();
+#endif
 	if(libge_context->cursor_image){
 		int mx=0, my=0;
 		geCursorPosition(&mx, &my);
@@ -150,6 +152,7 @@ void geSplashscreenEnable(bool enabled){
 }
 
 void ge_Splashscreen(){
+#ifndef LIBGE_MINI
 	if(!_ge_splashscreen_enabled)return;
 	u32 ticks = geGetTick();
 	u32 time = 0;
@@ -173,6 +176,7 @@ void ge_Splashscreen(){
 		geSwapBuffers();
 	}
 	geFreeImage(splash);
+#endif
 }
 
 void geDebugMode(int mode){

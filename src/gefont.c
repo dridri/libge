@@ -84,16 +84,19 @@ ge_Font* geLoadFont(const char* filename){
 	if(!filename || !filename[0] || !strlen(filename)){
 		return _ge_FontSetupDebug();
 	}
-
+#ifdef LIBGE_MINI
+	return _ge_FontSetupDebug();
+#else
 	ge_File* file = geFileOpen(filename, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
 	if(!file){
 		return _ge_FontSetupDebug();
 	}
 	ge_Font* font = geLoadFontTTF(file);
-	geFileClose(file);
 	geFontSize(font, 20);
+	geFileClose(file);
 
 	return font;
+#endif
 }
 
 void geFreeFont(ge_Font* font){
@@ -134,10 +137,12 @@ void geFontSize(ge_Font* font, int px){
 			
 			geFreeFont(tmp_font);
 			break;
+#ifndef LIBGE_MINI
 		case GE_FONT_TTF :
 			FontSetSizeTTF(font, px);
 			geCreateFontTtf(font);
 			break;
+#endif
 		default :
 			break;
 	}
@@ -182,20 +187,24 @@ void geFontPrintScreenUnicode(int x, int y, ge_Font* font, const unsigned short*
 	}
 	ge_Image* image = libge_context->fontbuf;
 	switch(font->type){
+#ifndef LIBGE_MINI
 		case GE_FONT_TTF:
 			memset(image->data, 0x0, image->textureWidth*image->height*sizeof(u32));
 			FontPrintImageTtf_short(font, x, y, text, color, image);
 			geBlitImage(0, 0, image, 0, 0, image->width, image->height, 0);
 			break;
+#endif
 		default: return;
 	}
 }
 
 void geFontPrintImageUnicode(int x, int y, ge_Font* font, const unsigned short* text, u32 color, ge_Image* image){
 	switch(font->type){
+#ifndef LIBGE_MINI
 		case GE_FONT_TTF:
 			FontPrintImageTtf_short(font, x, y, text, color, image);
 			break;
+#endif
 		default: return;
 	}
 }
@@ -260,9 +269,11 @@ ge_Image* geFontMakeImage(ge_Font* font, const char* text, u32 color){
 
 void geFontMeasureTextUnicode(ge_Font* font, const unsigned short* text, int* width, int* height){
 	switch(font->type){
+#ifndef LIBGE_MINI
 		case GE_FONT_TTF:
 			FontMeasureText_short(font, text, width, height);
 			break;
+#endif
 		default:
 			break;
 	}

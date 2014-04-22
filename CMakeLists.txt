@@ -15,6 +15,13 @@ add_definitions(-DLIBGE_LIB)
 option(target "target" )
 option(video "video" )
 option(static "static" )
+option(mini "mini" )
+option(opttest "opttest" )
+
+if(mini)
+	add_definitions(-DLIBGE_NOLUA)
+	add_definitions(-DLIBGE_MINI)
+endif()
 
 if(${target} MATCHES OFF)
 	if(WIN32)
@@ -59,7 +66,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 if(NOT WIN32)
 	find_package(PNG REQUIRED)
 	find_package(JPEG REQUIRED)
-#	find_package(Freetype REQUIRED)
+	find_package(Freetype REQUIRED)
 	find_package(Lua52 REQUIRED)
 	find_package(ZLIB REQUIRED)
 	include_directories(${PNG_INCLUDE_DIRS})
@@ -196,6 +203,63 @@ set(INCLUDES
 	include/gegfx.h
 	)
 
+
+
+set(MINI_SOURCES ${MINI_SOURCES}
+	src/video/geimg.c
+	src/video/gelensflare.c
+	src/video/gelightscattering.c
+	src/video/gewater.c
+	src/geloader_img.c
+	src/gesaver_obj.c
+	src/gesaver_obj_geo.c
+	src/geanimation.c
+	src/gecamera.c
+	src/gephysics.c
+	src/gekeyboard.c
+	src/gefont.c
+	src/ge.c
+	src/getimers.c
+	src/geframerate.c
+	src/gefile.c
+	src/gesocket.c
+	src/geutils.c
+	src/gesys.c
+	)
+
+if(WIN32)
+	set(MINI_SOURCES ${MINI_SOURCES} src/system/win/gewinkeyboard.c)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(MINI_SOURCES ${MINI_SOURCES} src/system/mac/mac.m)
+elseif(UNIX)
+	set(MINI_SOURCES ${MINI_SOURCES} src/system/linux/gelinuxkeyboard.c)
+endif()
+
+set(MINI_SOURCES
+	${MINI_SOURCES}
+	src/system/${target}/gesystem.c
+	src/system/${target}/ge_window.c
+	src/system/${target}/gememory.c
+	src/system/${target}/gekeys.c
+	src/system/${target}/gethreads.c
+	src/system/${target}/genet.c
+	)
+
+set(MINI_SOURCES
+	${MINI_SOURCES}
+	src/video/${video}/geparticles.c
+	src/video/${video}/ge_context.c
+	src/video/${video}/ge_viddrv.c
+	src/video/${video}/geshaders.c
+	src/video/${video}/gematrix.c
+	src/video/${video}/gedraw2d.c
+	src/video/${video}/gedraw3d.c
+	src/video/${video}/geclouds.c
+	src/video/${video}/geloader_3d.c
+	src/video/${video}/gemaths.c
+	)
+
+
 if("${video}" MATCHES "opengl*")
 	set(VID_MSG " supporting ${video}+ hardware")
 endif()
@@ -205,11 +269,13 @@ AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
 if(static)
 	add_library(ge_static STATIC ${SOURCES})
+elseif(opttest)
+	add_executable(test ${TEST_SOURCES} ${SOURCES})
+elseif(mini)
+	add_library(ge STATIC ${MINI_SOURCES})
 else()
 	add_library(ge SHARED ${SOURCES})
 endif()
-
-add_executable(test ${TEST_SOURCES} ${SOURCES})
 
 if(WIN32)
 	set(LIBS ${LIBS}
@@ -264,10 +330,12 @@ message(STATUS "LIBS : ${LIBS}")
 if(static)
 	target_link_libraries(ge_static ${LIBS})
 	INSTALL(TARGETS ge_static ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
+elseif(opttest)
+	target_link_libraries(test ${LIBS})
 else()
 	target_link_libraries(ge ${LIBS})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 endif()
 
-target_link_libraries(test ${LIBS})
 INSTALL(FILES ${INCLUDES} DESTINATION include/libge)
+

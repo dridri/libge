@@ -90,6 +90,7 @@ static ge_Image* LoadCorrespondingType(const char* file, int pref_w, int pref_h)
 	geFileRewind(fp);
 
 	ge_Image* img = NULL;
+#ifndef LIBGE_MINI
 	if(!strncmp(buffer, "BM", 2)){
 		img = geLoadBmp(fp);
 	}else
@@ -105,7 +106,7 @@ static ge_Image* LoadCorrespondingType(const char* file, int pref_w, int pref_h)
 	if(strstr(buffer, "/* XPM */")){
 		img = geLoadXPM(fp);
 	}
-	
+#endif
 	fp->buffer = NULL;
 	geFileClose(fp);
 	if(img){

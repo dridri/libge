@@ -1,4 +1,4 @@
- /*
+/*
 	The Game Engine Library is a multiplatform library made to make games
 	Copyright (C) 2012  Aubry Adrien (dridri85)
 
@@ -97,6 +97,59 @@ void geBlitImageToImageStretched(int x, int y, ge_Image* source, int sx, int sy,
 			*destinationData = geColorMix(*destinationData, color, (float)a / 255.0f);
 		}
 	}
+}
+
+static ge_Image* circlebuf = NULL;
+
+void geDrawCircle(int x, int y, int r, u32 color)
+{
+	if(circlebuf == NULL || circlebuf->width != geGetContext()->width || circlebuf->height != geGetContext()->height){
+		if(circlebuf){
+			geFreeImage(circlebuf);
+		}
+		circlebuf = geCreateSurface(geGetContext()->width, geGetContext()->height, 0);
+	}
+
+	memset(circlebuf->data, 0, circlebuf->textureWidth * circlebuf->height * 4);
+
+	int i, j;
+	for(j=-r; j<r; j++){
+		for(i=-r; i<r; i++){
+			int a = i*i + j*j;
+			if(a >= r*r - r*2 && a <= r*r){
+			//	geFillRectScreen(x + i, y + j, 1, 1, color);
+				circlebuf->data[(y + j) * circlebuf->textureWidth + x + i] = color;
+			}
+		}
+	}
+
+	geUpdateImage(circlebuf);
+	geDrawImage(0, 0, circlebuf);
+}
+
+void geFillCircle(int x, int y, int r, u32 color)
+{
+	if(circlebuf == NULL || circlebuf->width != geGetContext()->width || circlebuf->height != geGetContext()->height){
+		if(circlebuf){
+			geFreeImage(circlebuf);
+		}
+		circlebuf = geCreateSurface(geGetContext()->width, geGetContext()->height, 0);
+	}
+
+	memset(circlebuf->data, 0, circlebuf->textureWidth * circlebuf->height * 4);
+
+	int i, j;
+	for(j=-r; j<r; j++){
+		for(i=-r; i<r; i++){
+			if(i*i + j*j <= r*r){
+			//	geFillRectScreen(x + i, y + j, 1, 1, color);
+				circlebuf->data[(y + j) * circlebuf->textureWidth + x + i] = color;
+			}
+		}
+	}
+
+	geUpdateImage(circlebuf);
+	geDrawImage(0, 0, circlebuf);
 }
 
 u32 geImagePixel(int x, int y, ge_Image* img){

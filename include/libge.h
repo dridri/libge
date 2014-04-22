@@ -52,7 +52,9 @@ extern "C" {
 #include "geresources.h"
 #include "gesys.h"
 #include "gefont.h"
+#ifndef LIBGE_NOLUA
 #include "gelua.h"
+#endif
 #include "gegui.h"
 #include "gesocket.h"
 #include "geutils.h"
@@ -153,6 +155,8 @@ LIBGE_API void geFillRectScreenDepth(int x, int y, int z, int width, int height,
 LIBGE_API void geDrawLineScreenFade(int x0, int y0, int x1, int y1, u32 color0, u32 color1);
 LIBGE_API void geDrawLineScreenFadeDepth(int x0, int y0, int z0, int x1, int y1, int z1, u32 color0, u32 color1);
 
+LIBGE_API void geDrawCircle(int x, int y, int r, u32 color);
+LIBGE_API void geFillCircle(int x, int y, int r, u32 color);
 
 // Image Loading
 LIBGE_API ge_Image* geLoadImage(const char* file);
