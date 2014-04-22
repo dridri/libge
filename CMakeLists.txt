@@ -47,9 +47,11 @@ elseif("${target}" MATCHES "linux*")
 	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
 	set(platform linux)
 	find_package(X11 REQUIRED)
-	find_package(ALSA REQUIRED)
 	include_directories(${X11_INCLUDE_DIRS})
-	include_directories(${ALSA_INCLUDE_DIRS})
+	if(!mini)
+		find_package(ALSA REQUIRED)
+		include_directories(${ALSA_INCLUDE_DIRS})
+	endif()
 endif()
 
 if(${video} MATCHES OFF)
@@ -63,7 +65,7 @@ if(${video} MATCHES OFF)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-if(NOT WIN32)
+if(NOT WIN32 AND NOT mini)
 	find_package(PNG REQUIRED)
 	find_package(JPEG REQUIRED)
 	find_package(Freetype REQUIRED)
@@ -298,31 +300,38 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(LIBS ${LIBS}
 		objc
 		m
-		mad
-		bz2
 		${OPENGL_LIBRARIES}
-		${LUA_LIBRARY}
-		${JPEG_LIBRARY}
-		${PNG_LIBRARY}
-		${ZLIB_LIBRARY}
-		${FREETYPE_LIBRARY}
-		${ALSA_LIBRARY}
 		pthread
 		)
+	if(!mini)
+		set(LIBS ${LIBS}
+		mad
+			bz2
+			${LUA_LIBRARY}
+			${JPEG_LIBRARY}
+			${PNG_LIBRARY}
+			${ZLIB_LIBRARY}
+			${FREETYPE_LIBRARY}
+		)
+	endif()
 elseif(UNIX)
 	set(LIBS ${LIBS}
 		m
-		mad
 #		OpenCL
 		${OPENGL_LIBRARIES}
-		${LUA_LIBRARY}
-		${JPEG_LIBRARY}
-		${PNG_LIBRARY}
-		${ZLIB_LIBRARY}
-		${FREETYPE_LIBRARY}
-		${ALSA_LIBRARY}
 		pthread
 		)
+	if(!mini)
+		set(LIBS ${LIBS}
+			mad
+			${LUA_LIBRARY}
+			${JPEG_LIBRARY}
+			${PNG_LIBRARY}
+			${ZLIB_LIBRARY}
+			${FREETYPE_LIBRARY}
+			${ALSA_LIBRARY}
+		)
+	endif()
 endif()
 
 message(STATUS "LIBS : ${LIBS}")
