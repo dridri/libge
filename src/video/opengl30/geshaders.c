@@ -252,7 +252,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 #ifdef PLATFORM_mac
 		sprintf(buf, "#version 150\n%s%s", fullheader, src);
 #else
-		sprintf(buf, "#version 130\n%s%s", fullheader, src);
+		sprintf(buf, "#version 150\n%s%s", fullheader, src);
 #endif
 	}else{
 		buf = (char*)geMalloc(sizeof(char)*(srclen + 256));
@@ -260,7 +260,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 #ifdef PLATFORM_mac
 		sprintf(buf, "#version 150\n%s", src);
 #else
-		sprintf(buf, "#version 130\n%s", src);
+		sprintf(buf, "#version 150\n%s", src);
 #endif
 	}
 	gePrintDebug(0x100, "_geShaderSource : File computed\n");
