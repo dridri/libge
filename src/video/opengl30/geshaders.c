@@ -29,7 +29,7 @@ void geMatrixLocations();
 
 #define load_func(name) \
 	name = geglImportFunction(#name); \
-	gePrintDebug(0x100, #name ": 0x%08X\n", (t_ptr)name)
+	gePrintDebug(0x100, #name ": 0x%08lX\n", (t_ptr)name)
 
 int geInitShaders(){
 	int ext = 0;
