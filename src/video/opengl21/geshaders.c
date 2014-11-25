@@ -319,8 +319,10 @@ void geShaderUse(ge_Shader* shader){
 //	ge_draw_object_set_shader(shader);
 }
 
-void geForceShader(ge_Shader* sh){
+ge_Shader* geForceShader(ge_Shader* sh){
+	ge_Shader* ret = ge_force_shader;
 	ge_force_shader = sh;
+	return ret;
 }
 
 void geLineShader(ge_Shader* sh){

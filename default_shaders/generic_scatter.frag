@@ -6,7 +6,7 @@ uniform float sun_diameter = 0.5;
 uniform float weight = 5.65;
 smooth in vec3 frag_coord;
 
-#define NUM_SAMPLES 64
+#define NUM_SAMPLES 48
 float exposure = 0.0034;
 float decay = 1.0;
 float density = 0.84;
@@ -47,7 +47,7 @@ vec4 scatter(vec2 coord, vec2 light_coord, float dist){
 
 	if(dist < sun_diameter){
 		float d = 1.0 - (dist / sun_diameter);
-		float s = d * d * (exp(-d) + 1.0);
+		float s = 0.01 * d * d * (exp(-d) + 1.0);
 		color = color + color * vec4(clamp(0.0, 1.0, s));
 	}
 
@@ -76,6 +76,7 @@ void main(){
 			}
 		}
 		ge_FragColor = color;
+	//	ge_FragColor.rgb = vec3(1.0) - exp2(-3.0 * ge_FragColor.rgb);
 	}else{
 		float zNear = 1.0;
 		float zFar = 100.0;

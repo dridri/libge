@@ -454,6 +454,7 @@ typedef struct ge_Renderer {
 	u32 vbo;
 	u32 vao;
 	ge_Shader* shader;
+	ge_Shader* shadow_shader;
 	s32 loc_VertexTexcoord;
 	s32 loc_VertexColor;
 	s32 loc_VertexNormal;
@@ -497,6 +498,8 @@ typedef struct ge_Scene {
 	float material_ambient[4];
 	float material_diffuse[4];
 #endif
+
+	int render_mode;
 
 	ge_Light* lights;
 	s32 nLights;

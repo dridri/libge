@@ -51,7 +51,13 @@ void geDebugOut(char* buff, int bufsz){
 }
 
 u32 geGetTick(){
-	return timeGetTime();
+	static bool first = true;
+	static u32 t0 = 0;
+	if(first){
+		t0 = timeGetTime();
+		first = false;
+	}
+	return timeGetTime() - t0;
 }
 
 int geGetTickResolution(){

@@ -391,7 +391,7 @@ LIBGE_API void geShaderUniform2iv(int id, int n, int* v);
 LIBGE_API void geShaderUniform3iv(int id, int n, int* v);
 LIBGE_API void geShaderUniform4iv(int id, int n, int* v);
 LIBGE_API void geVertexAttribPointer(int id, int size, int type, bool normalized, int stride, void* data);
-LIBGE_API void geForceShader(ge_Shader* sh);
+LIBGE_API ge_Shader* geForceShader(ge_Shader* sh);
 
 
 

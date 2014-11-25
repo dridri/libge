@@ -17,6 +17,7 @@ option(video "video" )
 option(static "static" )
 option(mini "mini" )
 option(opttest "opttest" )
+option(ARCH "ARCH" )
 
 if(mini)
 	add_definitions(-DLIBGE_NOLUA)
@@ -33,18 +34,32 @@ if(${target} MATCHES OFF)
 	endif()
 endif()
 
-if("${target}" MATCHES "win*")
-	set(ARCH 64) ## TODO
-	set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
-	set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+if("${target}" MATCHES "psp")
+	message(STATUS "PSP")
+	execute_process(COMMAND psp-config -d OUTPUT_VARIABLE psp_path)
+	set(CMAKE_SYSTEM_NAME Generic) 
+	set(ARCH 32)
+	set(CMAKE_C_COMPILER "${psp_path}/bin/psp-gcc.exe")
+	set(CMAKE_CXX_COMPILER "${psp_path}/bin/psp-g++.exe")
+elseif("${target}" MATCHES "win*")
+	if(${ARCH} MATCHES OFF)
+		message(WARNING "Architecture defaulted to 64bits")
+		set(ARCH 64) ## TODO
+		set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
+		set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+	endif()
 elseif("${target}" MATCHES "mac*")
-	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	if(${ARCH} MATCHES OFF)
+		execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	endif()
 	set(CMAKE_C_COMPILER gcc)
 	set(CMAKE_CXX_COMPILER g++)
 	include_directories(/usr/include/freetype2)
 	include_directories(/usr/include/freetype2/freetype)
 elseif("${target}" MATCHES "linux*")
-	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	if(${ARCH} MATCHES OFF)
+		execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	endif()
 	set(platform linux)
 	find_package(X11 REQUIRED)
 	include_directories(${X11_INCLUDE_DIRS})
@@ -135,15 +150,18 @@ set(SOURCES ${SOURCES}
 if("${ARCH}" MATCHES "64")
 	set(ARCH_MSG "64 bit architecture")
 	set(SOURCES ${SOURCES} src/ge_internal_64.c)
-	set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m64")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
 	set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -m64")
+	set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m64")
 else()
 	set(ARCH_MSG "32 bit architecture")
 	set(SOURCES ${SOURCES} src/ge_internal_32.c)
-	set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m32")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 	set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -m32")
+	set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m32")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
 endif()
 
 if(WIN32)
@@ -154,6 +172,17 @@ elseif(UNIX)
 	set(SOURCES ${SOURCES} src/system/linux/gelinuxkeyboard.c)
 endif()
 
+if(${video} MATCHES opengl21 AND ${target} MATCHES win)
+set(SOURCES
+	${SOURCES}
+	src/system/win_low/gesystem.c
+	src/system/win_low/ge_window.c
+	src/system/win_low/gememory.c
+	src/system/win_low/gekeys.c
+	src/system/win_low/gethreads.c
+	src/system/win_low/genet.c
+	)
+else()
 set(SOURCES
 	${SOURCES}
 	src/system/${target}/gesystem.c
@@ -163,6 +192,7 @@ set(SOURCES
 	src/system/${target}/gethreads.c
 	src/system/${target}/genet.c
 	)
+endif()
 
 set(SOURCES
 	${SOURCES}
@@ -342,7 +372,7 @@ if(static)
 elseif(opttest)
 	target_link_libraries(test ${LIBS})
 else()
-	target_link_libraries(ge ${LIBS})
+	target_link_libraries(ge ${LIBS} -m${ARCH})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 endif()
 

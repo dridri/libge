@@ -119,6 +119,10 @@ extern "C" {
 // Renderer flags
 #define GE_RENDERER_WATER 0x1000
 
+// Scene rendering mode
+#define GE_SCENE_RENDER_NORMAL 0x0
+#define GE_SCENE_RENDER_SHADOW 0x10
+
 //Images effects
 #define GE_EFFECT_ANTI_GRADATION 0xe0
 
