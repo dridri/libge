@@ -45,8 +45,14 @@ typedef struct LibGE_VideoContext {
 
 LibGE_VideoContext* _ge_GetVideoContext();
 
+#if defined(PLATFORM_linux) || defined(PLATFORM_linux_low) || defined(PLATFORM_mac)
+#define define_proc(base, name) \
+	__attribute__ ((visibility ("hidden")))  PFNGL##base##PROC name
+#else
 #define define_proc(base, name) \
 	PFNGL##base##PROC name
+#endif
+
 /*
 //Misc
 define_proc(CLEAR, glClear);

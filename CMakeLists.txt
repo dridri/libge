@@ -110,7 +110,11 @@ if(NOT WIN32 AND NOT mini)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
-add_definitions(-DPLATFORM_${target})
+if(${video} MATCHES opengl21 AND ${target} MATCHES win)
+	add_definitions(-DPLATFORM_${target}_low)
+else()
+	add_definitions(-DPLATFORM_${target})
+endif()
 
 set(SOURCES ${SOURCES}
 	src/video/geimg.c

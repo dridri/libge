@@ -1,6 +1,6 @@
 CC	=	gcc
 C++	=	g++
-CFLAGS	= -O3 -Wall -mfpmath=sse -msse -m32
+CFLAGS	= -O3 -Wall -mfpmath=sse -msse
 
 TARGET	 =	02-renderer
 LIBS	 =  -lge

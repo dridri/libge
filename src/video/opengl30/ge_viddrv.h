@@ -64,8 +64,13 @@ LibGE_VideoContext* _ge_GetVideoContext();
 #define GL_DEPTH_TEXTURE_MODE 0x884B
 #endif
 
+#if defined(PLATFORM_linux) || defined(PLATFORM_linux_low) || defined(PLATFORM_mac)
 #define define_proc(base, name) \
 	__attribute__ ((visibility ("hidden")))  PFNGL##base##PROC name
+#else
+#define define_proc(base, name) \
+	PFNGL##base##PROC name
+#endif
 
 /*
 //Misc
