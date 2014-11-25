@@ -65,7 +65,8 @@ LibGE_VideoContext* _ge_GetVideoContext();
 #endif
 
 #define define_proc(base, name) \
-	PFNGL##base##PROC name
+	__attribute__ ((visibility ("hidden")))  PFNGL##base##PROC name
+
 /*
 //Misc
 define_proc(CLEAR, glClear);
@@ -195,7 +196,6 @@ define_proc(UNIFORM4IV, glUniform4iv);
 define_proc(UNIFORMMATRIX3FV, glUniformMatrix3fv);
 define_proc(UNIFORMMATRIX4FV, glUniformMatrix4fv);
 define_proc(GETUNIFORMFV, glGetUniformfv);
-define_proc(VERTEXATTRIBPOINTER, glVertexAttribPointer);
 
 //Tesselation
 define_proc(PATCHPARAMETERI, glPatchParameteri);

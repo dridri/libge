@@ -67,16 +67,33 @@ elseif("${target}" MATCHES "linux*")
 		find_package(ALSA REQUIRED)
 		include_directories(${ALSA_INCLUDE_DIRS})
 	endif()
+elseif("${target}" MATCHES "qt")
+	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+#	find_package(Qt REQUIRED)
+	find_package(Qt5Widgets REQUIRED)
+	find_package(Qt5OpenGL REQUIRED)
+	include_directories(${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if(${video} MATCHES OFF)
-	if(WIN32 OR UNIX)
+	if("${target}" MATCHES "qt")
 		set(video opengl30)
-		find_package(OpenGL REQUIRED)
-		include_directories(${OPENGL_INCLUDE_DIRS})
+	elseif(WIN32 OR UNIX)
+		set(video opengl30)
 	else()
 		set(video ${target})
 	endif()
+endif()
+
+if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
+	find_package(OpenGL REQUIRED)
+	include_directories(${OPENGL_INCLUDE_DIRS})
+endif()
+
+if("${video}" MATCHES "opengl20")
+	add_definitions(-DLIBGE_OPENGL20)
+else()
+	add_definitions(-DLIBGE_OPENGL30)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -164,7 +181,9 @@ else()
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
 endif()
 
-if(WIN32)
+if("${target}" MATCHES "qt")
+	set(SOURCES ${SOURCES} src/system/qt/qt.cpp)
+elseif(WIN32)
 	set(SOURCES ${SOURCES} src/system/win/gewinkeyboard.c)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(SOURCES ${SOURCES} src/system/mac/mac.m)
@@ -259,7 +278,9 @@ set(MINI_SOURCES ${MINI_SOURCES}
 	src/gesys.c
 	)
 
-if(WIN32)
+if("${target}" MATCHES "qt")
+	set(MINI_SOURCES ${MINI_SOURCES} src/system/qt/qt.cpp)
+elseif(WIN32)
 	set(MINI_SOURCES ${MINI_SOURCES} src/system/win/gewinkeyboard.c)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(MINI_SOURCES ${MINI_SOURCES} src/system/mac/mac.m)
@@ -305,6 +326,8 @@ elseif(opttest)
 	add_executable(test ${TEST_SOURCES} ${SOURCES})
 elseif(mini)
 	add_library(ge STATIC ${MINI_SOURCES})
+elseif("${target}" MATCHES "qt")
+	add_library(ge_qt SHARED ${SOURCES})
 else()
 	add_library(ge SHARED ${SOURCES})
 endif()
@@ -333,7 +356,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		${OPENGL_LIBRARIES}
 		pthread
 		)
-	if(!mini)
+	if(NOT mini)
 		set(LIBS ${LIBS}
 		mad
 			bz2
@@ -351,7 +374,7 @@ elseif(UNIX)
 		${OPENGL_LIBRARIES}
 		pthread
 		)
-	if(!mini)
+	if(NOT mini)
 		set(LIBS ${LIBS}
 			mad
 			${LUA_LIBRARY}
@@ -359,9 +382,23 @@ elseif(UNIX)
 			${PNG_LIBRARY}
 			${ZLIB_LIBRARY}
 			${FREETYPE_LIBRARY}
-			${ALSA_LIBRARY}
+			#${ASOUND2_LIBRARY}
+			asound
 		)
 	endif()
+endif()
+
+if("${target}" MATCHES "qt")
+	if(opttest)
+		qt5_use_modules(test Widgets)
+	elseif()
+		qt5_use_modules(ge_qt Widgets)
+	endif()
+	set(LIBS ${LIBS}
+		Qt5::Core
+		Qt5::Widgets
+		Qt5::OpenGL
+		)
 endif()
 
 message(STATUS "LIBS : ${LIBS}")
@@ -371,6 +408,9 @@ if(static)
 	INSTALL(TARGETS ge_static ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 elseif(opttest)
 	target_link_libraries(test ${LIBS})
+elseif("${target}" MATCHES "qt")
+	target_link_libraries(ge_qt ${LIBS})
+	INSTALL(TARGETS ge_qt ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 else()
 	target_link_libraries(ge ${LIBS} -m${ARCH})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)

@@ -23,38 +23,37 @@
 
 //#define PLATFORM psp
 
-#ifdef TARGET_qt
+#ifdef PLATFORM_psp
+#include "psplibs/valloc/valloc.h"
+#include "psplibs/vfpu/pspvfpu.h"
+#include "system/psp/ge_context.h"
+#endif
+#ifdef PLATFORM_win_low
+#include "system/win_low/ge_context.h"
+#endif
+#ifdef PLATFORM_win
+#include "system/win/ge_context.h"
+#endif
+#ifdef PLATFORM_mac
+#include "system/mac/ge_context.h"
+#endif
+#ifdef PLATFORM_linux_low
+#include "system/linux_low/ge_context.h"
+#endif
+#ifdef PLATFORM_linux
+#include "system/linux/ge_context.h"
+#endif
+#ifdef PLATFORM_android
+#include "system/android/ge_context.h"
+#endif
+#ifdef PLATFORM_ps3
+#include "system/ps3/ge_context.h"
+#endif
+#ifdef PLATFORM_psv
+#include "system/psv/ge_context.h"
+#endif
+#ifdef PLATFORM_qt
 #include "system/qt/ge_context.h"
-#else
-	#ifdef PLATFORM_psp
-	#include "psplibs/valloc/valloc.h"
-	#include "psplibs/vfpu/pspvfpu.h"
-	#include "system/psp/ge_context.h"
-	#endif
-	#ifdef PLATFORM_win_low
-	#include "system/win_low/ge_context.h"
-	#endif
-	#ifdef PLATFORM_win
-	#include "system/win/ge_context.h"
-	#endif
-	#ifdef PLATFORM_mac
-	#include "system/mac/ge_context.h"
-	#endif
-	#ifdef PLATFORM_linux_low
-	#include "system/linux_low/ge_context.h"
-	#endif
-	#ifdef PLATFORM_linux
-	#include "system/linux/ge_context.h"
-	#endif
-	#ifdef PLATFORM_android
-	#include "system/android/ge_context.h"
-	#endif
-	#ifdef PLATFORM_ps3
-	#include "system/ps3/ge_context.h"
-	#endif
-	#ifdef PLATFORM_psv
-	#include "system/psv/ge_context.h"
-	#endif
 #endif
 
 #ifndef CONTEXT_FILE
