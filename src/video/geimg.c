@@ -192,6 +192,11 @@ void geBlitImageDepth(int x, int y, int z, ge_Image* img, int sx, int sy, int wi
 	geBlitImageDepthStretched(x, y, z, img, sx, sy, width, height, width, height, flags);
 }
 
+void geBlitImageStretchedRotated(int x, int y, ge_Image* img, int sx, int sy, int ex, int ey, int width, int height, float angle, int flags){
+	if(!img)return;
+	geBlitImageDepthStretchedRotated(x, y, 0, img, sx, sy, ex, ey, width, height, angle, flags);
+}
+
 void geDrawImage3D(int x, int y, float z, ge_Image3D* img){
 	if(!img)return;
 //	geBlitImage3D(x, y, z, img, 0, 0, img->width, img->height, true);

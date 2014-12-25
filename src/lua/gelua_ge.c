@@ -70,6 +70,15 @@ static int fps(lua_State *L){
 	return 1;
 }
 
+static int debugPrint(lua_State *L){
+	int argc = lua_gettop(L);
+	if(argc != 2) return luaL_error(L, "Argument error: geDebugPrint(mode, string) takes two argument.");
+
+	gePrintDebug(luaL_checkinteger(L, 1), "%s\n", luaL_checkstring(L, 2));
+
+	return 1;
+}
+
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
 	{"geClearScreen", clearScreen},
@@ -78,6 +87,7 @@ static const luaL_Reg f_ge[] = {
 	{"geSwapBuffers", swapBuffers},
 	{"geFps", fps},
 	{"geDrawingMode", drawingMode},
+	{"geDebugPrint", debugPrint},
 	{0,0}
 };
 
@@ -92,6 +102,7 @@ int geLuaInit_ge(lua_State* L){
 	lua_setconst(L, GE_DRAWING_2D_DEPTH);
 	lua_setconst(L, GE_CLEAR_COLOR_BUFFER);
 	lua_setconst(L, GE_CLEAR_DEPTH_BUFFER);
+	lua_setconst(L, GE_BLIT_CENTERED);
 
 	return 0;
 }

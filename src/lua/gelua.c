@@ -23,6 +23,7 @@ void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize);
 int geLuaInit_ge(lua_State* L);
 int geLuaInit_screen(lua_State* L);
 int geLuaInit_image(lua_State* L);
+int geLuaInit_font(lua_State* L);
 
 ge_LuaScript* scripts[32] = { NULL };
 
@@ -317,7 +318,36 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 		i = strchr(fmt, '=') - fmt + 1;
 	}
 
-	lua_getglobal(script->L, funcname);
+	if(!strchr(funcname, '.') && !strchr(funcname, ':')){
+		lua_getglobal(script->L, funcname);
+	}else{
+		char tmp[128];
+		int i, j, k;
+		bool method = false;
+		for(i=0, j=0, k=0; funcname[i]; i++){
+			if(funcname[i] == '.' || funcname[i] == ':'){
+				tmp[j] = 0;
+				if(k == 0){
+					lua_getglobal(script->L, tmp);
+				}else{
+					lua_getfield(script->L, -1, tmp);
+				}
+				memset(tmp, 0, sizeof(tmp));
+				j = 0;
+				k++;
+				method = (funcname[i] == ':');
+			}else{
+				tmp[j] = funcname[i];
+				j++;
+			}
+		}
+		tmp[j] = 0;
+		lua_getfield(script->L, -1, tmp);
+		if(method){
+			lua_pushvalue(script->L, -2);
+			nArgs++;
+		}
+	}
 
 	for(; i<lfmt; i++){
 		if(fmt[i] == 'i'){
@@ -340,8 +370,13 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 	va_end(opt);
 
 	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
-	lua_pcall(script->L, nArgs, nRets, 0);
-	
+	int ret = lua_pcall(script->L, nArgs, nRets, 0);
+
+	if(ret != 0){
+		geSetLuaError(script, lua_tostring(script->L, -1));
+		gePrintDebug(0x102, "Lua: %s\n", script->str_error);
+	}
+
 	if(strchr(fmt, '=')){
 		int n = 1;
 		va_start(opt, fmt);
@@ -405,12 +440,13 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	}
 
 	geFileClose(fp);
-	
+
 	script->L = lua_newstate(luaMalloc, NULL);
 	luaL_openlibs(script->L);
 	geLuaInit_ge(script->L);
 	geLuaInit_screen(script->L);
 	geLuaInit_image(script->L);
+	geLuaInit_font(script->L);
 	int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);
 	
 	if(s != 0){

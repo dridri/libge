@@ -12,6 +12,9 @@ void CreateGlTexture(ge_Image* image);
 #ifndef min
 # define min(a, b) (a < b ? a : b)
 #endif
+#ifndef max
+# define max(a, b) (a > b ? a : b)
+#endif
 FT_Library ft_library;
 static void fontPrintTextImage(FT_Bitmap* bitmap, int x, int y, u32 color, ge_Image* dest);
 void TransformUnicodeChar(long* chr);
@@ -94,6 +97,7 @@ void geCreateFontTtf(ge_Font* font){
 	bool first_null_char = true;
 
 	int total_width = 0;
+	int advY = 0;
 
 	for(n=0; n<256; n++){
 		chr = n;
@@ -106,6 +110,7 @@ void geCreateFontTtf(ge_Font* font){
 			continue;
 		}
 		total_width += slot->bitmap.width;
+		advY = max(advY, slot->bitmap.rows);
 		first_null_char = false;
 	}
 
@@ -131,7 +136,7 @@ void geCreateFontTtf(ge_Font* font){
 
 		if(x+(slot->advance.x>>6) > dest->width){
 			x = 0;
-			y += font->size * 1.5;
+			y += advY;
 		}
 
 		font->positions[n].x = x;
@@ -158,7 +163,7 @@ void geCreateFontTtf(ge_Font* font){
 		x += jump;
 		*/
 	//	x += slot->advance.x >> 6;
-		x += font->size;
+		x += max(slot->advance.x >> 6, max(slot->bitmap.rows, font->size));
 
 	//	y += slot->advance.y >> 6;
 		first_null_char = false;

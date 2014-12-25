@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}") # -g3
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x") # -g3
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3") # -g3
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3") # -g3
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x -g3") # -g3
 
 add_definitions(-DLIBGE_LIB)
 
@@ -143,6 +143,7 @@ set(SOURCES ${SOURCES}
 	src/gesaver_obj_geo.c
 	src/lua/gelua.c
 	src/lua/gelua_ge.c
+	src/lua/gelua_font.c
 	src/lua/gelua_image.c
 	src/lua/gelua_screen.c
 	src/gui/gegui.c
@@ -304,7 +305,9 @@ set(MINI_SOURCES
 
 set(MINI_SOURCES
 	${MINI_SOURCES}
-	src/video/${video}/geparticles.c
+	src/video/${video}/geparticles.c Demandes
+Messages
+1 Notifications
 	src/video/${video}/ge_context.c
 	src/video/${video}/ge_viddrv.c
 	src/video/${video}/geshaders.c
@@ -416,7 +419,7 @@ elseif("${target}" MATCHES "qt")
 	target_link_libraries(ge_qt ${LIBS})
 	INSTALL(TARGETS ge_qt ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 else()
-	target_link_libraries(ge ${LIBS} -m${ARCH})
+	target_link_libraries(ge ${LIBS})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 endif()
 

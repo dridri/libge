@@ -273,11 +273,13 @@ int _ev_thread(int args, void* argp){
 					if(key >= 0xFF00){
 						key -= 0xFF00;
 					}
-					if(key >= 'a' && key <= 'z'){
-						key += ('A' - 'a');
+					if(key <= 0xFF){
+						if(key >= 'a' && key <= 'z'){
+							key += ('A' - 'a');
+						}
+						keys_pressed[key] = false;
+						keys_released[key] = true;
 					}
-					keys_pressed[key] = false;
-					keys_released[key] = true;
 					break;
 				case ButtonPress:
 					

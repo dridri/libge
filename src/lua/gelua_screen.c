@@ -73,6 +73,18 @@ static int Color_set(lua_State *L){
 	return 1;
 }
 
+static int Color_r(lua_State *L){
+	int argc = lua_gettop(L); 
+	u32* color = selfPtrColor(L, &argc);
+	if(argc == 1){
+		u8 r = (u8)lua_tointeger(L, 4);
+		*color = RGBA(r, G(*color), B(*color), A(*color));
+	}else{
+		lua_pushinteger(L, R(*color));
+	}
+	return 1;
+}
+
 static int Color_tostring(lua_State *L){
 	Color_colors(L);
 	lua_pushstring(L, "r"); lua_gettable(L, -2); int r = luaL_checkint(L, -1); lua_pop(L, 1);
