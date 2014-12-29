@@ -25,7 +25,9 @@
 #include <android/sensor.h>
 #include <android/log.h>
 #include <android/native_activity.h>
+#include <android/native_window_jni.h>
 #include <android/window.h>
+#include <jni.h>
 #include <android_native_app_glue.h>
 
 void exit(int);
@@ -36,7 +38,12 @@ void exit(int);
 int main(int, char**);
 
 typedef struct Engine {
+	JNIEnv* env;
+	jobject aJavaSurface;
 	struct android_app* app;
+	ANativeWindow* aSurface;
+	int ofsx;
+	int ofsy;
 
 	ASensorManager* sensorManager;
 	const ASensor* accelerometerSensor;
@@ -60,6 +67,7 @@ typedef struct ATouch {
 } ATouch;
 
 static Engine engine;
+static bool hasSurface = false;
 static LibGE_AndroidContext* _ge_android_context = NULL;
 
 static bool v_keys[GE_KEYS_COUNT] = { 0 };
@@ -101,6 +109,18 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	LOGW("geCreateMainWindow(\"%s\", %d, %d, %d)\n", title, Width, Height, flags);
 	libge_context->syscontext = (t_ptr)_ge_android_context;
 
+// 					if(engine.aJavaSurface){
+// 						LOGI("Getting surface !");
+// 						engine.aSurface = ANativeWindow_fromSurface(engine.env, engine.aJavaSurface);
+// 						LOGI(" ===> %p", engine.aSurface);
+// 					}else{
+// 						engine.aSurface = engine.app->window;
+// 					}
+
+	while(hasSurface && !engine.aSurface){
+		geSleep(10);
+	}
+
 	const EGLint attribs[] = {
 			EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
 			EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
@@ -129,19 +149,21 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 
 	int base_width = 0;
 	int base_height = 0;
-	if(engine.app && engine.app->window){
-		base_width = ANativeWindow_getWidth(engine.app->window);
-		base_height = ANativeWindow_getHeight(engine.app->window);
+	if(engine.app && engine.aSurface){
+		base_width = ANativeWindow_getWidth(engine.aSurface);
+		base_height = ANativeWindow_getHeight(engine.aSurface);
 	}
 	LOGW("base size: %d x %d", base_width, base_height);
 
 	int width = Width < 0 ? 0 : Width;
 	int height = Height < 0 ? 0 : Height;
 	LOGW("new size: %d x %d", width, height);
-	if(engine.app && engine.app->window){
-		ANativeWindow_setBuffersGeometry(engine.app->window, width, height, WINDOW_FORMAT_RGBA_8888/*format*/);
+	if(engine.app && engine.aSurface){
+// 		ANativeWindow_setBuffersGeometry(engine.aSurface, width, height, WINDOW_FORMAT_RGBA_8888/*format*/);
+		ANativeWindow_setBuffersGeometry(engine.aSurface, 0, 0, WINDOW_FORMAT_RGBA_8888/*format*/);
 		LOGW("Ok");
-		surface = eglCreateWindowSurface(display, config, engine.app->window, NULL);
+		LOGW("BLAHLBH");
+		surface = eglCreateWindowSurface(display, config, engine.aSurface, NULL);
 	}
 	if(engine.context == EGL_NO_CONTEXT){
 		context = eglCreateContext(display, config, NULL, context_attribs);
@@ -165,8 +187,8 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		aflags |= AWINDOW_FLAG_SCALED;
 	}
 	*/
-	if(engine.app && engine.app->window){
-		ANativeActivity_setWindowFlags(_ge_android_context->state->activity, aflags, 0);
+	if(engine.app && engine.aSurface){
+			(_ge_android_context->state->activity, aflags, 0);
 	}
 
 	libge_context->vidcontext = (t_ptr)&engine;
@@ -254,8 +276,9 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event){
 				if(j == pointer_index){
 					touch->action = action;
 				}
-				touch->x = AMotionEvent_getX(event, j);
-				touch->y = AMotionEvent_getY(event, j);
+				touch->x = AMotionEvent_getX(event, j) * engine->width / ANativeWindow_getWidth(engine->app->window);
+				touch->y = AMotionEvent_getY(event, j) * engine->height / ANativeWindow_getHeight(engine->app->window);
+// 				gePrintDebug(0x100, "press y : %.2f => %.2f (%d -- %d)", touch->y, AMotionEvent_getY(event, j), engine->height, ANativeWindow_getHeight(engine->app->window));
 				touch->force = AMotionEvent_getPressure(event, j);
 				if(cursorId < 0 || (touch->id <= cursorId && touch->used)){
 					if(action == AMOTION_EVENT_ACTION_DOWN || action == AMOTION_EVENT_ACTION_POINTER_DOWN){
@@ -295,18 +318,29 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 		case APP_CMD_INIT_WINDOW:
 			gePrintDebug(0x101, "---------- APP_CMD_INIT_WINDOW\n");
 			if(engine->app->window != NULL && ge_window_created){
+					while(hasSurface && !engine->aSurface){
+						geSleep(10);
+					}
+// 					if(engine->aJavaSurface){
+// 						LOGI("Getting surface !");
+// 						engine->aSurface = ANativeWindow_fromSurface(engine->env, engine->aJavaSurface);
+// 						LOGI(" ===> %p", engine->aSurface);
+// 					}else{
+// 						engine->aSurface = engine->app->window;
+// 					}
 					LOGW("-------------- CREATING WINDOW 1\n");
 					eglMakeCurrent(engine->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 					ANativeActivity_setWindowFlags(_ge_android_context->state->activity, aflags, 0);
 					LOGW("-------------- CREATING WINDOW 2\n");
 					eglDestroySurface(engine->display, engine->surface);
 					LOGW("-------------- CREATING WINDOW 3\n");
-					ANativeWindow_setBuffersGeometry(engine->app->window, engine->width, engine->height, /*engine->format*/WINDOW_FORMAT_RGBA_8888);
+// 					ANativeWindow_setBuffersGeometry(engine->aSurface, engine->width, engine->height, /*engine->format*/WINDOW_FORMAT_RGBA_8888);
+					ANativeWindow_setBuffersGeometry(engine->aSurface, 0, 0, /*engine->format*/WINDOW_FORMAT_RGBA_8888);
 					LOGW("-------------- CREATING WINDOW 3.1\n");
 					engine->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 					LOGW("-------------- CREATING WINDOW 3.2\n");
-					engine->surface = eglCreateWindowSurface(engine->display, engine->config, engine->app->window, NULL);
-					LOGW("-------------- CREATING WINDOW 4 (0X%08X / %d\n", engine->app->window, engine->app->window);
+					engine->surface = eglCreateWindowSurface(engine->display, engine->config, engine->aSurface, NULL);
+					LOGW("-------------- CREATING WINDOW 4 (0X%08X / %d\n", engine->aSurface, engine->aSurface);
 					LOGW("-------------- CREATING WINDOW 4 (0X%08X / %d\n", engine->display, engine->display);
 					LOGW("-------------- CREATING WINDOW 4 (0X%08X / %d\n", engine->surface, engine->surface);
 					eglMakeCurrent(engine->display, engine->surface, engine->surface, engine->context);
@@ -325,6 +359,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 				eglDestroySurface(engine->display, engine->surface);
 				engine->surface = EGL_NO_SURFACE;
 			}
+			if(hasSurface){
+				engine->aSurface = 0;
+			}
 			break;
 		case APP_CMD_GAINED_FOCUS:
 			gePrintDebug(0x101, "---------- APP_CMD_GAINED_FOCUS\n");
@@ -339,10 +376,17 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 	}
 }
 
+static void onContentRectChanged(ANativeActivity* activity, const ARect* rect) {
+	LOGW("onContentRectChanged: l=%d,t=%d,r=%d,b=%d", rect->left, rect->top, rect->right, rect->bottom);
+}
+
+extern u32 tick_pause;
 void PollEvents(){
 	int ident;
 	int events;
 	struct android_poll_source* source;
+	u32 pause_start = geGetTick();
+	bool time_shift = false;
 
 	do {
 		while ((ident=ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0) {
@@ -356,18 +400,26 @@ void PollEvents(){
 				return;
 			}
 		}
+		if(gotfocus == false){
+			geSleep(100);
+			time_shift = true;
+		}
 	} while(gotfocus == false);
+
+	if(time_shift){
+		tick_pause += geGetTick() - pause_start;
+	}
 }
 
 void AndroidSwapBuffers(){
 	mouse_warp_x = mouse_warp_y = 0;
 
 	PollEvents();
-	while(!engine.surface){
+	while(engine.surface == EGL_NO_SURFACE){
 		geSleep(100);
 		PollEvents();
 	}
-	
+
 	if(cursor_visible && !libge_context->cursor_image){
 		int drawing_mode = geDrawingMode(GE_DRAWING_MODE_2D);
 		geDrawImage(libge_context->mouse_x, libge_context->mouse_y, _ge_android_context->cursor);
@@ -421,6 +473,7 @@ void android_main(struct android_app* state){
 	state->onAppCmd = engine_handle_cmd;
 	state->onInputEvent = engine_handle_input;
 	engine.app = state;
+	engine.aSurface = engine.app->window;
 
 	_ge_android_context = (LibGE_AndroidContext*)malloc(sizeof(LibGE_AndroidContext));
 	_ge_android_context->state = state;
@@ -443,6 +496,22 @@ void android_main(struct android_app* state){
 	}
 	*/
 	main(0, NULL);
+}
+
+JNIEXPORT void JNICALL Java_com_drich_snake_BionicSnake_setSurface(JNIEnv* env, jobject obj, jobject surface, jint ofsx, jint ofsy)
+{
+	engine.env = env;
+	engine.aJavaSurface = surface;
+	LOGI("Java_com_drich_libge_LibGE_setSurface(%p, %d, %d)", surface, ofsx, ofsy);
+	engine.ofsx = ofsx;
+	engine.ofsy = ofsy;
+	engine.aSurface = ANativeWindow_fromSurface(env, surface);
+	LOGI(" ===> %p", engine.aSurface);
+}
+
+JNIEXPORT void JNICALL Java_com_drich_snake_BionicSnake_setHasSurface(JNIEnv* env, jobject obj, jint _hasSurface)
+{
+	hasSurface = _hasSurface;
 }
 
 LibGE_AndroidContext* _ge_GetAndroidContext(){

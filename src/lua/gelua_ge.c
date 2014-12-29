@@ -18,6 +18,28 @@
 
 #include "ge_lua.c"
 
+static int dofile(lua_State *L){
+	int argc = lua_gettop(L);
+	if(argc != 1) return luaL_error(L, "Argument error: dofile(file) takes one argument.");
+
+	const char* file = luaL_checkstring(L, 1);
+	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
+
+	geFileSeek(fp, 0, GE_FILE_SEEK_END);
+	size_t sz = geFileTell(fp);
+	char* buf = (char*)geMalloc(sz + 1);
+
+	geFileRewind(fp);
+	geFileRead(fp, buf, sz);
+
+	geFileClose(fp);
+
+	luaL_dostring(L, buf);
+
+	geFree(buf);
+	return 0;
+}
+
 static int createMainWindow(lua_State *L){
 	int argc = lua_gettop(L);
 	if(argc != 4){
@@ -88,6 +110,7 @@ static const luaL_Reg f_ge[] = {
 	{"geFps", fps},
 	{"geDrawingMode", drawingMode},
 	{"geDebugPrint", debugPrint},
+	{"dofile", dofile},
 	{0,0}
 };
 

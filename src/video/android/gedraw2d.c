@@ -33,7 +33,7 @@ static void InitDraw(ge_Image* tex, int mode){
 		geShaderUse(_ge_GetVideoContext()->shader2d);
 	}
 	if(ge_current_shader == _ge_GetVideoContext()->shader2d){
-		geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
+		geShaderUniform1f(ge_current_shader->loc_HasTexture, 1.0);
 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 	}
@@ -41,31 +41,35 @@ static void InitDraw(ge_Image* tex, int mode){
 	geUpdateMatrix();
 	if(tex && tex->id){
 		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
+		//glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, tex->id);
 		if(ge_current_shader == _ge_GetVideoContext()->shader2d){
-			geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
+			geShaderUniform1f(ge_current_shader->loc_HasTexture, 1.0);
 		}
 	}else{
 		if(ge_current_shader == _ge_GetVideoContext()->shader2d){
-			geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 0.0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			geShaderUniform1f(ge_current_shader->loc_HasTexture, 0.0);
 		}
 	}
+
 	if(!_ge_2d_vertices){
 		_ge_2d_vertices = (ge_Vertex*)geMalloc(sizeof(ge_Vertex)*GE_2D_VERTICES_MAX);
 		glGenBuffers(1, &_ge_2d_vertices_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _ge_2d_vertices_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(ge_Vertex)*GE_2D_VERTICES_MAX, NULL, GL_STREAM_DRAW);
 	}
+
+
 	glBindBuffer(GL_ARRAY_BUFFER, _ge_2d_vertices_vbo);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(0));
-	glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(12));
-	glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(28));
-	glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(40));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(40)); //3*4 + 4*4 + 3*4 => size(u,v,w,color[4],nx,ny,nz)
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 4*4 => size(u,v,w,color[4])
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
 	_ge_2d_vertices_i = 0;
 }
 
@@ -158,7 +162,7 @@ void geDrawLineScreenFadeDepth(int x0, int y0, int z0, int x1, int y1, int z1, u
 	*/
 	libge_context->img_stack[z0+2048] += 0.001;
 	libge_context->img_stack[z1+2048] += 0.001;
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 }
 
 void geFillRectScreenDepth(int x, int y, int z, int width, int height, u32 color){
@@ -185,7 +189,7 @@ void geFillRectScreenDepth(int x, int y, int z, int width, int height, u32 color
 	glEnd();
 	*/
 	libge_context->img_stack[z+2048] += 0.001;
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 }
 
 void geBlitImage(int x, int y, ge_Image* img, int _sx, int _sy, int width, int height, int flags){
@@ -262,7 +266,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	if(!ge_current_shader){
 		geShaderUse(_ge_GetVideoContext()->shader2d);
 	}
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, img->id);
 	geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
 
@@ -317,7 +321,7 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
 		return;
 	}
-	
+
 	if(flags & GE_BLIT_NOALPHA){
 		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
@@ -326,7 +330,6 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	
 
 	float texMaxX = img->u;
 	float texMaxY = img->v;
@@ -388,6 +391,125 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	libge_context->img_stack[z+2048] += 0.001;
 }
 
+void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, int width, int height, float angle, int flags){
+	if(!img)return;
+	if((unsigned long)img==0xBAADF00D)return;
+	if(!img->id)return;
+	if(abs(z) > 2048){
+		return;
+	}
+	x += libge_context->draw_off_x;
+	y += libge_context->draw_off_y;
+
+	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
+		return;
+	}
+
+	if(flags & GE_BLIT_NOALPHA){
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_BLEND);
+	}else{
+		glEnable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+/*
+	if(flags & GE_BLIT_NOALPHA){
+		glDisable(GL_BLEND);
+	}else{
+		glEnable(GL_BLEND);
+		int b_src = libge_context->blend_src;
+		int b_dst = libge_context->blend_dst;
+		b_src = (b_src == GE_DEFAULT) ? GL_SRC_ALPHA : b_src;
+		b_dst = (b_dst == GE_DEFAULT) ? GL_ONE_MINUS_SRC_ALPHA : b_dst;
+		glBlendFunc(b_src, b_dst);
+	}
+*/
+
+	float texMaxX = img->u;
+	float texMaxY = img->v;
+	float sx = _sx*texMaxX/img->width;
+	float sy = _sy*texMaxY/img->height;
+	texMaxX = ex*texMaxX/img->width;
+	texMaxY = ey*texMaxY/img->height;
+
+	float Cos = geCos(angle);
+	float Sin = geSin(-angle);
+
+	float sw = Sin*width*0.5f;
+	float sh = Sin*height*0.5f;
+	float cw = Cos*width*0.5f;
+	float ch = Cos*height*0.5f;
+
+	int mw = 0;
+	int mh = 0;
+	if(!(flags & GE_BLIT_CENTERED)){
+		mw = (width-x) / 2;
+		mh = (height-y) / 2;
+		mw += (int)((x - cw - sh) - (x - cw + sh));
+		mh += (int)((y - sw + ch) - (y - sw - ch));
+	}
+	x += mw;
+	y += mh;
+
+	InitDraw(img, GL_TRIANGLES);
+
+	ge_Vertex* vertex = ReserveVertices(6);
+	vertex[0].u = sx;
+	vertex[0].v = sy;
+	vertex[0].x = x - cw + sh;
+	vertex[0].y = y - sw - ch;
+	vertex[0].z = z     ;//+libge_context->img_stack[z+2048];
+
+	vertex[1].u = sx+texMaxX;
+	vertex[1].v = sy;
+	vertex[1].x = x + cw + sh;
+	vertex[1].y = y + sw - ch;
+	vertex[1].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[2].u = sx+texMaxX;
+	vertex[2].v = sy+texMaxY;
+	vertex[2].x = x + cw - sh;
+	vertex[2].y = y + sw + ch;
+	vertex[2].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[3].u = sx;
+	vertex[3].v = sy;
+	vertex[3].x = x - cw + sh;
+	vertex[3].y = y - sw - ch;
+	vertex[3].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[4].u = sx+texMaxX;
+	vertex[4].v = sy+texMaxY;
+	vertex[4].x = x + cw - sh;
+	vertex[4].y = y + sw + ch;
+	vertex[4].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[5].u = sx;
+	vertex[5].v = sy+texMaxY;
+	vertex[5].x = x - cw - sh;
+	vertex[5].y = y - sw + ch;
+	vertex[5].z = z     ;//+libge_context->img_stack[z+2048];
+
+	if(flags & GE_BLIT_VFLIP){
+		vertex[0].v = sy + texMaxY;
+		vertex[1].v = sy + texMaxY;
+		vertex[2].v = sy;
+		vertex[3].v = sy + texMaxY;
+		vertex[4].v = sy;
+		vertex[5].v = sy;
+	}
+
+	vertex[0].color[0] = vertex[1].color[0] = vertex[2].color[0] = vertex[3].color[0] = vertex[4].color[0] = vertex[5].color[0] = Rf(img->color);
+	vertex[0].color[1] = vertex[1].color[1] = vertex[2].color[1] = vertex[3].color[1] = vertex[4].color[1] = vertex[5].color[1] = Gf(img->color);
+	vertex[0].color[2] = vertex[1].color[2] = vertex[2].color[2] = vertex[3].color[2] = vertex[4].color[2] = vertex[5].color[2] = Bf(img->color);
+	vertex[0].color[3] = vertex[1].color[3] = vertex[2].color[3] = vertex[3].color[3] = vertex[4].color[3] = vertex[5].color[3] = Af(img->color);
+
+	TermDraw();
+
+	libge_context->img_stack[z+2048] += 0.001;
+}
+
 void geRenderFont(int x, int y, ge_Font* font, u32 color, const char* text, int len){
 	int i, j;
 	int b_x = x;
@@ -398,7 +520,7 @@ void geRenderFont(int x, int y, ge_Font* font, u32 color, const char* text, int 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, font->texture->id);
 	if(!ge_current_shader){
 		geShaderUse(_ge_GetVideoContext()->shader2d);
@@ -476,4 +598,7 @@ void geRenderFont(int x, int y, ge_Font* font, u32 color, const char* text, int 
 	libge_context->img_stack[z+2048] += 0.001;
 
 	TermDraw();
+}
+
+void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColor, const char* text, int len){
 }

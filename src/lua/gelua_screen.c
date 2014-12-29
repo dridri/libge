@@ -77,10 +77,49 @@ static int Color_r(lua_State *L){
 	int argc = lua_gettop(L); 
 	u32* color = selfPtrColor(L, &argc);
 	if(argc == 1){
-		u8 r = (u8)lua_tointeger(L, 4);
+		u8 r = (u8)lua_tointeger(L, 1);
 		*color = RGBA(r, G(*color), B(*color), A(*color));
 	}else{
 		lua_pushinteger(L, R(*color));
+	}
+	return 1;
+}
+
+static int Color_g(lua_State *L){
+	int argc = lua_gettop(L); 
+	u32* color = selfPtrColor(L, &argc);
+	if(argc == 1){
+		u8 g = (u8)lua_tointeger(L, 1);
+		*color = RGBA(R(*color), g, B(*color), A(*color));
+	}else{
+		lua_pushinteger(L, G(*color));
+	}
+	return 1;
+}
+
+static int Color_b(lua_State *L){
+	int argc = lua_gettop(L); 
+	u32* color = selfPtrColor(L, &argc);
+	if(argc == 1){
+		u8 b = (u8)lua_tointeger(L, 1);
+		*color = RGBA(R(*color), G(*color), b, A(*color));
+	}else{
+		lua_pushinteger(L, B(*color));
+	}
+	return 1;
+}
+
+static int Color_a(lua_State *L){
+	int argc = lua_gettop(L); 
+	u32* color = selfPtrColor(L, &argc);
+	if(argc == 1){
+		u8 a = (u8)lua_tointeger(L, 1);
+		if(a == 0){
+			a = (u8)lua_tonumber(L, 1);
+		}
+		*color = RGBA(R(*color), G(*color), B(*color), a);
+	}else{
+		lua_pushinteger(L, A(*color));
 	}
 	return 1;
 }
@@ -106,6 +145,10 @@ static int Color_equal(lua_State *L){
 static const luaL_Reg Color_methods[] = {
 	{ "New", Color_new },
 	{ "Set", Color_set },
+	{ "r", Color_r },
+	{ "g", Color_g },
+	{ "b", Color_b },
+	{ "a", Color_a },
 	{ NULL, NULL }
 };
 static const luaL_Reg Color_meta[] = {

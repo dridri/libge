@@ -5,8 +5,8 @@
 #include <freetype2/freetype/ftglyph.h>
 */
 #include <freetype2/ft2build.h>
-#include <freetype2/freetype.h>
-#include <freetype2/ftglyph.h>
+#include <freetype2/freetype/freetype.h>
+#include <freetype2/freetype/ftglyph.h>
 
 void CreateGlTexture(ge_Image* image);
 #ifndef min
@@ -98,6 +98,7 @@ void geCreateFontTtf(ge_Font* font){
 
 	int total_width = 0;
 	int advY = 0;
+	int advX = 0;
 
 	for(n=0; n<256; n++){
 		chr = n;
@@ -110,6 +111,7 @@ void geCreateFontTtf(ge_Font* font){
 			continue;
 		}
 		total_width += slot->bitmap.width;
+		advX = max(advX, max(slot->advance.x >> 6, max(slot->bitmap.width, font->size)));
 		advY = max(advY, slot->bitmap.rows);
 		first_null_char = false;
 	}
@@ -120,7 +122,7 @@ void geCreateFontTtf(ge_Font* font){
 	ge_Image* dest = geCreateSurface(512, 512, 0x00000000);
 #else
 //	ge_Image* dest = geCreateSurface(1024, 1024, 0x00000000);
-	ge_Image* dest = geCreateSurface(font->size*16*1.5, font->size*16*1.5, 0x00000000);
+	ge_Image* dest = geCreateSurface(advX*16, advY*16, 0x00000000);
 #endif
 
 	font->texture = dest;
@@ -134,7 +136,7 @@ void geCreateFontTtf(ge_Font* font){
 		error = FT_Render_Glyph(((FT_Face)font->face)->glyph, ft_render_mode_normal);
 		if (error) continue;
 
-		if(x+(slot->advance.x>>6) > dest->width){
+		if(x + advX > dest->width){
 			x = 0;
 			y += advY;
 		}
@@ -163,7 +165,7 @@ void geCreateFontTtf(ge_Font* font){
 		x += jump;
 		*/
 	//	x += slot->advance.x >> 6;
-		x += max(slot->advance.x >> 6, max(slot->bitmap.rows, font->size));
+		x += advX;
 
 	//	y += slot->advance.y >> 6;
 		first_null_char = false;

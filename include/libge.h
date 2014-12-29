@@ -373,7 +373,7 @@ LIBGE_API void geShaderLoadTessControlSource(ge_Shader* shader, const char* file
 LIBGE_API void geShaderLoadTessEvaluationSource(ge_Shader* shader, const char* file);
 LIBGE_API void geShaderLoadGeometrySource(ge_Shader* shader, const char* file);
 LIBGE_API void geShaderLoadFragmentSource(ge_Shader* shader, const char* file);
-LIBGE_API void geShaderUse(ge_Shader* shader);
+LIBGE_API ge_Shader* geShaderUse(ge_Shader* shader);
 LIBGE_API int geShaderUniformID(ge_Shader* shader, const char* name);
 LIBGE_API int geShaderAttribID(ge_Shader* shader, const char* name);
 LIBGE_API void geShaderUniform1i(int id, int v1);

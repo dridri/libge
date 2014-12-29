@@ -20,7 +20,7 @@
 #define __GE_LUA_H__
 
 #include "getypes.h"
-#include <lua/lua.h>
+#include <lua5.2/lua.h>
 
 typedef struct ge_LuaScript {
 	char root[2048];

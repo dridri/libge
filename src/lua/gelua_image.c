@@ -22,6 +22,7 @@ UserdataStubs(Image, ge_Image*);
 
 static int Image_width(lua_State* L);
 static int Image_height(lua_State* L);
+static int Image_color(lua_State* L);
 
 static void alloc_img(lua_State *L, ge_Image* img){
 	lua_createtable(L, 0, 6);
@@ -40,6 +41,9 @@ static void alloc_img(lua_State *L, ge_Image* img){
 
 	lua_pushcfunction(L, Image_height);
 	lua_setfield(L, -2, "height");
+
+	lua_pushcfunction(L, Image_color);
+	lua_setfield(L, -2, "setColor");
 
 	lua_pushnumber(L, 1.0);
 	lua_setfield(L, -2, "scale");
@@ -272,13 +276,18 @@ static int Image_height(lua_State* L){
 
 static int Image_color(lua_State* L){
 	int argc = lua_gettop(L);
-	ge_Image* dest = selfImage(L, &argc);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
 	if(!dest){
 		return luaL_error(L, "Error: geImage.Color([color]) must be with a colon");
 	}
 
 	if(argc > 0){
-		u32 color = *toColor(L, 1);
+		u32 color = *toColor(L, 2);
 		dest->color = color;
 	}else{
 		*pushNewColor(L) = dest->color;

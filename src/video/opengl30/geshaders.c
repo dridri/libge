@@ -345,8 +345,9 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	gePrintDebug(3, "3");
 }
 
-void geShaderUse(ge_Shader* shader){
+ge_Shader* geShaderUse(ge_Shader* shader){
 	if(!libge_context->shaders_available)return;
+	ge_Shader* ret = ge_current_shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;
 	}
@@ -361,6 +362,7 @@ void geShaderUse(ge_Shader* shader){
 		geMatrixLocations();
 //		ge_draw_object_set_shader(shader);
 	}
+	return ret;
 }
 
 ge_Shader* geForceShader(ge_Shader* sh){

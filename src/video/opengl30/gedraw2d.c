@@ -59,7 +59,7 @@ static void InitDraw(ge_Image* tex, int mode){
 
 		glGenVertexArrays(1, &_ge_2d_vertices_vao);
 		glBindVertexArray(_ge_2d_vertices_vao);
-	
+
 		glGenBuffers(1, &_ge_2d_vertices_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _ge_2d_vertices_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(ge_Vertex)*GE_2D_VERTICES_MAX, NULL, GL_STREAM_DRAW);

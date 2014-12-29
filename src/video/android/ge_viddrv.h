@@ -23,7 +23,7 @@
 #include <GLES/glext.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include "../../getypes.h"
+#include "getypes.h"
 
 #ifndef GLAPIENTRY
 #define GLAPIENTRY APIENTRY

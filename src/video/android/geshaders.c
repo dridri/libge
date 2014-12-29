@@ -77,6 +77,16 @@ ge_Shader* geCreateShader(){
 	return shader;
 }
 
+void geFreeShader(ge_Shader* shader){
+	if(shader){
+		glDeleteShader(shader->gShaderId);
+		glDeleteShader(shader->vShaderId);
+		glDeleteShader(shader->fShaderId);
+		glDeleteProgram(shader->programId);
+		geFree(shader);
+	}
+}
+
 void geShaderLoadVertexSource(ge_Shader* shader, const char* file){
 	char* src = load_source(file, NULL);
 	_geShaderSource(shader, GL_VERTEX_SHADER, src);
@@ -180,21 +190,42 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	if(type==GL_FRAGMENT_SHADER)shader->fShaderId=glId;
 
 	int srclen = strlen(src);
+	char* buf = "";
 	char* header = "";
 	int headerlen = 0;
-	if(type == GL_VERTEX_SHADER){
+	bool no_include = false;
+	int i;
+	for(i=0; i<srclen; i++){
+		if(src[i] == '#'){
+			for(i+=1; i<srclen && (src[i]==' ' || src[i]=='\t'); i++);
+			if(!strncmp(&src[i], "define", 6)){
+				for(i+=6; i<srclen && (src[i]==' ' || src[i]=='\t'); i++);
+				if(!strncmp(&src[i], "NO_DEFAULT_INCLUDE", 18)){
+					no_include = true;
+					break;
+				}
+			}
+		}
+	}
+	if(!no_include && type == GL_VERTEX_SHADER){
 		header = load_source(_ge_BuildPath(libge_context->default_shaders_path, "geshader_gles2v.h"), &headerlen);
 	}
-	if(type == GL_FRAGMENT_SHADER){
+	if(!no_include && type == GL_FRAGMENT_SHADER){
 		header = load_source(_ge_BuildPath(libge_context->default_shaders_path, "geshader_gles2f.h"), &headerlen);
 	}
-	gePrintDebug(0x100, "_geShaderSource : Header loaded\n");
-	char* fullheader = (char*)geMalloc(sizeof(char)*(headerlen + 256));
-	char* buf = (char*)geMalloc(sizeof(char)*(srclen + headerlen + 256));
-	memset(buf, 0, sizeof(char)*(srclen + headerlen + 256));
-	sprintf(fullheader, "#define LOW_PROFILE\n%s\n", header);
-	sprintf(buf, "%s%s", fullheader, src);
-	gePrintDebug(0x100, "_geShaderSource : File computed\n");
+	if(no_include == false && header != NULL){
+		gePrintDebug(0x100, "_geShaderSource : Header loaded\n");
+		char* fullheader = (char*)geMalloc(sizeof(char)*(headerlen + 256));
+		buf = (char*)geMalloc(sizeof(char)*(srclen + headerlen + 256));
+		memset(buf, 0, sizeof(char)*(srclen + headerlen + 256));
+		sprintf(fullheader, "#define LOW_PROFILE\n%s\n", header);
+		sprintf(buf, "%s%s", fullheader, src);
+		geFree(fullheader);
+		gePrintDebug(0x100, "_geShaderSource : File computed\n");
+	}else{
+		buf = (char*)geMalloc(sizeof(char)*(srclen + 256));
+		sprintf(buf, "%s", src);
+	}
 	glShaderSource(glId, 1, (const GLchar**)&buf, NULL);
 	glCompileShader(glId);
 	gePrintDebug(0x100, "_geShaderSource : Shader compiled\n");
@@ -213,10 +244,14 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 
 	glAttachShader(shader->programId, glId);
 	gePrintDebug(0x100, "_geShaderSource : Shader attached\n");
-	glBindAttribLocation(shader->programId, 0, "ge_VertexTexcoord");
-	glBindAttribLocation(shader->programId, 1, "ge_VertexColor");
+// 	glBindAttribLocation(shader->programId, 0, "ge_VertexTexcoord");
+// 	glBindAttribLocation(shader->programId, 1, "ge_VertexColor");
+// 	glBindAttribLocation(shader->programId, 2, "ge_VertexNormal");
+// 	glBindAttribLocation(shader->programId, 3, "_ge_VertexPosition");
+	glBindAttribLocation(shader->programId, 0, "ge_VertexColor");
+	glBindAttribLocation(shader->programId, 1, "ge_VertexTexcoord");
 	glBindAttribLocation(shader->programId, 2, "ge_VertexNormal");
-	glBindAttribLocation(shader->programId, 3, "ge_VertexPosition");
+	glBindAttribLocation(shader->programId, 3, "_ge_VertexPosition");
 	glLinkProgram(shader->programId);
 	gePrintDebug(0x100, "_geShaderSource : Shader linked\n");
 
@@ -224,16 +259,18 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	logsize = 4096;
 	glGetProgramInfoLog(shader->programId, logsize, &logsize, log);
 	gePrintDebug(0x100, "program linking infos: \n    %s", log);
+
+	shader->loc_time = geShaderUniformID(shader, "ge_Time");
+	shader->loc_ratio = geShaderUniformID(shader, "ge_ScreenRatio");
+	shader->loc_camera = geShaderUniformID(shader, "ge_CameraPosition");
+	shader->loc_HasTexture = geShaderUniformID(shader, "ge_HasTexture");
 	
 	shader->loc_model = glGetUniformLocation(shader->programId, "ge_MatrixModel");
 	shader->loc_view = glGetUniformLocation(shader->programId, "ge_MatrixView");
 	shader->loc_projection = glGetUniformLocation(shader->programId, "ge_MatrixProjection");
 	shader->loc_normal = glGetUniformLocation(shader->programId, "ge_MatrixNormal");
 	shader->loc_modelview = glGetUniformLocation(shader->programId, "ge_MatrixModelView");
-	
-	shader->loc_time = glGetUniformLocation(shader->programId, "ge_Time");
-	shader->loc_ratio = glGetUniformLocation(shader->programId, "ge_ScreenRatio");
-	shader->loc_camera = glGetUniformLocation(shader->programId, "ge_CameraPosition");
+
 	shader->loc_lights_d_count = glGetUniformLocation(shader->programId, "ge_DynamicLightsCount");
 	shader->loc_lights_s_count = glGetUniformLocation(shader->programId, "ge_StaticLightsCount");
 	shader->loc_front_ambient = glGetUniformLocation(shader->programId, "ge_FrontMaterial.ambient");
@@ -245,28 +282,36 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	shader->loc_fog_start = glGetUniformLocation(shader->programId, "ge_Fog.start");
 	shader->loc_fog_end = glGetUniformLocation(shader->programId, "ge_Fog.end");
 	
-	geFree(header);
-	geFree(fullheader);
+	if(no_include == false && header != NULL){
+		geFree(header);
+	}
 	geFree(buf);
 }
 
-void geShaderUse(ge_Shader* shader){
+ge_Shader* geShaderUse(ge_Shader* shader){
 	if(!libge_context->shaders_available)return;
+	ge_Shader* ret = ge_current_shader;
 	ge_current_shader = shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;
 	}
 	if(!shader){
 		glUseProgram(0);
-		return;
+		if(libge_context->drawing_mode & GE_DRAWING_MODE_2D){
+			geShaderUse(_ge_GetVideoContext()->shader2d);
+		}
+	}else{
+		glUseProgram(shader->programId);
+		geMatrixLocations();
+//		ge_draw_object_set_shader(shader);
 	}
-	glUseProgram(shader->programId);
-	geMatrixLocations();
-//	ge_draw_object_set_shader(shader);
+	return ret;
 }
 
-void geForceShader(ge_Shader* sh){
+ge_Shader* geForceShader(ge_Shader* sh){
+	ge_Shader* ret = ge_force_shader;
 	ge_force_shader = sh;
+	return ret;
 }
 
 void geLineShader(ge_Shader* sh){

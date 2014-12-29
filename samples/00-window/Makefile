@@ -1,9 +1,9 @@
-CC	=	mingw32-gcc
-C++	=	mingw32-g++
+CC	=	gcc
+C++	=	g++
 CFLAGS	= -O3 -Wall -mfpmath=sse -msse
 
 TARGET	 =	"00-window.exe"
-LIBS	 =  -lge -mwindows
+LIBS	 =  -lge
 # -lopengl32 -lglu32 -lwin32k -luser32 -lm -lwinmm -lgdi32
 #  -lopencl
 

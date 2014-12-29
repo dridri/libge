@@ -143,9 +143,11 @@ set(SOURCES ${SOURCES}
 	src/gesaver_obj_geo.c
 	src/lua/gelua.c
 	src/lua/gelua_ge.c
+	src/lua/gelua_file.c
 	src/lua/gelua_font.c
 	src/lua/gelua_image.c
 	src/lua/gelua_screen.c
+	src/lua/gelua_shader.c
 	src/gui/gegui.c
 	src/gui/gegui_button.c
 	src/gui/gegui_checkbox.c

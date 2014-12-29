@@ -22,8 +22,10 @@ void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize);
 
 int geLuaInit_ge(lua_State* L);
 int geLuaInit_screen(lua_State* L);
+int geLuaInit_file(lua_State* L);
 int geLuaInit_image(lua_State* L);
 int geLuaInit_font(lua_State* L);
+int geLuaInit_shader(lua_State* L);
 
 ge_LuaScript* scripts[32] = { NULL };
 
@@ -369,7 +371,7 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 	}
 	va_end(opt);
 
-	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
+// 	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
 	int ret = lua_pcall(script->L, nArgs, nRets, 0);
 
 	if(ret != 0){
@@ -445,8 +447,10 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	luaL_openlibs(script->L);
 	geLuaInit_ge(script->L);
 	geLuaInit_screen(script->L);
+	geLuaInit_file(script->L);
 	geLuaInit_image(script->L);
 	geLuaInit_font(script->L);
+	geLuaInit_shader(script->L);
 	int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);
 	
 	if(s != 0){

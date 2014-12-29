@@ -128,7 +128,7 @@ static int Font_print(lua_State* L){
 	lua_gettable(L, 1);
 	int sz = lua_tointeger(L, -1);
 
-	if(sz != fnt->size){
+	if(sz != fnt->size || fnt->texture == NULL){
 		geFontSize(fnt, sz);
 	}
 

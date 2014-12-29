@@ -8,7 +8,8 @@ precision highp float;
 attribute vec3 ge_VertexTexcoord;
 attribute vec4 ge_VertexColor;
 attribute vec3 ge_VertexNormal;
-attribute vec4 ge_VertexPosition;
+attribute vec3 _ge_VertexPosition;
+#define ge_VertexPosition vec4(_ge_VertexPosition, 1.0)
 
 // Matrices
 uniform mat4 ge_MatrixProjection;

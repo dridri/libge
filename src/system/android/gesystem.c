@@ -26,6 +26,8 @@ int AndroidSwapBuffers();
 
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "libge", __VA_ARGS__))
 
+u32 tick_pause = 0;
+
 
 void* geglImportFunction(const char* func_name){
 	void* func = NULL;
@@ -41,22 +43,23 @@ void geDebugOut(char* buff, int bufsz){
 		return;
 	}
 	buff[strlen(buff)-1] = 0x0;
-	LOGW(buff);
+	LOGW("%s", buff);
 }
 
 u32 geGetTick(){
 	struct timespec now;
-//	clock_gettime(CLOCK_MONOTONIC, &now);
-	clock_gettime(CLOCK_REALTIME_HR, &now);
+	clock_gettime(CLOCK_MONOTONIC, &now);
+// 	clock_gettime(CLOCK_REALTIME_HR, &now);
 //	return (now.tv_sec*1000000000LL + now.tv_nsec) / 1000;
-	return now.tv_sec*1000 + now.tv_nsec/1000000;
+	return now.tv_sec*1000 + now.tv_nsec/1000000 - tick_pause;
 }
 
 float geGetTickFloat(){
 	struct timespec now;
-	clock_gettime(CLOCK_REALTIME_HR, &now);
+	clock_gettime(CLOCK_MONOTONIC, &now);
+// 	clock_gettime(CLOCK_REALTIME_HR, &now);
 	float ret = (float)now.tv_sec;
-	u32 ms = now.tv_nsec/1000000;
+	u32 ms = now.tv_nsec/1000000 - tick_pause;
 	ret += ((float)ms) / 1000.0;
 	return ret;
 }
@@ -76,6 +79,9 @@ void geUSleep(int usec){
 
 int geGetNumCPU(){
 	return sysconf( _SC_NPROCESSORS_ONLN );
+}
+
+void geInitSocket(){
 }
 
 void* geLibcFileOpenFd(int fd, int mode){
