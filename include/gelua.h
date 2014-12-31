@@ -39,6 +39,7 @@ LIBGE_API char* geGetLuaError(ge_LuaScript* script);
 
 LIBGE_API ge_LuaScript* geLoadLuaScript(const char* file);
 LIBGE_API void geLuaScriptStart(ge_LuaScript* script, int mode);
+LIBGE_API void geLuaDoString(ge_LuaScript* script, const char* buf);
 LIBGE_API void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* fmt, ...);
 
 LIBGE_API void geLuaSetConstantInteger(ge_LuaScript* script, const char* name, int v);

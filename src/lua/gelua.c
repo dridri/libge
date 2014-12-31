@@ -461,6 +461,15 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	return script;
 }
 
+void geLuaDoString(ge_LuaScript* script, const char* buf){
+	luaL_loadstring(script->L, buf);
+	int ret = lua_pcall(script->L, 0, LUA_MULTRET, 0);
+
+	if(ret != 0){
+		geSetLuaError(script, lua_tostring(script->L, -1));
+		gePrintDebug(0x102, "geLuaDoString: %s\n", script->str_error);
+	}
+}
 
 void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize){
 	if(nsize == 0){
