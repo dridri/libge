@@ -24,28 +24,39 @@ LibGE_VideoContext* _ge_GetVideoContext(){
 }
 
 void geGraphicsInit(){
+	gePrintDebug(0x100, "geGraphicsInit 1\n");
 	LibGE_VideoContext* ctx = (LibGE_VideoContext*)geMalloc(sizeof(LibGE_VideoContext));
 	libge_context->vidcontext = (unsigned long)ctx;
 	libge_context->gpumem += 2 * libge_context->width * libge_context->height * sizeof(u32);
+	gePrintDebug(0x100, "geGraphicsInit 2\n");
 
 	ctx->shader2d = geCreateShader();
 	geShaderLoadVertexSource(ctx->shader2d, _ge_BuildPath(libge_context->default_shaders_path, "generic_2d.vert"));
 	geShaderLoadFragmentSource(ctx->shader2d, _ge_BuildPath(libge_context->default_shaders_path, "generic_2d.frag"));
+	gePrintDebug(0x100, "geGraphicsInit 3\n");
 	ctx->loc_textured = geShaderUniformID(ctx->shader2d, "textured");
+	gePrintDebug(0x100, "geGraphicsInit 4\n");
 	glUseProgram(ctx->shader2d->programId);
+	gePrintDebug(0x100, "geGraphicsInit 5\n");
 	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
+	gePrintDebug(0x100, "geGraphicsInit 6\n");
+//	glEnable(GL_TEXTURE_2D);
+	gePrintDebug(0x100, "geGraphicsInit 7\n");
 	glUniform1i(glGetUniformLocation(ctx->shader2d->programId, "ge_Texture"), 0);
+	gePrintDebug(0x100, "geGraphicsInit 8\n");
 	glUseProgram(0);
 	
 	glViewport(0, 0, libge_context->width, libge_context->height);
+	gePrintDebug(0x100, "geGraphicsInit 9\n");
 	
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW);
 	glCullFace(GL_FRONT);
+	gePrintDebug(0x100, "geGraphicsInit 10\n");
 	
 	glScissor(0, 0, libge_context->width, libge_context->height);
 	glEnable(GL_SCISSOR_TEST);
+	gePrintDebug(0x100, "geGraphicsInit 11\n");
 	
 	//libge_context->fontbuf = geCreateSurface(libge_context->width, libge_context->height, 0x00000000);
 }
@@ -67,7 +78,7 @@ int geDrawingMode(int mode){
 	if(mode != libge_context->drawing_mode){
 		if(mode & GE_DRAWING_MODE_2D){
 			glActiveTexture(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
+//			glEnable(GL_TEXTURE_2D);
 			
 			glDisable(GL_CULL_FACE);
 		

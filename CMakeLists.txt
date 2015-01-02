@@ -17,10 +17,18 @@ option(video "video" )
 option(static "static" )
 option(mini "mini" )
 option(opttest "opttest" )
+option(debug "debug" )
+option(opencl "opencl" )
 
 if(mini)
 	add_definitions(-DLIBGE_NOLUA)
 	add_definitions(-DLIBGE_MINI)
+endif()
+
+if(${debug} MATCHES "1")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3")
+	set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g3")
 endif()
 
 if(${target} MATCHES OFF)
@@ -55,9 +63,9 @@ elseif("${target}" MATCHES "linux*")
 elseif("${target}" MATCHES "qt")
 	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
 #	find_package(Qt REQUIRED)
-	find_package(Qt5Widgets REQUIRED)
-	find_package(Qt5OpenGL REQUIRED)
-	include_directories(${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+# 	find_package(Qt5Widgets REQUIRED)
+# 	find_package(Qt5OpenGL REQUIRED)
+# 	include_directories(${QT_INCLUDES} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5OpenGL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if(${video} MATCHES OFF)
@@ -79,6 +87,12 @@ if("${video}" MATCHES "opengl20")
 	add_definitions(-DLIBGE_OPENGL20)
 else()
 	add_definitions(-DLIBGE_OPENGL30)
+endif()
+
+if(NOT "${opencl}" MATCHES OFF)
+	find_package(OpenCL REQUIRED)
+	include_directories(${OPENCL_INCLUDE_DIRS})
+	add_definitions(-DOPENCL)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -171,6 +185,10 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(SOURCES ${SOURCES} src/system/mac/mac.m)
 elseif(UNIX)
 	set(SOURCES ${SOURCES} src/system/linux/gelinuxkeyboard.c)
+endif()
+
+if(NOT "${opencl}" MATCHES OFF)
+	set(SOURCES ${SOURCES} src/gecl.c)
 endif()
 
 set(SOURCES
@@ -341,6 +359,7 @@ elseif(UNIX)
 	set(LIBS ${LIBS}
 		m
 #		OpenCL
+		${OPENCL_LIBRARIES}
 		${OPENGL_LIBRARIES}
 		pthread
 		)
@@ -358,18 +377,18 @@ elseif(UNIX)
 	endif()
 endif()
 
-if("${target}" MATCHES "qt")
-	if(opttest)
-		qt5_use_modules(test Widgets)
-	elseif()
-		qt5_use_modules(ge_qt Widgets)
-	endif()
-	set(LIBS ${LIBS}
-		Qt5::Core
-		Qt5::Widgets
-		Qt5::OpenGL
-		)
-endif()
+# if("${target}" MATCHES "qt")
+# 	if(opttest)
+# 		qt5_use_modules(test Widgets)
+# 	elseif()
+# 		qt5_use_modules(ge_qt Widgets)
+# 	endif()
+# 	set(LIBS ${LIBS}
+# 		Qt5::Core
+# 		Qt5::Widgets
+# 		Qt5::OpenGL
+# 		)
+# endif()
 
 message(STATUS "LIBS : ${LIBS}")
 

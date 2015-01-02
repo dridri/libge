@@ -41,7 +41,7 @@ static void InitDraw(ge_Image* tex, int mode){
 	geUpdateMatrix();
 	if(tex && tex->id){
 		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
+// 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, tex->id);
 		if(ge_current_shader == _ge_GetVideoContext()->shader2d){
 			geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
@@ -130,7 +130,7 @@ void geDrawLineScreenFadeDepth(int x0, int y0, int z0, int x1, int y1, int z1, u
 		geShaderUse(_ge_GetVideoContext()->shader2d);
 	}
 	geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 0.0);
-	glDisable(GL_TEXTURE_2D);
+// 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glDisable(GL_ALPHA_TEST);
 	
@@ -158,7 +158,7 @@ void geDrawLineScreenFadeDepth(int x0, int y0, int z0, int x1, int y1, int z1, u
 	*/
 	libge_context->img_stack[z0+2048] += 0.001;
 	libge_context->img_stack[z1+2048] += 0.001;
-	glEnable(GL_TEXTURE_2D);
+// 	glEnable(GL_TEXTURE_2D);
 }
 
 void geFillRectScreenDepth(int x, int y, int z, int width, int height, u32 color){
@@ -173,7 +173,7 @@ void geFillRectScreenDepth(int x, int y, int z, int width, int height, u32 color
 		geShaderUse(_ge_GetVideoContext()->shader2d);
 	}
 	geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 0.0);
-	glDisable(GL_TEXTURE_2D);
+// 	glDisable(GL_TEXTURE_2D);
 	/*
 	glBegin(GL_QUADS);
 		glColor4ub(R(color), G(color), B(color), A(color));
@@ -185,7 +185,7 @@ void geFillRectScreenDepth(int x, int y, int z, int width, int height, u32 color
 	glEnd();
 	*/
 	libge_context->img_stack[z+2048] += 0.001;
-	glEnable(GL_TEXTURE_2D);
+// 	glEnable(GL_TEXTURE_2D);
 }
 
 void geBlitImage(int x, int y, ge_Image* img, int _sx, int _sy, int width, int height, int flags){
@@ -262,7 +262,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	if(!ge_current_shader){
 		geShaderUse(_ge_GetVideoContext()->shader2d);
 	}
-	glEnable(GL_TEXTURE_2D);
+// 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, img->id);
 	geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
 
@@ -398,7 +398,7 @@ void geRenderFont(int x, int y, ge_Font* font, u32 color, const char* text, int 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_TEXTURE_2D);
+// 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, font->texture->id);
 	if(!ge_current_shader){
 		geShaderUse(_ge_GetVideoContext()->shader2d);

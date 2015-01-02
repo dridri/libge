@@ -52,7 +52,7 @@ ge_Thread* geCreateThread(const char* name, void* func, int flags){
 
 void geFreeThread(ge_Thread* thread){
 	int i = 0;
-	for(i=0; i<64; i++){
+	for(i=0; i<32; i++){
 		if(threads[i] == thread){
 			threads[i] = NULL;
 		}

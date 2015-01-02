@@ -264,6 +264,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 #endif
 	}
 	gePrintDebug(0x100, "_geShaderSource : File computed\n");
+	gePrintDebug(0, "%s\n", buf);
 	glShaderSource(glId, 1, (const GLchar**)&buf, NULL);
 	glCompileShader(glId);
 	gePrintDebug(0x100, "_geShaderSource : Shader compiled\n");

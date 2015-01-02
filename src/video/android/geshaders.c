@@ -224,26 +224,28 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	logsize = 4096;
 	glGetProgramInfoLog(shader->programId, logsize, &logsize, log);
 	gePrintDebug(0x100, "program linking infos: \n    %s", log);
-	
-	shader->loc_model = glGetUniformLocation(shader->programId, "ge_MatrixModel");
-	shader->loc_view = glGetUniformLocation(shader->programId, "ge_MatrixView");
-	shader->loc_projection = glGetUniformLocation(shader->programId, "ge_MatrixProjection");
-	shader->loc_normal = glGetUniformLocation(shader->programId, "ge_MatrixNormal");
-	shader->loc_modelview = glGetUniformLocation(shader->programId, "ge_MatrixModelView");
-	
-	shader->loc_time = glGetUniformLocation(shader->programId, "ge_Time");
-	shader->loc_ratio = glGetUniformLocation(shader->programId, "ge_ScreenRatio");
-	shader->loc_camera = glGetUniformLocation(shader->programId, "ge_CameraPosition");
-	shader->loc_lights_d_count = glGetUniformLocation(shader->programId, "ge_DynamicLightsCount");
-	shader->loc_lights_s_count = glGetUniformLocation(shader->programId, "ge_StaticLightsCount");
-	shader->loc_front_ambient = glGetUniformLocation(shader->programId, "ge_FrontMaterial.ambient");
-	shader->loc_front_diffuse = glGetUniformLocation(shader->programId, "ge_FrontMaterial.diffuse");
-	shader->loc_submodel = glGetUniformLocation(shader->programId, "ge_MatrixSubModel");
 
-	shader->loc_fog_density = glGetUniformLocation(shader->programId, "ge_Fog.density");
-	shader->loc_fog_color = glGetUniformLocation(shader->programId, "ge_Fog.color");
-	shader->loc_fog_start = glGetUniformLocation(shader->programId, "ge_Fog.start");
-	shader->loc_fog_end = glGetUniformLocation(shader->programId, "ge_Fog.end");
+	if(shader->vShaderId != 0 && shader->fShaderId != 0){
+		shader->loc_model = glGetUniformLocation(shader->programId, "ge_MatrixModel");
+		shader->loc_view = glGetUniformLocation(shader->programId, "ge_MatrixView");
+		shader->loc_projection = glGetUniformLocation(shader->programId, "ge_MatrixProjection");
+		shader->loc_normal = glGetUniformLocation(shader->programId, "ge_MatrixNormal");
+		shader->loc_modelview = glGetUniformLocation(shader->programId, "ge_MatrixModelView");
+		
+		shader->loc_time = glGetUniformLocation(shader->programId, "ge_Time");
+		shader->loc_ratio = glGetUniformLocation(shader->programId, "ge_ScreenRatio");
+		shader->loc_camera = glGetUniformLocation(shader->programId, "ge_CameraPosition");
+		shader->loc_lights_d_count = glGetUniformLocation(shader->programId, "ge_DynamicLightsCount");
+		shader->loc_lights_s_count = glGetUniformLocation(shader->programId, "ge_StaticLightsCount");
+		shader->loc_front_ambient = glGetUniformLocation(shader->programId, "ge_FrontMaterial.ambient");
+		shader->loc_front_diffuse = glGetUniformLocation(shader->programId, "ge_FrontMaterial.diffuse");
+		shader->loc_submodel = glGetUniformLocation(shader->programId, "ge_MatrixSubModel");
+
+		shader->loc_fog_density = glGetUniformLocation(shader->programId, "ge_Fog.density");
+		shader->loc_fog_color = glGetUniformLocation(shader->programId, "ge_Fog.color");
+		shader->loc_fog_start = glGetUniformLocation(shader->programId, "ge_Fog.start");
+		shader->loc_fog_end = glGetUniformLocation(shader->programId, "ge_Fog.end");
+	}
 	
 	geFree(header);
 	geFree(fullheader);

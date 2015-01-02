@@ -23,7 +23,7 @@ static bool checkVal(cl_int status, int value, const char* err_str){
 	if((int)status == value){
 		return true;
 	}else{
-		printf("GE::CL::%s\n", err_str);
+		printf("GE::CL::%s (%d)\n", err_str, status);
 		return false;
 	}
 }

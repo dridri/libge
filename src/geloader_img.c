@@ -263,8 +263,8 @@ ge_Image* geResizeImage(ge_Image* src, int new_width, int new_height, int method
 				dst->data[x+y*dst->textureWidth] = src->data[((int)((float)x/ratio_w)) + ((int)((float)y/ratio_h))*src->textureWidth];
 			}
 			if(method == GE_LINEAR){
-				int x2 = ((x+1)<src->width)?(x+1):x;
-				int y2 = ((y+1)<src->height)?(y+1):y;
+				int x2 = ( (int)( (float)(x+1)/ratio_w ) < src->width ) ? (x+1) : x;
+				int y2 = ( (int)( (float)(y+1)/ratio_h ) < src->height ) ? (y+1) : y;
 				int xn2 = ((x-1)>0)?(x-1):x;
 				int yn2 = ((y-1)>0)?(y-1):y;
 				u32 c0 = src->data[((int)((float)x/ratio_w)) + ((int)((float)y/ratio_h))*src->textureWidth];

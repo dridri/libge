@@ -41,20 +41,21 @@ void geDebugOut(char* buff, int bufsz){
 		return;
 	}
 	buff[strlen(buff)-1] = 0x0;
-	LOGW(buff);
+	LOGW("%s", buff);
 }
 
 u32 geGetTick(){
 	struct timespec now;
-//	clock_gettime(CLOCK_MONOTONIC, &now);
-	clock_gettime(CLOCK_REALTIME_HR, &now);
+	clock_gettime(CLOCK_MONOTONIC, &now);
+//	clock_gettime(CLOCK_REALTIME_HR, &now);
 //	return (now.tv_sec*1000000000LL + now.tv_nsec) / 1000;
 	return now.tv_sec*1000 + now.tv_nsec/1000000;
 }
 
 float geGetTickFloat(){
 	struct timespec now;
-	clock_gettime(CLOCK_REALTIME_HR, &now);
+	clock_gettime(CLOCK_MONOTONIC, &now);
+// 	clock_gettime(CLOCK_REALTIME_HR, &now);
 	float ret = (float)now.tv_sec;
 	u32 ms = now.tv_nsec/1000000;
 	ret += ((float)ms) / 1000.0;
@@ -276,14 +277,17 @@ void geSysFileClose(void* file){
 
 int geSysFileSeek(void* file, int offset, int origin){
 	if(!file){
-		return;
+		return -1;
 	}
+	int ret = 0;
 	_ge_android_fd* fd = (_ge_android_fd*)file;
 	if(fd->isAsset){
-		AAsset_seek((AAsset*)fd->fd, offset, origin);
+		ret = AAsset_seek((AAsset*)fd->fd, offset, origin);
 	}else{
 		geLibcFileSeek(fd->fd, offset, origin);
+		ret = geLibcFileTell(fd->fd);
 	}
+	return ret;
 }
 
 int geSysFileTell(void* file){
@@ -334,7 +338,7 @@ int geSysFileWrite(void* file, void* buffer, int size){
 
 char* geSysFileGets(void* file, char* buffer, int max){
 	if(!file){
-		return;
+		return 0;
 	}
 //	return fgets(buffer, max, (FILE*)file);
 	int ret = geSysFileRead(file, buffer, max);

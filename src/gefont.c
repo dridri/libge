@@ -174,7 +174,7 @@ void geFontPrintScreen(int x, int y, ge_Font* font, const char* text, u32 color)
 }
 
 void geFontPrintScreenOutline(int x, int y, ge_Font* font, const char* text, u32 color, u32 outlineColor){
-	geRenderFontOutline(x, y, font, color, outlineColor, text, strlen(text));
+//	geRenderFontOutline(x, y, font, color, outlineColor, text, strlen(text));
 }
 
 void geFontPrintScreenUnicode(int x, int y, ge_Font* font, const unsigned short* text, u32 color){
