@@ -1,12 +1,8 @@
 #include "ge_internal.h"
-/*
+
 #include <ft2build.h>
-#include <freetype2/freetype/freetype.h>
-#include <freetype2/freetype/ftglyph.h>
-*/
-#include <freetype2/ft2build.h>
-#include <freetype2/freetype/freetype.h>
-#include <freetype2/freetype/ftglyph.h>
+#include <freetype2/freetype.h>
+#include <freetype2/ftglyph.h>
 
 void CreateGlTexture(ge_Image* image);
 #ifndef min

@@ -12,14 +12,14 @@ add_definitions(-DLIBGE_LIB)
 #set(SOURCES ${SOURCES} src/gecl.c)
 #set(LIBS ${LIBS} -lOpenCL)
 
-option(target "target" )
-option(video "video" )
-option(static "static" )
-option(mini "mini" )
-option(opttest "opttest" )
+option(target "target")
+option(video "video")
+option(static "static")
+option(mini "mini")
+option(opttest "opttest")
 option(debug "debug" )
-option(opencl "opencl" 
-option(ARCH "ARCH" )
+option(opencl "opencl")
+option(ARCH "ARCH")
 
 if(mini)
 	add_definitions(-DLIBGE_NOLUA)
@@ -216,8 +216,8 @@ endif()
 
 if(NOT "${opencl}" MATCHES OFF)
 	set(SOURCES ${SOURCES} src/gecl.c)
+endif()
 
-=======
 if(${video} MATCHES opengl21 AND ${target} MATCHES win)
 	set(SOURCES
 		${SOURCES}
@@ -351,10 +351,19 @@ AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
 if("${ARCH}" MATCHES "64")
 	set(OBJCPY_OUT elf64-x86-64)
- 	set(OBJCPY_ARCH -B i386)
 else()
 	set(OBJCPY_OUT elf32-i386)
-# 	set(OBJCPY_ARCH -B i386)
+endif()
+set(OBJCPY_ARCH -B i386)
+
+if(${video} MATCHES "opengl21")
+	set(geshader_v geshader_gl2v.h)
+	set(geshader_g geshader_gl2g.h)
+	set(geshader_f geshader_gl2f.h)
+elseif(${video} MATCHES "opengl30")
+	set(geshader_v geshader_gl3v.h)
+	set(geshader_g geshader_gl3g.h)
+	set(geshader_f geshader_gl3f.h)
 endif()
 
 set(geshader_obj_files
@@ -373,9 +382,9 @@ set_source_files_properties(
 add_custom_command(
 			OUTPUT ${geshader_obj_files}
 			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2v.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2g.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2f.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
 			)
 
 set(SOURCES ${SOURCES} ${geshader_obj_files})
