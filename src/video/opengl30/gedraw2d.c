@@ -346,8 +346,10 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	if(abs(z) > 2048){
 		return;
 	}
-	x += libge_context->draw_off_x;
-	y += libge_context->draw_off_y;
+	if(!(flags & GE_BLIT_NOOFFSET)){
+		x += libge_context->draw_off_x;
+		y += libge_context->draw_off_y;
+	}
 
 	if(flags & GE_BLIT_CENTERED){
 		x -= width / 2;
@@ -444,8 +446,10 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 	if(abs(z) > 2048){
 		return;
 	}
-	x += libge_context->draw_off_x;
-	y += libge_context->draw_off_y;
+	if(!(flags & GE_BLIT_NOOFFSET)){
+		x += libge_context->draw_off_x;
+		y += libge_context->draw_off_y;
+	}
 
 	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
 		return;

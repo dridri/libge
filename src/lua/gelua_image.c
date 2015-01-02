@@ -242,7 +242,7 @@ static int Image_stretchedRotated(lua_State* L){
 	if(dest){
 	//	geBlitImageToImage(x, y, img, sx, sy, width, height, dest);
 	}else{
-		geBlitImageStretchedRotated(x, y, img, sx, sy, ex, ey, w, h, angle, flags);
+		geBlitImageStretchedRotated(x, y, img, sx, sy, ex, ey, w, h, angle, flags | GE_BLIT_CENTERED);
 	}
 
 	return 1;
@@ -283,7 +283,7 @@ static int Image_color(lua_State* L){
 	ge_Image* dest = *toImage(L, -1);
 
 	if(!dest){
-		return luaL_error(L, "Error: geImage.Color([color]) must be with a colon");
+		return luaL_error(L, "Error: geImage.setColor([color]) must be with a colon");
 	}
 
 	if(argc > 0){

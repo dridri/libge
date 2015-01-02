@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3") # -g3
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3") # -g3
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x -g3") # -g3
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x -g3")
 
 add_definitions(-DLIBGE_LIB)
 
@@ -43,10 +43,10 @@ if("${target}" MATCHES "psp")
 	set(CMAKE_CXX_COMPILER "${psp_path}/bin/psp-g++.exe")
 elseif("${target}" MATCHES "win*")
 	if(${ARCH} MATCHES OFF)
-		message(WARNING "Architecture defaulted to 64bits")
+		message(WARNING "Architecture defaulted to Windows 64bits")
 		set(ARCH 64) ## TODO
-		set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
-		set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+		set(CMAKE_C_COMPILER C:/MinGW/mingw64/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
+		set(CMAKE_CXX_COMPILER C:/MinGW/mingw64/bin/x86_64-w64-mingw32-g++.exe) ## TODO
 	endif()
 elseif("${target}" MATCHES "mac*")
 	if(${ARCH} MATCHES OFF)
@@ -85,7 +85,8 @@ if(${video} MATCHES OFF)
 	endif()
 endif()
 
-if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
+# if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
+if("${target}" MATCHES "qt" OR UNIX)
 	find_package(OpenGL REQUIRED)
 	include_directories(${OPENGL_INCLUDE_DIRS})
 endif()
@@ -117,6 +118,7 @@ else()
 endif()
 
 set(SOURCES ${SOURCES}
+	src/video/geshader.c
 	src/video/geimg.c
 	src/video/gelensflare.c
 	src/video/gelightscattering.c
@@ -329,6 +331,37 @@ message(STATUS "LibGE will be compiled for '${target}' in ${ARCH_MSG}${VID_MSG}"
 
 AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
+if("${ARCH}" MATCHES "64")
+	set(OBJCPY_OUT elf64-x86-64)
+ 	set(OBJCPY_ARCH -B i386)
+else()
+	set(OBJCPY_OUT elf32-i386)
+# 	set(OBJCPY_ARCH -B i386)
+endif()
+
+set(geshader_obj_files
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+			)
+
+set_source_files_properties(
+			${geshader_obj_files}
+			PROPERTIES
+			EXTERNAL_OBJECT true
+			GENERATED true
+			)
+
+add_custom_command(
+			OUTPUT ${geshader_obj_files}
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2v.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2g.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2f.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+			)
+
+set(SOURCES ${SOURCES} ${geshader_obj_files})
+
 if(static)
 	add_library(ge_static STATIC ${SOURCES})
 elseif(opttest)
@@ -343,7 +376,6 @@ endif()
 
 if(WIN32)
 	set(LIBS ${LIBS}
-		m
 		mad
 		png
 		openGL32
@@ -351,7 +383,7 @@ if(WIN32)
 		jpeg
 		freetype
 		z
-		bz2
+		m
 		wsock32
 		gdi32
 		user32
@@ -421,7 +453,7 @@ elseif("${target}" MATCHES "qt")
 	target_link_libraries(ge_qt ${LIBS})
 	INSTALL(TARGETS ge_qt ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 else()
-	target_link_libraries(ge ${LIBS})
+	target_link_libraries(ge  ${LIBS})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 endif()
 

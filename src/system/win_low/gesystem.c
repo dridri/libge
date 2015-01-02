@@ -201,11 +201,11 @@ int geSysDread(void* fd, char* path, ge_Dirent* entry){
 	char fullpath[2048+256] = "";
 	sprintf(fullpath, "%s/%s", path, e->d_name);
 	stat(fullpath, &st);
-	entry->stat.isDir = (st.st_mode & _S_IFDIR)? 1 : 0;
-	entry->stat.size = st.st_size;
-	memcpy(&entry->stat.ctime, &st.st_ctime, sizeof(ge_Date));
-	memcpy(&entry->stat.atime, &st.st_atime, sizeof(ge_Date));
-	memcpy(&entry->stat.mtime, &st.st_mtime, sizeof(ge_Date));
+// 	entry->stat.isDir = (st.st_mode & _S_IFDIR)? 1 : 0;
+// 	entry->stat.size = st.st_size;
+// 	memcpy(&entry->stat.ctime, &st.st_ctime, sizeof(ge_Date));
+// 	memcpy(&entry->stat.atime, &st.st_atime, sizeof(ge_Date));
+// 	memcpy(&entry->stat.mtime, &st.st_mtime, sizeof(ge_Date));
 
 	return 1;
 }

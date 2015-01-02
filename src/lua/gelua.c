@@ -304,6 +304,8 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 	va_list opt;
 	va_start(opt, fmt);
 
+	char dbg_str[1024] = "";
+
 	int nRets = 0;
 	int nArgs = 0;
 	int i = 0;
@@ -313,12 +315,15 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 		// Jump return args
 		for(i=0; i<lfmt && fmt[i] != '='; i++){
 			if(fmt[i] == 'i' || fmt[i] == 'f' || fmt[i] == 'd' || fmt[i] == 's'){
+				sprintf(dbg_str, "%s%c%s", dbg_str, fmt[i], (i + 1 < lfmt && fmt[i + 1] != '=') ? ", " : "");
 				va_arg(opt, void*);
 				nRets++;
 			}
 		}
 		i = strchr(fmt, '=') - fmt + 1;
 	}
+
+	sprintf(dbg_str, "%s%s%s(", dbg_str, strchr(fmt, '=') ? " = " : "", funcname);
 
 	if(!strchr(funcname, '.') && !strchr(funcname, ':')){
 		lua_getglobal(script->L, funcname);
@@ -353,25 +358,40 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 
 	for(; i<lfmt; i++){
 		if(fmt[i] == 'i'){
-			lua_pushinteger(script->L, va_arg(opt, int));
+			int n = va_arg(opt, int);
+			sprintf(dbg_str, "%s%d", dbg_str, n);
+			lua_pushinteger(script->L, n);
 			nArgs++;
 		}
-		if(fmt[i] == 'f'){
-			lua_pushnumber(script->L, (double)va_arg(opt, double));
-			nArgs++;
-		}
-		if(fmt[i] == 'd'){
-			lua_pushnumber(script->L, va_arg(opt, double));
+		if(fmt[i] == 'f' || fmt[i] == 'd'){
+			double d = va_arg(opt, double);
+			sprintf(dbg_str, "%s%f", dbg_str, d);
+			lua_pushnumber(script->L, d);
 			nArgs++;
 		}
 		if(fmt[i] == 's'){
-			lua_pushstring(script->L, va_arg(opt, char*));
+			char* s = va_arg(opt, char*);
+			if(strlen(s) > 16){
+				char tmp[32] = "\"";
+				strncat(tmp, s, 16);
+				strcat(tmp, "...\"");
+				sprintf(dbg_str, "%s%s", dbg_str, tmp);
+			}else{
+				sprintf(dbg_str, "%s%s", dbg_str, s);
+			}
+			lua_pushstring(script->L, s);
 			nArgs++;
+		}
+		if(i + 1 < lfmt && (fmt[i] == 'i' || fmt[i] == 'f' || fmt[i] == 'd' || fmt[i] == 's')){
+			sprintf(dbg_str, "%s, ", dbg_str);
 		}
 	}
 	va_end(opt);
 
+	sprintf(dbg_str, "%s)", dbg_str);
+
 // 	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
+	gePrintDebug(0x100, "Calling LUA (context: 0x%08X) function %s\n", script->L, dbg_str);
 	int ret = lua_pcall(script->L, nArgs, nRets, 0);
 
 	if(ret != 0){

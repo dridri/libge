@@ -171,6 +171,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	glBindTexture(GL_TEXTURE_2D, img->id);
 
 	glBegin(GL_TRIANGLE_FAN);
+		glColor4ub(R(img->color), G(img->color), B(img->color), A(img->color));
 		glTexCoord2f(sx, sy+texMaxY);		 glVertex3f(x - cw - sh, y - sw + ch, (float)z+libge_context->img_stack[z+2048]);
 		glTexCoord2f(sx, sy);				 glVertex3f(x - cw + sh, y - sw - ch, (float)z+libge_context->img_stack[z+2048]);
 		glTexCoord2f(sx+texMaxX, sy);		 glVertex3f(x + cw + sh, y + sw - ch, (float)z+libge_context->img_stack[z+2048]);
@@ -179,7 +180,6 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	
 	libge_context->img_stack[z+2048] += 0.001;
 }
-
 
 void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, int width, int height, int flags){
 	if(!img)return;
@@ -268,6 +268,75 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 		glEnd();
 	}
 
+	libge_context->img_stack[z+2048] += 0.001;
+}
+
+void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, int width, int height, float angle, int flags){
+	if(!img)return;
+	if((t_ptr)img==0xBAADF00D)return;
+	if(!img->id)return;
+	if(abs(z) > 2048){
+		return;
+	}
+	if(!(flags & GE_BLIT_NOOFFSET)){
+		x += libge_context->draw_off_x;
+		y += libge_context->draw_off_y;
+	}
+
+	if(flags & GE_BLIT_NOALPHA){
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_BLEND);
+	}else{
+		glEnable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	float texMaxX = img->u;
+	float texMaxY = img->v;
+	float sx = _sx*texMaxX/img->width;
+	float sy = _sy*texMaxY/img->height;
+	texMaxX = ex*texMaxX/img->width;
+	texMaxY = ey*texMaxY/img->height;
+
+	float Cos = geCos(angle);
+	float Sin = geSin(-angle);
+
+	float sw = Sin*width*0.5;
+	float sh = Sin*height*0.5;
+	float cw = Cos*width*0.5;
+	float ch = Cos*height*0.5;
+
+	int mw = 0;
+	int mh = 0;
+	if(!(flags & GE_BLIT_CENTERED)){
+		mw = (width-x) / 2;
+		mh = (height-y) / 2;
+		mw += (int)((x - cw - sh) - (x - cw + sh));
+		mh += (int)((y - sw + ch) - (y - sw - ch));
+	}
+	x += mw;
+	y += mh;
+	
+	if(!ge_current_shader){
+		geShaderUse(_ge_GetVideoContext()->shader2d);
+	}
+	if(ge_current_shader == _ge_GetVideoContext()->shader2d){
+		geShaderUniform1f(_ge_GetVideoContext()->loc_textured, 1.0);
+		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
+		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
+	}
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, img->id);
+
+	glBegin(GL_TRIANGLE_FAN);
+		glColor4ub(R(img->color), G(img->color), B(img->color), A(img->color));
+		glTexCoord2f(sx, sy+texMaxY);		 glVertex3f(x - cw - sh, y - sw + ch, (float)z+libge_context->img_stack[z+2048]);
+		glTexCoord2f(sx, sy);				 glVertex3f(x - cw + sh, y - sw - ch, (float)z+libge_context->img_stack[z+2048]);
+		glTexCoord2f(sx+texMaxX, sy);		 glVertex3f(x + cw + sh, y + sw - ch, (float)z+libge_context->img_stack[z+2048]);
+		glTexCoord2f(sx+texMaxX, sy+texMaxY);glVertex3f(x + cw - sh, y + sw + ch, (float)z+libge_context->img_stack[z+2048]);
+	glEnd();
+	
 	libge_context->img_stack[z+2048] += 0.001;
 }
 

@@ -64,7 +64,12 @@
 #endif
 
 #define set_color(c, r,g,b,a)c[0]=r;c[1]=g;c[2]=b;c[3]=a
-		
+
+#if (defined(PLATFORM_win) || defined(PLATFORM_win_low))
+#define GE_BLOB(x) _binary_##x
+#else
+#define GE_BLOB(x) _binary_##x
+#endif
 
 void ge_Splashscreen();
 void geGraphicsInit();

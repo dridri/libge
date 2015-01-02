@@ -37,6 +37,9 @@ static int normal_width, normal_height;
 static bool fsmode = false;
 int iFormat = 0;
 
+// NVIDIA workaround
+__declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	printf("geCreateMainWindow 1\n");
 	WNDCLASS winClass;
@@ -144,9 +147,15 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	int fmt = ChoosePixelFormat(GetDC(context->window), &pfd);
 	SetPixelFormat(GetDC(context->window), fmt, &pfd);
 
+	gePrintDebug(0x100, "OpenGL Vendor : %s\n", glGetString(GL_VENDOR));
+	gePrintDebug(0x100, "OpenGL Renderer : %s\n", glGetString(GL_RENDERER));
+
 	context->hRC = wglCreateContext(GetDC(context->window));
 	wglMakeCurrent(GetDC(context->window), context->hRC);
 	printf("geCreateMainWindow 6\n");
+
+	gePrintDebug(0x100, "OpenGL Vendor : %s\n", glGetString(GL_VENDOR));
+	gePrintDebug(0x100, "OpenGL Renderer : %s\n", glGetString(GL_RENDERER));
 	
 //	PFNWGLGETERRORPROC glGetError = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
@@ -190,7 +199,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 				WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
 				WGL_CONTEXT_MINOR_VERSION_ARB, 2,
 				WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+// 				WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 				0, 0
 			};
 			context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
