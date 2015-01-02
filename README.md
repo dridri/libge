@@ -16,6 +16,7 @@ You need the devel package for the following libraries :
  * libmad
  * libbz2
  * libz
+
 The devel packages of OpenGL, X11 and Alsa are also needed on Linux
 
 
