@@ -238,6 +238,32 @@ void LoadRenderer(const char* path, ge_File* fp, ge_Scene* scene, ge_Renderer* r
 			gePrintDebug(0x100, "file: \"%s\"\n", fl);
 			geShaderLoadFragmentSource(render->shader, fl);
 		}
+		if(geGetParamString(buffer, "vertex_shadow", tmp, 2048)){
+			gePrintDebug(0x100, " LoadRenderer H\n");
+			if(!strncmp(tmp, "generic", 7)){
+				sprintf(fl, "%s/%s.vert", libge_context->default_shaders_path, tmp);
+			}else{
+				sprintf(fl, "%s%s", path, tmp);
+			}
+			gePrintDebug(0x100, "file: \"%s\"\n", fl);
+			if(!render->shadow_shader){
+				render->shadow_shader = geCreateShader();
+			}
+			geShaderLoadVertexSource(render->shadow_shader, fl);
+		}
+		if(geGetParamString(buffer, "fragment_shadow", tmp, 2048)){
+			gePrintDebug(0x100, " LoadRenderer I\n");
+			if(!strncmp(tmp, "generic", 7)){
+				sprintf(fl, "%s/%s.frag", libge_context->default_shaders_path, tmp);
+			}else{
+				sprintf(fl, "%s%s", path, tmp);
+			}
+			gePrintDebug(0x100, "file: \"%s\"\n", fl);
+			if(!render->shadow_shader){
+				render->shadow_shader = geCreateShader();
+			}
+			geShaderLoadFragmentSource(render->shadow_shader, fl);
+		}
 	}
 
 #ifndef PLATFORM_mac

@@ -18,12 +18,22 @@
 
 #include "../../ge_internal.h"
 
-char* load_source(const char* file, int* _size);
-static void _geShaderSource(ge_Shader* shader, int type, char* src);
+char* _ge_shader_load_header(const char* file, void* buf, long buflen, int* _size);
+char* _ge_shader_load_source(const char* file, int* _size);
 
 ge_Shader* ge_current_shader = NULL;
 ge_Shader* ge_force_shader = NULL;
 ge_Shader* ge_line_shader = NULL;
+
+extern char GE_BLOB(geshader_gl2v_h_start);
+extern char GE_BLOB(geshader_gl2v_h_end);
+extern char GE_BLOB(geshader_gl2v_h_size);
+extern char GE_BLOB(geshader_gl2g_h_start);
+extern char GE_BLOB(geshader_gl2g_h_end);
+extern char GE_BLOB(geshader_gl2g_h_size);
+extern char GE_BLOB(geshader_gl2f_h_start);
+extern char GE_BLOB(geshader_gl2f_h_end);
+extern char GE_BLOB(geshader_gl2f_h_size);
 
 void geMatrixLocations();
 
@@ -102,56 +112,6 @@ void geFreeShader(ge_Shader* shader){
 	}
 }
 
-void geShaderLoadVertexSource(ge_Shader* shader, const char* file){
-	char* src = load_source(file, NULL);
-	_geShaderSource(shader, GL_VERTEX_SHADER, src);
-	geFree(src);
-}
-
-void geShaderLoadTessControlSource(ge_Shader* shader, const char* file){
-	char* src = load_source(file, NULL);
-	_geShaderSource(shader, GL_TESS_CONTROL_SHADER, src);
-	geFree(src);
-}
-
-void geShaderLoadTessEvaluationSource(ge_Shader* shader, const char* file){
-	char* src = load_source(file, NULL);
-	_geShaderSource(shader, GL_TESS_EVALUATION_SHADER, src);
-	geFree(src);
-}
-
-void geShaderLoadGeometrySource(ge_Shader* shader, const char* file){
-	char* src = load_source(file, NULL);
-	_geShaderSource(shader, GL_GEOMETRY_SHADER, src);
-	geFree(src);
-}
-
-void geShaderLoadFragmentSource(ge_Shader* shader, const char* file){
-	char* src = load_source(file, NULL);
-	_geShaderSource(shader, GL_FRAGMENT_SHADER, src);
-	geFree(src);
-}
-
-void geShaderLoadVertexSourceBuffer(ge_Shader* shader, const char* src){
-	_geShaderSource(shader, GL_VERTEX_SHADER, (char*)src);
-}
-
-void geShaderLoadTessControlSourceBuffer(ge_Shader* shader, const char* src){
-	_geShaderSource(shader, GL_TESS_CONTROL_SHADER, (char*)src);
-}
-
-void geShaderLoadTessEvaluationSourceBuffer(ge_Shader* shader, const char* src){
-	_geShaderSource(shader, GL_TESS_EVALUATION_SHADER, (char*)src);
-}
-
-void geShaderLoadGeometrySourceBuffer(ge_Shader* shader, const char* src){
-	_geShaderSource(shader, GL_GEOMETRY_SHADER, (char*)src);
-}
-
-void geShaderLoadFragmentSourceBuffer(ge_Shader* shader, const char* src){
-	_geShaderSource(shader, GL_FRAGMENT_SHADER, (char*)src);
-}
-
 void ge_ParseLog(char* log, char* header){
 	gePrintDebug(0x100, "ParseLog : 1\n");
 	int headerln = 0;
@@ -196,8 +156,8 @@ void ge_ParseLog(char* log, char* header){
 	gePrintDebug(0x100, "ParseLog : 5\n");
 }
 
-static void _geShaderSource(ge_Shader* shader, int type, char* src){
-	if(!libge_context->shaders_available)return;
+void _geShaderSource(ge_Shader* shader, int type, char* src){
+	if(!libge_context->shaders_available || type == 0xFFFFFFFF)return;
 	gePrintDebug(0x100, "_geShaderSource(0x%08lX, %d, \"...\")\n", shader, type);
 	u32 glId = glCreateShader(type);
 	if(type==GL_GEOMETRY_SHADER)shader->gShaderId=glId;
@@ -226,15 +186,24 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 			}
 		}
 	}
-	if(no_include == false && type == GL_VERTEX_SHADER){
-		header = load_source("default_shaders/geshader_gl2v.h", &headerlen);
+
+ 	if(no_include == false){
+		char* header_file = "default_shaders/geshader_gl2v.h";
+		void* header_bin = &GE_BLOB(geshader_gl2v_h_start);
+		t_ptr header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2v_h_size);
+		if(type == GL_GEOMETRY_SHADER){
+			header_file = "default_shaders/geshader_gl2g.h";
+			header_bin = &GE_BLOB(geshader_gl2g_h_start);
+			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2g_h_size);
+		}
+		if(type == GL_FRAGMENT_SHADER){
+			header_file = "default_shaders/geshader_gl2f.h";
+			header_bin = &GE_BLOB(geshader_gl2f_h_start);
+			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2f_h_size);
+		}
+		header = _ge_shader_load_header(header_file, header_bin, header_bin_sz, &headerlen);
 	}
-	if(no_include == false && type == GL_GEOMETRY_SHADER){
-		header = load_source("default_shaders/geshader_gl2g.h", &headerlen);
-	}
-	if(no_include == false && type == GL_FRAGMENT_SHADER){
-		header = load_source("default_shaders/geshader_gl2f.h", &headerlen);
-	}
+
 	if(no_include == false && header != NULL){
 		gePrintDebug(0x100, "_geShaderSource : Header loaded\n");
 		fullheader = (char*)geMalloc(sizeof(char)*(headerlen + 256));
@@ -302,29 +271,6 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	gePrintDebug(3, "2..");
 	if(buf)geFree(buf);
 	gePrintDebug(3, "3");
-}
-
-void geShaderUse(ge_Shader* shader){
-	if(!libge_context->shaders_available)return;
-	if(ge_force_shader){
-		shader = ge_force_shader;
-	}
-	ge_current_shader = shader;
-	if(!shader){
-		glUseProgram(0);
-		return;
-	}
-	glUseProgram(shader->programId);
-	geMatrixLocations();
-//	ge_draw_object_set_shader(shader);
-}
-
-void geForceShader(ge_Shader* sh){
-	ge_force_shader = sh;
-}
-
-void geLineShader(ge_Shader* sh){
-	ge_line_shader = sh;
 }
 
 int geShaderUniformID(ge_Shader* shader, const char* name){
@@ -401,18 +347,4 @@ void geShaderUniform3iv(int id, int n, int* v){
 
 void geShaderUniform4iv(int id, int n, int* v){
 	glUniform4iv(id, n, v);
-}
-
-int geFileFullRead(const char* filename, void** buf);
-char* load_source(const char* file, int* _size){
-	void* _buf = NULL;
-	int size = geFileFullRead(file, &_buf);
-	char* buf = (char*)_buf;
-	if(_size)*_size=size;
-	/*
-	gePrintDebug(0x100, "-----------------------------------------------------------\n");
-	gePrintDebug(0x100, "%d |||| \n%s\n", size, buf);
-	gePrintDebug(0x100, "-----------------------------------------------------------\n");
-	*/
-	return (char*)buf;
 }

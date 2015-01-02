@@ -252,7 +252,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 #ifdef PLATFORM_mac
 		sprintf(buf, "#version 150\n%s%s", fullheader, src);
 #else
-		sprintf(buf, "#version 130\n%s%s", fullheader, src);
+		sprintf(buf, "#version 150\n%s%s", fullheader, src);
 #endif
 	}else{
 		buf = (char*)geMalloc(sizeof(char)*(srclen + 256));
@@ -260,7 +260,7 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 #ifdef PLATFORM_mac
 		sprintf(buf, "#version 150\n%s", src);
 #else
-		sprintf(buf, "#version 130\n%s", src);
+		sprintf(buf, "#version 150\n%s", src);
 #endif
 	}
 	gePrintDebug(0x100, "_geShaderSource : File computed\n");
@@ -346,8 +346,9 @@ static void _geShaderSource(ge_Shader* shader, int type, char* src){
 	gePrintDebug(3, "3");
 }
 
-void geShaderUse(ge_Shader* shader){
+ge_Shader* geShaderUse(ge_Shader* shader){
 	if(!libge_context->shaders_available)return;
+	ge_Shader* ret = ge_current_shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;
 	}
@@ -362,10 +363,13 @@ void geShaderUse(ge_Shader* shader){
 		geMatrixLocations();
 //		ge_draw_object_set_shader(shader);
 	}
+	return ret;
 }
 
-void geForceShader(ge_Shader* sh){
+ge_Shader* geForceShader(ge_Shader* sh){
+	ge_Shader* ret = ge_force_shader;
 	ge_force_shader = sh;
+	return ret;
 }
 
 void geLineShader(ge_Shader* sh){

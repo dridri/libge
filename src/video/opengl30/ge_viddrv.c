@@ -24,11 +24,11 @@ static ge_Image** ge_textures = { NULL };
 
 #define load_func(name) \
 	name = geglImportFunction(#name); \
-	gePrintDebug(0x100, #name ": 0x%08lX\n", (t_ptr)name)
+	gePrintDebug(0x100, #name ": 0x%p\n", (t_ptr)name)
 
 #define load_func2(name, str) \
 	name = geglImportFunction(str); \
-	gePrintDebug(0x100, #name ": 0x%08lX\n", (t_ptr)name)
+	gePrintDebug(0x100, #name ": 0x%p\n", (t_ptr)name)
 
 void geInitVideo(){
 /*

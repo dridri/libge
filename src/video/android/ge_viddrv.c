@@ -418,7 +418,7 @@ void geTextureImage(int unit, ge_Image* img){
 	if(img){
 		glActiveTexture(GL_TEXTURE0+unit);
 		glBindTexture(GL_TEXTURE_2D, img->id);
-		glEnable(GL_TEXTURE_2D);
+		//glEnable(GL_TEXTURE_2D);
 	}else{
 		glActiveTexture(GL_TEXTURE0+unit);
 		glBindTexture(GL_TEXTURE_2D, 0);

@@ -113,7 +113,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 
 	AdjustWindowRectEx(&WindowRect, dwStyle, FALSE, dwExStyle);
 
-	context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
+	context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN/*|WS_VISIBLE*/, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
 
 	static	PIXELFORMATDESCRIPTOR pfd;
 	context->hDC = GetDC(context->window);
@@ -142,6 +142,30 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	context->hRC = wglCreateContext(context->hDC);
 	wglMakeCurrent(context->hDC, context->hRC);
 
+	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+	
+	wglDeleteContext(context->hRC);
+	printf("geCreateMainWindow 6.4\n");
+	ReleaseDC(context->window, GetDC(context->window));
+	printf("geCreateMainWindow 6.5\n");
+	DestroyWindow(context->window);
+
+	context->window = CreateWindowEx(dwExStyle, "_LibGE_OpenGL", title, dwStyle|WS_CLIPSIBLINGS|WS_CLIPCHILDREN|WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, WindowRect.right-WindowRect.left, WindowRect.bottom-WindowRect.top, NULL, NULL, context->instance, NULL);
+	context->hDC = GetDC(context->window);
+	SetPixelFormat(context->hDC, fmt, &pfd);
+//	SetPixelFormat(context->hDC, pixelFormat, NULL);
+	if(wglCreateContextAttribsARB){
+		gePrintDebug(0x101, "Error base : %d\n", glGetError());
+		int attribList[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 2,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+		//	WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		//	WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0, 0
+		};
+		context->hRC = wglCreateContextAttribsARB(context->hDC, 0, attribList);
+	}
+	wglMakeCurrent(context->hDC, context->hRC);
 	/*
 	PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	if(wglChoosePixelFormatARB){

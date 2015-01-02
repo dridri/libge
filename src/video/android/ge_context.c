@@ -19,6 +19,32 @@
 #include "../../ge_internal.h"
 #include "ge_viddrv.h"
 
+static char _ge_shader_gles2_generic_2d_vert[] = 
+	"#define NO_DEFAULT_INCLUDE\n"
+	"precision highp float;\n"
+	"attribute vec3 ge_VertexTexcoord;\n"
+	"attribute vec4 ge_VertexColor;\n"
+	"attribute vec3 _ge_VertexPosition;\n"
+	"uniform mat4 ge_MatrixProjection;\n"
+	"varying vec4 ge_Color;\n"
+	"varying vec2 ge_TexCoord0;\n"
+	"void main(){\n"
+	"	ge_Color = ge_VertexColor;\n"
+	"	ge_TexCoord0 = ge_VertexTexcoord.st;\n"
+	"	gl_Position = ge_MatrixProjection * vec4(_ge_VertexPosition, 1.0);\n"
+	"}\n";
+
+static char _ge_shader_gles2_generic_2d_frag[] = 
+	"#define NO_DEFAULT_INCLUDE\n"
+	"precision highp float;\n"
+	"varying vec4 ge_Color;\n"
+	"varying vec2 ge_TexCoord0;\n"
+	"uniform sampler2D ge_Texture;\n"
+	"uniform float ge_HasTexture;\n"
+	"void main(){\n"
+	"	gl_FragColor = ge_Color * (texture2D(ge_Texture, ge_TexCoord0) + vec4(1.0-ge_HasTexture));\n"
+	"}\n";
+
 LibGE_VideoContext* _ge_GetVideoContext(){
 	return (LibGE_VideoContext*)libge_context->vidcontext;
 }
@@ -31,17 +57,15 @@ void geGraphicsInit(){
 	gePrintDebug(0x100, "geGraphicsInit 2\n");
 
 	ctx->shader2d = geCreateShader();
-	geShaderLoadVertexSource(ctx->shader2d, _ge_BuildPath(libge_context->default_shaders_path, "generic_2d.vert"));
-	geShaderLoadFragmentSource(ctx->shader2d, _ge_BuildPath(libge_context->default_shaders_path, "generic_2d.frag"));
-	gePrintDebug(0x100, "geGraphicsInit 3\n");
+
+	geShaderLoadVertexSource(ctx->shader2d, geFileFromBuffer(_ge_shader_gles2_generic_2d_vert, sizeof(_ge_shader_gles2_generic_2d_vert)+1));
+	geShaderLoadFragmentSource(ctx->shader2d, geFileFromBuffer(_ge_shader_gles2_generic_2d_frag, sizeof(_ge_shader_gles2_generic_2d_frag)+1));
+
 	ctx->loc_textured = geShaderUniformID(ctx->shader2d, "textured");
 	gePrintDebug(0x100, "geGraphicsInit 4\n");
 	glUseProgram(ctx->shader2d->programId);
 	gePrintDebug(0x100, "geGraphicsInit 5\n");
 	glActiveTexture(GL_TEXTURE0);
-	gePrintDebug(0x100, "geGraphicsInit 6\n");
-//	glEnable(GL_TEXTURE_2D);
-	gePrintDebug(0x100, "geGraphicsInit 7\n");
 	glUniform1i(glGetUniformLocation(ctx->shader2d->programId, "ge_Texture"), 0);
 	gePrintDebug(0x100, "geGraphicsInit 8\n");
 	glUseProgram(0);
@@ -78,7 +102,6 @@ int geDrawingMode(int mode){
 	if(mode != libge_context->drawing_mode){
 		if(mode & GE_DRAWING_MODE_2D){
 			glActiveTexture(GL_TEXTURE0);
-//			glEnable(GL_TEXTURE_2D);
 			
 			glDisable(GL_CULL_FACE);
 		

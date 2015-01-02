@@ -182,6 +182,7 @@ LIBGE_API void geBlitImage(int x, int y, ge_Image* image, int sx, int sy, int ex
 LIBGE_API void geBlitImageStretched(int x, int y, ge_Image* img, int sx, int sy, int ex, int ey, int width, int height, int flags);
 LIBGE_API void geBlitImageRotated(int x, int y, ge_Image* image, int sx, int sy, int ex, int ey, float angle, int flags);
 LIBGE_API void geBlitImageNegative(int x, int y, ge_Image* image, int sx, int sy, int ex, int ey);
+LIBGE_API void geBlitImageStretchedRotated(int x, int y, ge_Image* img, int sx, int sy, int ex, int ey, int width, int height, float angle, int flags);
 
 LIBGE_API void geDrawImageDepth(int x, int y, int z, ge_Image* img);
 LIBGE_API void geDrawImageDepthStretched(int x, int y, int z, ge_Image* img, int width, int height);
@@ -189,6 +190,7 @@ LIBGE_API void geDrawImageDepthRotated(int x, int y, int z, ge_Image* img, float
 LIBGE_API void geBlitImageDepth(int x, int y, int z, ge_Image* image, int sx, int sy, int ex, int ey, int flags);
 LIBGE_API void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, int width, int height, int flags);
 LIBGE_API void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, float angle, int flags);
+LIBGE_API void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int sx, int sy, int ex, int ey, int width, int height, float angle, int flags);
 
 LIBGE_API void geBlitImageToImage(int x, int y, ge_Image* source, int sx, int sy, int width, int height, ge_Image* destination);
 LIBGE_API void geBlitImageToImageStretched(int x, int y, ge_Image* source, int sx, int sy, int ex, int ey, int width, int height, ge_Image* destination);
@@ -371,7 +373,7 @@ LIBGE_API void geShaderLoadTessControlSource(ge_Shader* shader, const char* file
 LIBGE_API void geShaderLoadTessEvaluationSource(ge_Shader* shader, const char* file);
 LIBGE_API void geShaderLoadGeometrySource(ge_Shader* shader, const char* file);
 LIBGE_API void geShaderLoadFragmentSource(ge_Shader* shader, const char* file);
-LIBGE_API void geShaderUse(ge_Shader* shader);
+LIBGE_API ge_Shader* geShaderUse(ge_Shader* shader);
 LIBGE_API int geShaderUniformID(ge_Shader* shader, const char* name);
 LIBGE_API int geShaderAttribID(ge_Shader* shader, const char* name);
 LIBGE_API void geShaderUniform1i(int id, int v1);
@@ -391,7 +393,7 @@ LIBGE_API void geShaderUniform2iv(int id, int n, int* v);
 LIBGE_API void geShaderUniform3iv(int id, int n, int* v);
 LIBGE_API void geShaderUniform4iv(int id, int n, int* v);
 LIBGE_API void geVertexAttribPointer(int id, int size, int type, bool normalized, int stride, void* data);
-LIBGE_API void geForceShader(ge_Shader* sh);
+LIBGE_API ge_Shader* geForceShader(ge_Shader* sh);
 
 
 

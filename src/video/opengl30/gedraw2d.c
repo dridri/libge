@@ -59,7 +59,7 @@ static void InitDraw(ge_Image* tex, int mode){
 
 		glGenVertexArrays(1, &_ge_2d_vertices_vao);
 		glBindVertexArray(_ge_2d_vertices_vao);
-	
+
 		glGenBuffers(1, &_ge_2d_vertices_vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, _ge_2d_vertices_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(ge_Vertex)*GE_2D_VERTICES_MAX, NULL, GL_STREAM_DRAW);
@@ -346,8 +346,10 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	if(abs(z) > 2048){
 		return;
 	}
-	x += libge_context->draw_off_x;
-	y += libge_context->draw_off_y;
+	if(!(flags & GE_BLIT_NOOFFSET)){
+		x += libge_context->draw_off_x;
+		y += libge_context->draw_off_y;
+	}
 
 	if(flags & GE_BLIT_CENTERED){
 		x -= width / 2;
@@ -416,6 +418,120 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	vertex[5].v = sy+texMaxY;
 	vertex[5].x = x;
 	vertex[5].y = y+height;
+	vertex[5].z = z     ;//+libge_context->img_stack[z+2048];
+
+	if(flags & GE_BLIT_VFLIP){
+		vertex[0].v = sy + texMaxY;
+		vertex[1].v = sy + texMaxY;
+		vertex[2].v = sy;
+		vertex[3].v = sy + texMaxY;
+		vertex[4].v = sy;
+		vertex[5].v = sy;
+	}
+
+	vertex[0].color[0] = vertex[1].color[0] = vertex[2].color[0] = vertex[3].color[0] = vertex[4].color[0] = vertex[5].color[0] = Rf(img->color);
+	vertex[0].color[1] = vertex[1].color[1] = vertex[2].color[1] = vertex[3].color[1] = vertex[4].color[1] = vertex[5].color[1] = Gf(img->color);
+	vertex[0].color[2] = vertex[1].color[2] = vertex[2].color[2] = vertex[3].color[2] = vertex[4].color[2] = vertex[5].color[2] = Bf(img->color);
+	vertex[0].color[3] = vertex[1].color[3] = vertex[2].color[3] = vertex[3].color[3] = vertex[4].color[3] = vertex[5].color[3] = Af(img->color);
+
+	TermDraw();
+
+	libge_context->img_stack[z+2048] += 0.001;
+}
+
+void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _sx, int _sy, int ex, int ey, int width, int height, float angle, int flags){
+	if(!img)return;
+	if((unsigned long)img==0xBAADF00D)return;
+	if(!img->id)return;
+	if(abs(z) > 2048){
+		return;
+	}
+	if(!(flags & GE_BLIT_NOOFFSET)){
+		x += libge_context->draw_off_x;
+		y += libge_context->draw_off_y;
+	}
+
+	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
+		return;
+	}
+	
+	if(flags & GE_BLIT_NOALPHA){
+//		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_BLEND);
+	}else{
+//		glEnable(GL_ALPHA_TEST);
+		glEnable(GL_BLEND);
+		int b_src = libge_context->blend_src;
+		int b_dst = libge_context->blend_dst;
+		b_src = (b_src == GE_DEFAULT) ? GL_SRC_ALPHA : b_src;
+		b_dst = (b_dst == GE_DEFAULT) ? GL_ONE_MINUS_SRC_ALPHA : b_dst;
+		glBlendFunc(b_src, b_dst);
+	}
+	
+
+	float texMaxX = img->u;
+	float texMaxY = img->v;
+	float sx = _sx*texMaxX/img->width;
+	float sy = _sy*texMaxY/img->height;
+	texMaxX = ex*texMaxX/img->width;
+	texMaxY = ey*texMaxY/img->height;
+
+	float Cos = geCos(angle);
+	float Sin = geSin(-angle);
+
+	float sw = Sin*width*0.5f;
+	float sh = Sin*height*0.5f;
+	float cw = Cos*width*0.5f;
+	float ch = Cos*height*0.5f;
+
+	int mw = 0;
+	int mh = 0;
+	if(!(flags & GE_BLIT_CENTERED)){
+		mw = (width-x) / 2;
+		mh = (height-y) / 2;
+		mw += (int)((x - cw - sh) - (x - cw + sh));
+		mh += (int)((y - sw + ch) - (y - sw - ch));
+	}
+	x += mw;
+	y += mh;
+
+	InitDraw(img, GL_TRIANGLES);
+
+	ge_Vertex* vertex = ReserveVertices(6);
+	vertex[0].u = sx;
+	vertex[0].v = sy;
+	vertex[0].x = x - cw + sh;
+	vertex[0].y = y - sw - ch;
+	vertex[0].z = z     ;//+libge_context->img_stack[z+2048];
+
+	vertex[1].u = sx+texMaxX;
+	vertex[1].v = sy;
+	vertex[1].x = x + cw + sh;
+	vertex[1].y = y + sw - ch;
+	vertex[1].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[2].u = sx+texMaxX;
+	vertex[2].v = sy+texMaxY;
+	vertex[2].x = x + cw - sh;
+	vertex[2].y = y + sw + ch;
+	vertex[2].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[3].u = sx;
+	vertex[3].v = sy;
+	vertex[3].x = x - cw + sh;
+	vertex[3].y = y - sw - ch;
+	vertex[3].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[4].u = sx+texMaxX;
+	vertex[4].v = sy+texMaxY;
+	vertex[4].x = x + cw - sh;
+	vertex[4].y = y + sw + ch;
+	vertex[4].z = z     ;//+libge_context->img_stack[z+2048];
+	
+	vertex[5].u = sx;
+	vertex[5].v = sy+texMaxY;
+	vertex[5].x = x - cw - sh;
+	vertex[5].y = y - sw + ch;
 	vertex[5].z = z     ;//+libge_context->img_stack[z+2048];
 
 	if(flags & GE_BLIT_VFLIP){

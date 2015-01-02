@@ -1,33 +1,31 @@
-precision highp float;
-
 #define smooth
 #define in varying
 #define out varying
 
-// Vertex Attributes
-attribute vec3 ge_VertexTexcoord;
-attribute vec4 ge_VertexColor;
-attribute vec3 ge_VertexNormal;
-attribute vec3 _ge_VertexPosition;
-#define ge_VertexPosition vec4(_ge_VertexPosition, 1.0)
+#define ge_VertexTexcoord gl_MultiTexCoord0
+#define ge_VertexColor gl_Color
+#define ge_VertexNormal gl_Normal
+#define ge_VertexPosition gl_Vertex
 
 // Matrices
-uniform mat4 ge_MatrixProjection;
+#define ge_MatrixProjection gl_ProjectionMatrix
+#define ge_MatrixModelView gl_ModelViewMatrix
+#define ge_MatrixNormal gl_NormalMatrix
+#define ge_MatrixTexture gl_TextureMatrix
+#define ge_ClipPlane gl_ClipPlane[0]
+
+//#define ge_Color gl_FrontColor
+#define ge_TexCoord0 gl_TexCoord[0]
+
 uniform mat4 ge_MatrixView;
 uniform mat4 ge_MatrixModel;
-uniform mat4 ge_MatrixModelView;
-uniform mat4 ge_MatrixTexture[8];
-uniform mat3 ge_MatrixNormal;
-uniform vec4 ge_ClipPlane;
-
-// Outs
-varying vec3 ge_TexCoord0;
-varying vec4 ge_Color;
+uniform mat4 ge_MatrixSubModel;
+smooth out vec4 ge_Color;
 
 #define ge_Position gl_Position
 uniform vec3 ge_CameraPosition;
-
 uniform float ge_Time;
+uniform int ge_HasTexture;
 
 struct ge_struct_Light {
 	int flags;
@@ -44,7 +42,7 @@ struct ge_struct_Light {
 	vec3 targetVector;
 	float CosOuterConeAngle;
 	float CosInnerMinusOuterAngle;
-	sampler2D shadow;
+	sampler2DArray shadow;
 };
 struct ge_struct_material {
 	vec4 ambient;
@@ -55,5 +53,5 @@ struct ge_struct_material {
 // Lights
 uniform int ge_DynamicLightsCount;
 uniform int ge_StaticLightsCount;
-uniform ge_struct_Light ge_StaticLights[8];
-uniform ge_struct_Light ge_DynamicLights[8];
+uniform ge_struct_Light ge_StaticLights[];
+uniform ge_struct_Light ge_DynamicLights[];

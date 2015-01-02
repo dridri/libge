@@ -18,7 +18,9 @@
 
 #include "../../ge_internal.h"
 
+#ifndef max
 #define max(a, b) (((a) >= (b)) ? (a) : (b))
+#endif
 
 static ge_Scene* current_scene;
 extern ge_Camera* ge_current_camera;

@@ -22,7 +22,10 @@ void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize);
 
 int geLuaInit_ge(lua_State* L);
 int geLuaInit_screen(lua_State* L);
+int geLuaInit_file(lua_State* L);
 int geLuaInit_image(lua_State* L);
+int geLuaInit_font(lua_State* L);
+int geLuaInit_shader(lua_State* L);
 
 ge_LuaScript* scripts[32] = { NULL };
 
@@ -301,6 +304,8 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 	va_list opt;
 	va_start(opt, fmt);
 
+	char dbg_str[1024] = "";
+
 	int nRets = 0;
 	int nArgs = 0;
 	int i = 0;
@@ -310,6 +315,7 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 		// Jump return args
 		for(i=0; i<lfmt && fmt[i] != '='; i++){
 			if(fmt[i] == 'i' || fmt[i] == 'f' || fmt[i] == 'd' || fmt[i] == 's'){
+				sprintf(dbg_str, "%s%c%s", dbg_str, fmt[i], (i + 1 < lfmt && fmt[i + 1] != '=') ? ", " : "");
 				va_arg(opt, void*);
 				nRets++;
 			}
@@ -317,31 +323,82 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 		i = strchr(fmt, '=') - fmt + 1;
 	}
 
-	lua_getglobal(script->L, funcname);
+	sprintf(dbg_str, "%s%s%s(", dbg_str, strchr(fmt, '=') ? " = " : "", funcname);
+
+	if(!strchr(funcname, '.') && !strchr(funcname, ':')){
+		lua_getglobal(script->L, funcname);
+	}else{
+		char tmp[128];
+		int i, j, k;
+		bool method = false;
+		for(i=0, j=0, k=0; funcname[i]; i++){
+			if(funcname[i] == '.' || funcname[i] == ':'){
+				tmp[j] = 0;
+				if(k == 0){
+					lua_getglobal(script->L, tmp);
+				}else{
+					lua_getfield(script->L, -1, tmp);
+				}
+				memset(tmp, 0, sizeof(tmp));
+				j = 0;
+				k++;
+				method = (funcname[i] == ':');
+			}else{
+				tmp[j] = funcname[i];
+				j++;
+			}
+		}
+		tmp[j] = 0;
+		lua_getfield(script->L, -1, tmp);
+		if(method){
+			lua_pushvalue(script->L, -2);
+			nArgs++;
+		}
+	}
 
 	for(; i<lfmt; i++){
 		if(fmt[i] == 'i'){
-			lua_pushinteger(script->L, va_arg(opt, int));
+			int n = va_arg(opt, int);
+			sprintf(dbg_str, "%s%d", dbg_str, n);
+			lua_pushinteger(script->L, n);
 			nArgs++;
 		}
-		if(fmt[i] == 'f'){
-			lua_pushnumber(script->L, (double)va_arg(opt, double));
-			nArgs++;
-		}
-		if(fmt[i] == 'd'){
-			lua_pushnumber(script->L, va_arg(opt, double));
+		if(fmt[i] == 'f' || fmt[i] == 'd'){
+			double d = va_arg(opt, double);
+			sprintf(dbg_str, "%s%f", dbg_str, d);
+			lua_pushnumber(script->L, d);
 			nArgs++;
 		}
 		if(fmt[i] == 's'){
-			lua_pushstring(script->L, va_arg(opt, char*));
+			char* s = va_arg(opt, char*);
+			if(strlen(s) > 16){
+				char tmp[32] = "\"";
+				strncat(tmp, s, 16);
+				strcat(tmp, "...\"");
+				sprintf(dbg_str, "%s%s", dbg_str, tmp);
+			}else{
+				sprintf(dbg_str, "%s%s", dbg_str, s);
+			}
+			lua_pushstring(script->L, s);
 			nArgs++;
+		}
+		if(i + 1 < lfmt && (fmt[i] == 'i' || fmt[i] == 'f' || fmt[i] == 'd' || fmt[i] == 's')){
+			sprintf(dbg_str, "%s, ", dbg_str);
 		}
 	}
 	va_end(opt);
 
-	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
-	lua_pcall(script->L, nArgs, nRets, 0);
-	
+	sprintf(dbg_str, "%s)", dbg_str);
+
+// 	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
+	gePrintDebug(0x100, "Calling LUA (context: 0x%08X) function %s\n", script->L, dbg_str);
+	int ret = lua_pcall(script->L, nArgs, nRets, 0);
+
+	if(ret != 0){
+		geSetLuaError(script, lua_tostring(script->L, -1));
+		gePrintDebug(0x102, "Lua: %s\n", script->str_error);
+	}
+
 	if(strchr(fmt, '=')){
 		int n = 1;
 		va_start(opt, fmt);
@@ -405,12 +462,15 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	}
 
 	geFileClose(fp);
-	
+
 	script->L = lua_newstate(luaMalloc, NULL);
 	luaL_openlibs(script->L);
 	geLuaInit_ge(script->L);
 	geLuaInit_screen(script->L);
+	geLuaInit_file(script->L);
 	geLuaInit_image(script->L);
+	geLuaInit_font(script->L);
+	geLuaInit_shader(script->L);
 	int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);
 	
 	if(s != 0){
@@ -421,6 +481,15 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	return script;
 }
 
+void geLuaDoString(ge_LuaScript* script, const char* buf){
+	luaL_loadstring(script->L, buf);
+	int ret = lua_pcall(script->L, 0, LUA_MULTRET, 0);
+
+	if(ret != 0){
+		geSetLuaError(script, lua_tostring(script->L, -1));
+		gePrintDebug(0x102, "geLuaDoString: %s\n", script->str_error);
+	}
+}
 
 void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize){
 	if(nsize == 0){

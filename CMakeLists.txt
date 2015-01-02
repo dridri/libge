@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}") # -g3
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # -g3
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x") # -g3
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x -g3")
 
 add_definitions(-DLIBGE_LIB)
 
@@ -18,7 +18,8 @@ option(static "static" )
 option(mini "mini" )
 option(opttest "opttest" )
 option(debug "debug" )
-option(opencl "opencl" )
+option(opencl "opencl" 
+option(ARCH "ARCH" )
 
 if(mini)
 	add_definitions(-DLIBGE_NOLUA)
@@ -41,18 +42,32 @@ if(${target} MATCHES OFF)
 	endif()
 endif()
 
-if("${target}" MATCHES "win*")
-	set(ARCH 64) ## TODO
-	set(CMAKE_C_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
-	set(CMAKE_CXX_COMPILER C:/MinGW/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+if("${target}" MATCHES "psp")
+	message(STATUS "PSP")
+	execute_process(COMMAND psp-config -d OUTPUT_VARIABLE psp_path)
+	set(CMAKE_SYSTEM_NAME Generic) 
+	set(ARCH 32)
+	set(CMAKE_C_COMPILER "${psp_path}/bin/psp-gcc.exe")
+	set(CMAKE_CXX_COMPILER "${psp_path}/bin/psp-g++.exe")
+elseif("${target}" MATCHES "win*")
+	if(${ARCH} MATCHES OFF)
+		message(WARNING "Architecture defaulted to Windows 64bits")
+		set(ARCH 64) ## TODO
+		set(CMAKE_C_COMPILER C:/MinGW/mingw64/bin/x86_64-w64-mingw32-gcc.exe) ## TODO
+		set(CMAKE_CXX_COMPILER C:/MinGW/mingw64/bin/x86_64-w64-mingw32-g++.exe) ## TODO
+	endif()
 elseif("${target}" MATCHES "mac*")
-	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	if(${ARCH} MATCHES OFF)
+		execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	endif()
 	set(CMAKE_C_COMPILER gcc)
 	set(CMAKE_CXX_COMPILER g++)
 	include_directories(/usr/include/freetype2)
 	include_directories(/usr/include/freetype2/freetype)
 elseif("${target}" MATCHES "linux*")
-	execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	if(${ARCH} MATCHES OFF)
+		execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
+	endif()
 	set(platform linux)
 	find_package(X11 REQUIRED)
 	include_directories(${X11_INCLUDE_DIRS})
@@ -78,7 +93,8 @@ if(${video} MATCHES OFF)
 	endif()
 endif()
 
-if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
+# if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
+if("${target}" MATCHES "qt" OR UNIX)
 	find_package(OpenGL REQUIRED)
 	include_directories(${OPENGL_INCLUDE_DIRS})
 endif()
@@ -109,9 +125,14 @@ if(NOT WIN32 AND NOT mini)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
-add_definitions(-DPLATFORM_${target})
+if(${video} MATCHES opengl21 AND ${target} MATCHES win)
+	add_definitions(-DPLATFORM_${target}_low)
+else()
+	add_definitions(-DPLATFORM_${target})
+endif()
 
 set(SOURCES ${SOURCES}
+	src/video/geshader.c
 	src/video/geimg.c
 	src/video/gelensflare.c
 	src/video/gelightscattering.c
@@ -138,8 +159,11 @@ set(SOURCES ${SOURCES}
 	src/gesaver_obj_geo.c
 	src/lua/gelua.c
 	src/lua/gelua_ge.c
+	src/lua/gelua_file.c
+	src/lua/gelua_font.c
 	src/lua/gelua_image.c
 	src/lua/gelua_screen.c
+	src/lua/gelua_shader.c
 	src/gui/gegui.c
 	src/gui/gegui_button.c
 	src/gui/gegui_checkbox.c
@@ -166,15 +190,18 @@ set(SOURCES ${SOURCES}
 if("${ARCH}" MATCHES "64")
 	set(ARCH_MSG "64 bit architecture")
 	set(SOURCES ${SOURCES} src/ge_internal_64.c)
-	set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m64")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m64")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
 	set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -m64")
+	set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m64")
 else()
 	set(ARCH_MSG "32 bit architecture")
 	set(SOURCES ${SOURCES} src/ge_internal_32.c)
-	set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m32")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 	set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -m32")
+	set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -m32")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
 endif()
 
 if("${target}" MATCHES "qt")
@@ -189,17 +216,29 @@ endif()
 
 if(NOT "${opencl}" MATCHES OFF)
 	set(SOURCES ${SOURCES} src/gecl.c)
-endif()
 
-set(SOURCES
-	${SOURCES}
-	src/system/${target}/gesystem.c
-	src/system/${target}/ge_window.c
-	src/system/${target}/gememory.c
-	src/system/${target}/gekeys.c
-	src/system/${target}/gethreads.c
-	src/system/${target}/genet.c
-	)
+=======
+if(${video} MATCHES opengl21 AND ${target} MATCHES win)
+	set(SOURCES
+		${SOURCES}
+		src/system/win_low/gesystem.c
+		src/system/win_low/ge_window.c
+		src/system/win_low/gememory.c
+		src/system/win_low/gekeys.c
+		src/system/win_low/gethreads.c
+		src/system/win_low/genet.c
+		)
+else()
+	set(SOURCES
+		${SOURCES}
+		src/system/${target}/gesystem.c
+		src/system/${target}/ge_window.c
+		src/system/${target}/gememory.c
+		src/system/${target}/gekeys.c
+		src/system/${target}/gethreads.c
+		src/system/${target}/genet.c
+		)
+endif()
 
 set(SOURCES
 	${SOURCES}
@@ -288,7 +327,9 @@ set(MINI_SOURCES
 
 set(MINI_SOURCES
 	${MINI_SOURCES}
-	src/video/${video}/geparticles.c
+	src/video/${video}/geparticles.c Demandes
+Messages
+1 Notifications
 	src/video/${video}/ge_context.c
 	src/video/${video}/ge_viddrv.c
 	src/video/${video}/geshaders.c
@@ -308,6 +349,37 @@ message(STATUS "LibGE will be compiled for '${target}' in ${ARCH_MSG}${VID_MSG}"
 
 AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
+if("${ARCH}" MATCHES "64")
+	set(OBJCPY_OUT elf64-x86-64)
+ 	set(OBJCPY_ARCH -B i386)
+else()
+	set(OBJCPY_OUT elf32-i386)
+# 	set(OBJCPY_ARCH -B i386)
+endif()
+
+set(geshader_obj_files
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+			${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+			)
+
+set_source_files_properties(
+			${geshader_obj_files}
+			PROPERTIES
+			EXTERNAL_OBJECT true
+			GENERATED true
+			)
+
+add_custom_command(
+			OUTPUT ${geshader_obj_files}
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2v.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2g.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly geshader_gl2f.h ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+			)
+
+set(SOURCES ${SOURCES} ${geshader_obj_files})
+
 if(static)
 	add_library(ge_static STATIC ${SOURCES})
 elseif(opttest)
@@ -322,7 +394,6 @@ endif()
 
 if(WIN32)
 	set(LIBS ${LIBS}
-		m
 		mad
 		png
 		openGL32
@@ -330,7 +401,7 @@ if(WIN32)
 		jpeg
 		freetype
 		z
-		bz2
+		m
 		wsock32
 		gdi32
 		user32
@@ -401,7 +472,7 @@ elseif("${target}" MATCHES "qt")
 	target_link_libraries(ge_qt ${LIBS})
 	INSTALL(TARGETS ge_qt ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 else()
-	target_link_libraries(ge ${LIBS})
+	target_link_libraries(ge  ${LIBS})
 	INSTALL(TARGETS ge ARCHIVE DESTINATION /usr/lib LIBRARY DESTINATION /usr/lib)
 endif()
 
