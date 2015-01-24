@@ -324,7 +324,7 @@ void MacSwapBuffer(void){
 
 		event = [NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast] inMode:NSDefaultRunLoopMode dequeue:YES];
 //		if([event type] != 0)printf("event type : %d\n", (int)[event type]);
-		if([event type] == NSMouseMoved){
+		if([event type] == NSMouseMoved || [event type] == NSLeftMouseDragged || [event type] == NSRightMouseDragged){
 			if(warp_mode){
 				MacWarpMouse([event locationInWindow].x, [event locationInWindow].y);
 			}else{
