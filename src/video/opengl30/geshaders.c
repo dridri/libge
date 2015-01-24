@@ -188,18 +188,18 @@ void _geShaderSource(ge_Shader* shader, int type, char* src){
 	}
 
 	if(no_include == false){
-		char* header_file = "default_shaders/geshader_gl2v.h";
+		char* header_file = "default_shaders/geshader_gl3v.h";
 		void* header_bin = &GE_BLOB(geshader_gl3v_h_start);
-		t_ptr header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3v_h_size);
+		t_ptr header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3v_h_end) - (t_ptr)&GE_BLOB(geshader_gl3v_h_start);
 		if(type == GL_GEOMETRY_SHADER){
-			header_file = "default_shaders/geshader_gl2g.h";
+			header_file = "default_shaders/geshader_gl3g.h";
 			header_bin = &GE_BLOB(geshader_gl3g_h_start);
-			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3g_h_size);
+			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3g_h_end) - (t_ptr)&GE_BLOB(geshader_gl3g_h_start);
 		}
 		if(type == GL_FRAGMENT_SHADER){
-			header_file = "default_shaders/geshader_gl2f.h";
+			header_file = "default_shaders/geshader_gl3f.h";
 			header_bin = &GE_BLOB(geshader_gl3f_h_start);
-			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3f_h_size);
+			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl3f_h_end) - (t_ptr)&GE_BLOB(geshader_gl3f_h_start);
 		}
 		header = _ge_shader_load_header(header_file, header_bin, header_bin_sz, &headerlen);
 	}

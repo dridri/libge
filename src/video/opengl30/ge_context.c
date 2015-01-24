@@ -71,27 +71,17 @@ void geGraphicsInit(){
 
 	if(!ctx->shader2d){
 		gePrintDebug(0x100, "No 2D shader, loading it..\n");
-		printf("shader base 1 : %p\n", ctx->shader2d);
 		ctx->shader2d = geCreateShader();
-		printf("shader base 2 : %p\n", ctx->shader2d);
 		geShaderLoadVertexSource(ctx->shader2d, geFileFromBuffer(_ge_shader_ogl3_generic_2d_vert, sizeof(_ge_shader_ogl3_generic_2d_vert)+1));
-		printf("shader base 3 : %p\n", ctx->shader2d);
 		geShaderLoadFragmentSource(ctx->shader2d, geFileFromBuffer(_ge_shader_ogl3_generic_2d_frag, sizeof(_ge_shader_ogl3_generic_2d_frag)+1));
-		printf("shader base 4 : %p\n", ctx->shader2d);
 	//	ctx->loc_textured = geShaderUniformID(ctx->shader2d, "textured");
-		printf("\nA\n");
 		geForceShader(ctx->shader2d);
 		geShaderUse(ctx->shader2d);
 		geForceShader(0);
-		printf("B\n");
 		glUseProgram(ctx->shader2d->programId);
-		printf("C\n");
 		glActiveTexture(GL_TEXTURE0);
-		printf("D\n");
 		glUniform1i(geShaderUniformID(ctx->shader2d, "ge_Texture"), 0);
-		printf("E\n");
 		glUseProgram(0);
-		printf("F\n");
 	}
 
 	libge_context->blend_src = GE_DEFAULT;

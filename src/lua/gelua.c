@@ -491,6 +491,28 @@ void geLuaDoString(ge_LuaScript* script, const char* buf){
 	}
 }
 
+void geLuaDoFile(ge_LuaScript* script, const char* file){
+	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
+
+	geFileSeek(fp, 0, GE_FILE_SEEK_END);
+	size_t sz = geFileTell(fp);
+	char* buf = (char*)geMalloc(sz + 1);
+
+	geFileRewind(fp);
+	geFileRead(fp, buf, sz);
+
+	geFileClose(fp);
+
+	luaL_loadstring(script->L, buf);
+	int ret = lua_pcall(script->L, 0, LUA_MULTRET, 0);
+	if(ret != 0){
+		geSetLuaError(script, lua_tostring(script->L, -1));
+		gePrintDebug(0x102, "geLuaDoFile: %s\n", script->str_error);
+	}
+
+	geFree(buf);
+}
+
 void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize){
 	if(nsize == 0){
 		geFree(ptr);
