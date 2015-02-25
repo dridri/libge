@@ -127,5 +127,8 @@ int geLuaInit_ge(lua_State* L){
 	lua_setconst(L, GE_CLEAR_DEPTH_BUFFER);
 	lua_setconst(L, GE_BLIT_CENTERED);
 
+	lua_setconst(L, GE_NEAREST);
+	lua_setconst(L, GE_LINEAR);
+
 	return 0;
 }

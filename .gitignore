@@ -18,3 +18,5 @@ ge.log
 .kdev_include_paths
 *.o
 *.exe
+mk-android.sh
+

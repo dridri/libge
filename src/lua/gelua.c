@@ -231,6 +231,21 @@ double geLuaTableVariableFloat(ge_LuaScript* script){
 	return ret;
 }
 
+bool geLuaTableVariableBoolean(ge_LuaScript* script){
+	if(cSubTable < 0){
+		gePrintDebug(0x102, "geLuaTable* : No opened table\n");
+		return 0;
+	}
+	if(cSubTable > 0){
+		lua_gettable(script->L, -2);
+	}else{
+		lua_gettable(script->L, -2+table_index);
+	}
+	bool ret = lua_toboolean(script->L, -1);
+	lua_pop(script->L, 1);
+	return ret;
+}
+
 const char* geLuaTableVariableString(ge_LuaScript* script){
 	if(cSubTable < 0){
 		gePrintDebug(0x102, "geLuaTable* : No opened table\n");
@@ -271,6 +286,10 @@ int geLuaTableVariableIntegerByName(ge_LuaScript* script, const char* name){
 double geLuaTableVariableFloatByName(ge_LuaScript* script, const char* name){
 	geLuaTableVariableName(script, name);
 	return geLuaTableVariableFloat(script);
+}
+bool geLuaTableVariableBooleanByName(ge_LuaScript* script, const char* name){
+	geLuaTableVariableName(script, name);
+	return geLuaTableVariableBoolean(script);
 }
 const char* geLuaTableVariableStringByName(ge_LuaScript* script, const char* name){
 	geLuaTableVariableName(script, name);

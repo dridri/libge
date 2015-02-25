@@ -4,9 +4,11 @@
 #include <lua5.2/lauxlib.h>
 #include "../ge_internal.h"
 
+#ifndef luaL_checkint
 static inline int luaL_checkint(lua_State* L, int n){
 	return (int)lua_tonumber(L, n);
 }
+#endif
 
 #define lua_setconst(_l, name) { lua_pushnumber(_l, name); lua_setglobal(_l, #name); }
 void _ge_register_lua_lib(lua_State* L, const char* name, const luaL_Reg* funcs, const luaL_Reg* metas);

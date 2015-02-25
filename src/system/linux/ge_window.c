@@ -39,6 +39,14 @@ void _ge_exit(){
 	CloseFullScreen();
 }
 
+typedef struct {
+	unsigned long   flags;
+	unsigned long   functions;
+	unsigned long   decorations;
+	long            inputMode;
+	unsigned long   status;
+} Hints;
+
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	initializing = true;
 	XInitThreads();
@@ -93,17 +101,26 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		win_size_hints->base_height = libge_context->height;
 	}
 
-	if(context->fs){
-		context->attr.override_redirect = True;
-	}else{
-		context->attr.override_redirect = False;
+	XWindowAttributes attribs;
+	XGetWindowAttributes(context->dpy, RootWindow(context->dpy, context->vi->screen), &attribs);
+	if(Width < 0){
+		libge_context->width = attribs.width;
 	}
-	// create a window in window mode
+	if(Height < 0){
+		libge_context->height = attribs.height;
+	}
+
+	context->attr.override_redirect = false;
 	context->attr.event_mask = event_mask;
 	context->win = XCreateWindow(context->dpy, RootWindow(context->dpy, context->vi->screen), 0, 0, libge_context->width, libge_context->height, 0, context->vi->depth, InputOutput, context->vi->visual, CWBorderPixel | CWBackPixmap | CWColormap | CWEventMask | CWOverrideRedirect, &context->attr);
-	// only set window title and handle wm_delete_events if in windowed mode 
+
 	XSetStandardProperties(context->dpy, context->win, title, title, None, NULL, 0, NULL);
 	XMapRaised(context->dpy, context->win);
+
+	if(context->fs){
+		Atom wm_fullscreen = XInternAtom(context->dpy, "_NET_WM_STATE_FULLSCREEN", true);
+		XChangeProperty(context->dpy, context->win, XInternAtom(context->dpy, "_NET_WM_STATE", true), XA_ATOM, 32, PropModeReplace, (unsigned char *)&wm_fullscreen, 1);
+	}
 
 	// create a GLX context
 	context->ctx = glXCreateContext(context->dpy, context->vi, 0, true);

@@ -20,34 +20,7 @@
 
 UserdataStubs(Image, ge_Image*);
 
-static int Image_width(lua_State* L);
-static int Image_height(lua_State* L);
-static int Image_color(lua_State* L);
-
-static void alloc_img(lua_State *L, ge_Image* img){
-	lua_createtable(L, 0, 6);
-
-	*pushNewImage(L) = img;
-	lua_setfield(L, -2, "img");
-
-	lua_pushinteger(L, 0);
-	lua_setfield(L, -2, "x");
-
-	lua_pushinteger(L, 0);
-	lua_setfield(L, -2, "y");
-
-	lua_pushcfunction(L, Image_width);
-	lua_setfield(L, -2, "width");
-
-	lua_pushcfunction(L, Image_height);
-	lua_setfield(L, -2, "height");
-
-	lua_pushcfunction(L, Image_color);
-	lua_setfield(L, -2, "setColor");
-
-	lua_pushnumber(L, 1.0);
-	lua_setfield(L, -2, "scale");
-}
+static void alloc_img(lua_State *L, ge_Image* img);
 
 static int Image_create(lua_State *L){
 	int argc = lua_gettop(L); 
@@ -96,6 +69,25 @@ static int Image_load(lua_State *L){
 	}
 
 	alloc_img(L, img);
+
+	return 1;
+}
+
+static int Image_textureMode(lua_State* L){
+	int argc = lua_gettop(L);
+
+	if(argc != 2){
+		return luaL_error(L, "Error: geImage:TextureMode(mode) must be with a colon and takes one argument");
+	}
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	int mode = luaL_checkint(L, 2);
+
+	geTextureMode(dest, mode);
 
 	return 1;
 }
@@ -297,6 +289,7 @@ static int Image_color(lua_State* L){
 }
 
 static int Image_pixel(lua_State* L){
+/*TODO
 	int argc = lua_gettop(L);
 	ge_Image* dest = selfImage(L, &argc);
 	if(!dest){
@@ -315,43 +308,143 @@ static int Image_pixel(lua_State* L){
 			*pushNewColor(L) = dest->data[x + y*dest->textureWidth];
 		}
 	}
-
+*/
 	return 1;
 }
 
 static int Image_update(lua_State* L){
+/*TODO
 	ge_Image* dest = selfImage(L, NULL);
 	if(!dest){
 		return luaL_error(L, "Error: geImage.Update() must be with a colon");
 	}
 
 	geUpdateImage(dest);
+*/
+	return 1;
+}
+
+static int Image_index(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	const char* key = luaL_checkstring(L, 2);
+//	gePrintDebug(0x100, "LUA::Image_index key = \"%s\"\n", key);
+	if(!strcmp(key, "width")){
+		lua_pushinteger(L, dest->width);
+	}else if(!strcmp(key, "height")){
+		lua_pushinteger(L, dest->height);
+	}else{
+		lua_pushvalue(L, 2);
+		lua_rawget(L, 1);
+	}
 
 	return 1;
 }
 
-static const luaL_Reg Image_methods[] = {
+static int Image_newIndex(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	const char* key = luaL_checkstring(L, 2);
+//	gePrintDebug(0x100, "LUA::Image_newIndex key = \"%s\"\n", key);
+
+	if(!strcmp(key, "width")){
+		dest->width = luaL_checkint(L, 3);
+	}else if(!strcmp(key, "height")){
+		dest->height = luaL_checkint(L, 3);
+	}else{
+		lua_pushvalue(L, 2);
+		lua_pushvalue(L, 3);
+	//	lua_setfield(L, -2, key);
+		lua_rawset(L, 1);
+	}
+
+	return 1;
+}
+
+
+static const luaL_Reg Image_functions[] = {
 	{ "create", Image_create },
 	{ "load", Image_load },
-	{ "Blit", Image_blit },
+	{ "draw", Image_blit },
+	{ "blit", Image_blit },
 	{ "blitStretched", Image_stretched },
 	{ "blitStretchedRotated", Image_stretchedRotated },
-	{ "Draw", Image_blit },
-	{ "Width", Image_width },
-	{ "Height", Image_height },
-	{ "Color", Image_color },
-	{ "Pixel", Image_pixel },
-	{ "Update", Image_update },
 	{ NULL, NULL }
 };
 
-static const luaL_Reg Image_meta[] = {
+static const luaL_Reg Image_meta_base[] = {
+	{ "__index", Image_index },
+	{ "__newindex", Image_newIndex },
 	{ NULL, NULL }
 };
 
-UserdataRegister(Image, Image_methods, Image_meta)
+UserdataRegister(Image, Image_functions, Image_meta_base)
+
 
 int geLuaInit_image(lua_State* L){
 	Image_register(L);
 	return 0;
+}
+
+
+
+
+static const luaL_Reg Image_methods[] = {
+//	{ "width", Image_width },
+//	{ "height", Image_height },
+	{ "setColor", Image_color },
+	{ "Pixel", Image_pixel },
+	{ "Update", Image_update },
+	{ "TextureMode", Image_textureMode },
+	{ NULL, NULL }
+};
+
+static const luaL_Reg Image_meta[] = {
+	{ "__index", Image_index },
+	{ "__newindex", Image_newIndex },
+	{ NULL, NULL }
+};
+
+static void alloc_img(lua_State *L, ge_Image* img){
+
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, Image_methods, 0);
+/*
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, Image_meta, 0);
+//	lua_pushcclosure(L, Image_index, 0);
+//	lua_setfield(L, -2, "__index");
+//	lua_pushcclosure(L, Image_newIndex, 0);
+//	lua_setfield(L, -2, "__newindex");
+	lua_setmetatable(L, -2);
+*/
+
+	*pushNewImage(L) = img;
+	lua_setfield(L, -2, "img");
+
+	lua_pushinteger(L, 0);
+	lua_setfield(L, -2, "x");
+
+	lua_pushinteger(L, 0);
+	lua_setfield(L, -2, "y");
+
+	lua_pushnumber(L, 1.0);
+	lua_setfield(L, -2, "scale");
+/*
+	luaL_getmetatable(L, "geImage");
+	lua_setmetatable(L, -2);
+*/
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, Image_meta, 0);
+	lua_setmetatable(L, -2);
 }

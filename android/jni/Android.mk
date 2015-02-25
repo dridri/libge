@@ -29,7 +29,7 @@ SRC := $(filter-out ../src/ge_internal_32.c, $(SRC))
 SRC := $(filter-out ../src/ge_internal_64.c, $(SRC))
 SRC += ../src/ge_internal_$(ARCH).c
 
-#LOCAL_SRC_FILES = $(addprefix ../, $(SRC:.cpp=.o))
+LOCAL_SRC_FILES = $(addprefix ../, $(SRC:.cpp=.o))
 #LOCAL_SRC_FILES += main.c
 
 LOCAL_LDFLAGS := -fPIC

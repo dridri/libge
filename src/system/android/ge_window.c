@@ -498,7 +498,7 @@ void android_main(struct android_app* state){
 	main(0, NULL);
 }
 
-JNIEXPORT void JNICALL Java_com_drich_snake_BionicSnake_setSurface(JNIEnv* env, jobject obj, jobject surface, jint ofsx, jint ofsy)
+JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setSurface(JNIEnv* env, jobject obj, jobject surface, jint ofsx, jint ofsy)
 {
 	engine.env = env;
 	engine.aJavaSurface = surface;
@@ -509,7 +509,7 @@ JNIEXPORT void JNICALL Java_com_drich_snake_BionicSnake_setSurface(JNIEnv* env, 
 	LOGI(" ===> %p", engine.aSurface);
 }
 
-JNIEXPORT void JNICALL Java_com_drich_snake_BionicSnake_setHasSurface(JNIEnv* env, jobject obj, jint _hasSurface)
+JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setHasSurface(JNIEnv* env, jobject obj, jint _hasSurface)
 {
 	hasSurface = _hasSurface;
 }

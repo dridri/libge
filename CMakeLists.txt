@@ -369,28 +369,30 @@ elseif(${video} MATCHES "opengl30")
 	set(geshader_f geshader_gl3f.h)
 endif()
 
-#set(geshader_obj_files
-#			${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-#			${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-#			${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
-#			)
+if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(geshader_obj_files
+				${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+				${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+				${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+				)
 
-#set_source_files_properties(
-#			${geshader_obj_files}
-#			PROPERTIES
-#			EXTERNAL_OBJECT true
-#			GENERATED true
-#			)
+	set_source_files_properties(
+				${geshader_obj_files}
+				PROPERTIES
+				EXTERNAL_OBJECT true
+				GENERATED true
+				)
 
-#add_custom_command(
-#			OUTPUT ${geshader_obj_files}
-#			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
-#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
-#			)
+	add_custom_command(
+				OUTPUT ${geshader_obj_files}
+				WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
+				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+				)
 
-#set(SOURCES ${SOURCES} ${geshader_obj_files})
+	set(SOURCES ${SOURCES} ${geshader_obj_files})
+endif()
 
 if(static)
 	add_library(ge_static STATIC ${SOURCES})
