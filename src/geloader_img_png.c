@@ -17,7 +17,13 @@
 */
 
 #include "libge.h"
+#ifdef PLATFORM_mac
+#include <libpng15/png.h>
+#else
 #include <png.h>
+#endif
+#include <errno.h>
+#include <string.h>
 
 static void png_read_from_geFile(png_structp png_ptr, png_bytep data, png_size_t length);
 /*
@@ -58,6 +64,14 @@ void ge_png_free(png_structp png_ptr, png_voidp data){
 	}
 }
 
+static void user_error_fn(png_structp png_ptr, png_const_charp error_msg){
+	gePrintDebug(0x102, "PNG Error : %s\n", error_msg);
+}
+
+static void user_warning_fn(png_structp png_ptr, png_const_charp warning_msg){
+	gePrintDebug(0x101, "PNG Warning (%s) : %s\n", PNG_LIBPNG_VER_STRING, warning_msg);
+}
+
 ge_Image* geLoadPngSize(ge_File* file, int pref_w, int pref_h){
 	png_allocs_i = 0;
 
@@ -76,9 +90,11 @@ ge_Image* geLoadPngSize(ge_File* file, int pref_w, int pref_h){
 		return NULL;
 	}
 #endif
+	gePrintDebug(0x100, "png ver: %s\n", PNG_LIBPNG_VER_STRING);
 
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp*)file->filename, NULL, NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, &user_error_fn, &user_warning_fn, NULL);
 	if (png_ptr == NULL) {
+		printf("error: %s\n", strerror(errno));
 		return NULL;
 	}
 	png_set_mem_fn(png_ptr, NULL, ge_png_malloc, ge_png_free);

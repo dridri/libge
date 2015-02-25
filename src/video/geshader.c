@@ -127,7 +127,7 @@ void geShaderLoadFragmentSourceBuffer(ge_Shader* shader, const char* src){
 }
 
 ge_Shader* geShaderUse(ge_Shader* shader){
-	if(!libge_context->shaders_available || glUseProgram == 0)return;
+	if(!libge_context->shaders_available || glUseProgram == 0)return 0;
 	ge_Shader* ret = ge_current_shader;
 	if(ge_force_shader){
 		shader = ge_force_shader;

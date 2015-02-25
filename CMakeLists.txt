@@ -60,8 +60,8 @@ elseif("${target}" MATCHES "mac*")
 	if(${ARCH} MATCHES OFF)
 		execute_process(COMMAND getconf LONG_BIT OUTPUT_VARIABLE ARCH)
 	endif()
-	set(CMAKE_C_COMPILER gcc)
-	set(CMAKE_CXX_COMPILER g++)
+#	set(CMAKE_C_COMPILER gcc)
+#	set(CMAKE_CXX_COMPILER g++)
 	include_directories(/usr/include/freetype2)
 	include_directories(/usr/include/freetype2/freetype)
 elseif("${target}" MATCHES "linux*")
@@ -94,9 +94,11 @@ if(${video} MATCHES OFF)
 endif()
 
 # if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
-if("${target}" MATCHES "qt" OR UNIX)
+#if("${target}" MATCHES "qt" OR UNIX)
+if("${target}" MATCHES "qt" OR "${video}" MATCHES "opengl*")
 	find_package(OpenGL REQUIRED)
-	include_directories(${OPENGL_INCLUDE_DIRS})
+	message(WARNING "Opengl include : ${OPENGL_INCLUDE_DIR}")
+	include_directories(${OPENGL_INCLUDE_DIR})
 endif()
 
 if("${video}" MATCHES "opengl20")
@@ -210,6 +212,7 @@ elseif(WIN32)
 	set(SOURCES ${SOURCES} src/system/win/gewinkeyboard.c)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(SOURCES ${SOURCES} src/system/mac/mac.m)
+	set_source_files_properties(src/system/mac/mac.m PROPERTIES C_COMPILER clang)
 elseif(UNIX)
 	set(SOURCES ${SOURCES} src/system/linux/gelinuxkeyboard.c)
 endif()
@@ -366,28 +369,28 @@ elseif(${video} MATCHES "opengl30")
 	set(geshader_f geshader_gl3f.h)
 endif()
 
-set(geshader_obj_files
-			${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-			${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-			${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
-			)
+#set(geshader_obj_files
+#			${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+#			${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+#			${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+#			)
 
-set_source_files_properties(
-			${geshader_obj_files}
-			PROPERTIES
-			EXTERNAL_OBJECT true
-			GENERATED true
-			)
+#set_source_files_properties(
+#			${geshader_obj_files}
+#			PROPERTIES
+#			EXTERNAL_OBJECT true
+#			GENERATED true
+#			)
 
-add_custom_command(
-			OUTPUT ${geshader_obj_files}
-			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
-			)
+#add_custom_command(
+#			OUTPUT ${geshader_obj_files}
+#			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
+#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+#			COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+#			)
 
-set(SOURCES ${SOURCES} ${geshader_obj_files})
+#set(SOURCES ${SOURCES} ${geshader_obj_files})
 
 if(static)
 	add_library(ge_static STATIC ${SOURCES})
