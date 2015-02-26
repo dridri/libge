@@ -66,7 +66,11 @@
 #define set_color(c, r,g,b,a)c[0]=r;c[1]=g;c[2]=b;c[3]=a
 
 #if (defined(PLATFORM_win) || defined(PLATFORM_win_low))
+#if (ARCH == 64)
 #define GE_BLOB(x) _binary_##x
+#else
+#define GE_BLOB(x) binary_##x
+#endif
 #else
 #define GE_BLOB(x) _binary_##x
 #endif

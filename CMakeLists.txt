@@ -415,6 +415,7 @@ if(WIN32)
 		jpeg
 		freetype
 		z
+		bz2
 		m
 		wsock32
 		gdi32
