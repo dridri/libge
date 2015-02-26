@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
-project(LibGE)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g3")
-set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -std=c++0x")
 
 add_definitions(-DLIBGE_LIB)
 
@@ -369,7 +368,8 @@ elseif(${video} MATCHES "opengl30")
 	set(geshader_f geshader_gl3f.h)
 endif()
 
-if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+#if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if("${target}" MATCHES "linux*" OR "${target}" MATCHES "win*")
 	set(geshader_obj_files
 				${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
 				${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
@@ -410,7 +410,7 @@ if(WIN32)
 	set(LIBS ${LIBS}
 		mad
 		png
-		openGL32
+		opengl32
 		lua
 		jpeg
 		freetype

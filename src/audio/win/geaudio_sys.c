@@ -17,7 +17,7 @@
 */
 
 #include "../../ge_internal.h"
-#include <Mmreg.h>
+#include <mmreg.h>
 
 #define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 /*
