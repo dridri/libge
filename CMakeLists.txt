@@ -355,8 +355,14 @@ AUX_SOURCE_DIRECTORY(testsrc TEST_SOURCES)
 
 if("${ARCH}" MATCHES "64")
 	set(OBJCPY_OUT elf64-x86-64)
+	if("${target}" MATCHES "win*")
+		set(OBJCPY_OUT pe-x86-64)
+	endif()
 else()
 	set(OBJCPY_OUT elf32-i386)
+        if("${target}" MATCHES "win*")
+                set(OBJCPY_OUT pe-i386)
+        endif()
 endif()
 set(OBJCPY_ARCH -B i386)
 
@@ -372,6 +378,14 @@ endif()
 
 #if(UNIX AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 if("${target}" MATCHES "linux*" OR "${target}" MATCHES "win*")
+	set(OBJCPY objcopy)
+	if("${target}" MATCHES "win*")
+		if("${ARCH}" MATCHES "64")
+			set(OBJCPY x86_64-w64-mingw32-objcopy)
+		else()
+			set(OBJCPY i686-w64-mingw32-objcopy)
+		endif()
+	endif()
 	set(geshader_obj_files
 				${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
 				${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
@@ -388,9 +402,9 @@ if("${target}" MATCHES "linux*" OR "${target}" MATCHES "win*")
 	add_custom_command(
 				OUTPUT ${geshader_obj_files}
 				WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/default_shaders
-				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
-				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
-				COMMAND objcopy -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
+				COMMAND ${OBJCPY} -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_v} ${CMAKE_CURRENT_BINARY_DIR}/geshader_vert.o
+				COMMAND ${OBJCPY} -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_g} ${CMAKE_CURRENT_BINARY_DIR}/geshader_geom.o
+				COMMAND ${OBJCPY} -I binary -O ${OBJCPY_OUT} ${OBJCPY_ARCH} --rename-section .data=.rodata,alloc,load,data,contents,readonly ${geshader_f} ${CMAKE_CURRENT_BINARY_DIR}/geshader_frag.o
 				)
 
 	set(SOURCES ${SOURCES} ${geshader_obj_files})
