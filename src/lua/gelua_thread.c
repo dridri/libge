@@ -52,7 +52,7 @@ void ge_LuaLock(lua_State* L){
 
 //	if(locked[i] == 0){
 		locked[i] = 1;
-		pthread_mutex_lock(&mutex);
+// 		pthread_mutex_lock(&mutex);
 //	}
 }
 
@@ -70,7 +70,7 @@ void ge_LuaUnlock(lua_State* L){
 	}
 
 //	if(locked[i] == 1){
-		pthread_mutex_unlock(&mutex);
+// 		pthread_mutex_unlock(&mutex);
 		locked[i] = 0;
 //	}
 }
