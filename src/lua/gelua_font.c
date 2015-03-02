@@ -24,6 +24,7 @@ static int Font_print(lua_State* L);
 static int Font_measureString(lua_State* L);
 
 static int Font_load(lua_State *L){
+//	lua_lock(L);
 	int argc = lua_gettop(L); 
 
 	lua_createtable(L, 0, 5);
@@ -31,7 +32,7 @@ static int Font_load(lua_State *L){
 	if (argc != 1){
 		return luaL_error(L, "Argument error: geFont.Load(filename) takes only one argument.");
 	}
-	lua_gc(L, LUA_GCCOLLECT, 0);
+//	lua_gc(L, LUA_GCCOLLECT, 0);
 	
 	char file[2048] = "";
 	if(luaL_checkstring(L, 1)[0] == '/'){
@@ -58,6 +59,8 @@ static int Font_load(lua_State *L){
 
 	lua_pushcfunction(L, Font_measureString);
 	lua_setfield(L, -2, "measureString");
+
+//	lua_unlock(L);
 
 	return 1;
 }

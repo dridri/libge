@@ -26,6 +26,9 @@ int geLuaInit_file(lua_State* L);
 int geLuaInit_image(lua_State* L);
 int geLuaInit_font(lua_State* L);
 int geLuaInit_shader(lua_State* L);
+int geLuaInit_vertex(lua_State* L);
+int geLuaInit_renderer(lua_State* L);
+int geLuaInit_thread(lua_State* L);
 
 ge_LuaScript* scripts[32] = { NULL };
 
@@ -357,6 +360,7 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 					lua_getglobal(script->L, tmp);
 				}else{
 					lua_getfield(script->L, -1, tmp);
+				//	lua_remove(script->L, -2);
 				}
 				memset(tmp, 0, sizeof(tmp));
 				j = 0;
@@ -369,6 +373,7 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 		}
 		tmp[j] = 0;
 		lua_getfield(script->L, -1, tmp);
+	//	lua_remove(script->L, -2);
 		if(method){
 			lua_pushvalue(script->L, -2);
 			nArgs++;
@@ -447,40 +452,43 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	ge_LuaScript* script = (ge_LuaScript*)geMalloc(sizeof(ge_LuaScript));
 	if(!script)return NULL;
 
-	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ |GE_FILE_MODE_BINARY);
-	if(!fp){
-		geFree(script);
-		return NULL;
-	}
-	geFileSeek(fp, 0, GE_FILE_SEEK_END);
-	script->buf_size = geFileTell(fp);
-	geFileRewind(fp);
-
-	script->data = (char*)geMalloc(script->buf_size);
-	if(!script->data){
-		geFree(script);
-		geFileClose(fp);
-		return NULL;
-	}
-	memset(script->data, 0, script->buf_size);
-	geFileRead(fp, script->data, script->buf_size);
-
-	int i = 0;
-	for(i=0; i<32; i++){
-		if(!scripts[i]){
-			scripts[i] = script;
+	if(file && file[0]){
+		ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ |GE_FILE_MODE_BINARY);
+		if(!fp){
+			geFree(script);
+			return NULL;
 		}
-	}
-	
-	strcpy(script->file, file);
-	strcpy(script->root, file);
-	if(strchr(script->root, '/')){
-		strrchr(script->root, '/')[0] = 0x0;
-	}else{
-		memset(script->root, 0x0, sizeof(script->root));
-	}
+		geFileSeek(fp, 0, GE_FILE_SEEK_END);
+		script->buf_size = geFileTell(fp);
+		geFileRewind(fp);
 
-	geFileClose(fp);
+		script->data = (char*)geMalloc(script->buf_size);
+		if(!script->data){
+			geFree(script);
+			geFileClose(fp);
+			return NULL;
+		}
+		memset(script->data, 0, script->buf_size);
+		geFileRead(fp, script->data, script->buf_size);
+
+		int i = 0;
+		for(i=0; i<32; i++){
+			if(!scripts[i]){
+				scripts[i] = script;
+				break;
+			}
+		}
+		
+		strcpy(script->file, file);
+		strcpy(script->root, file);
+		if(strchr(script->root, '/')){
+			strrchr(script->root, '/')[0] = 0x0;
+		}else{
+			memset(script->root, 0x0, sizeof(script->root));
+		}
+
+		geFileClose(fp);
+	}
 
 	script->L = lua_newstate(luaMalloc, NULL);
 	luaL_openlibs(script->L);
@@ -490,11 +498,16 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	geLuaInit_image(script->L);
 	geLuaInit_font(script->L);
 	geLuaInit_shader(script->L);
-	int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);
-	
-	if(s != 0){
-		geSetLuaError(script, lua_tostring(script->L, -1));
-		lua_pop(script->L, 1);
+	geLuaInit_vertex(script->L);
+	geLuaInit_renderer(script->L);
+	geLuaInit_thread(script->L);
+
+	if(file && file[0] && script->data && script->buf_size > 0){
+		int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);
+		if(s != 0){
+			geSetLuaError(script, lua_tostring(script->L, -1));
+			lua_pop(script->L, 1);
+		}
 	}
 
 	return script;

@@ -39,8 +39,11 @@ static int Color_colors(lua_State *L){
 }
 
 static int Color_new(lua_State *L){
+//	lua_lock(L);
+
 	int argc = lua_gettop(L); 
 	if (argc != 3 && argc != 4) return luaL_error(L, "Argument error: Color.New(r, g, b, [a]) takes either three color arguments or three color arguments and an alpha value.");
+
 	u32* color = pushNewColor(L);
 	u8 r = (u8)luaL_checkint(L, 1);
 	u8 g = (u8)luaL_checkint(L, 2);
@@ -51,6 +54,7 @@ static int Color_new(lua_State *L){
 	}
 	*color = RGBA(r, g, b, a);
 
+//	lua_unlock(L);
 	return 1;
 }
 

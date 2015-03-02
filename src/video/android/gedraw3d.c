@@ -118,15 +118,14 @@ void geRendererUse(ge_Renderer* render){
 			glDisableVertexAttribArray(2); //normal
 		}
 	}else{
-		glEnableVertexAttribArray(0); //tex
-		glEnableVertexAttribArray(1); //color
-		glEnableVertexAttribArray(2); //normal
-		glEnableVertexAttribArray(3); //pos
-		
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(0));
-		glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(12));
-		glVertexAttribPointer(2, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(28));
-		glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(ge_Vertex), BUFFER_OFFSET(40));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(40)); //3*4 + 4*4 + 3*4 => size(u,v,w,color[4],nx,ny,nz)
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(12)); //3*4 => size(u,v,w)
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(28)); //3*4 + 4*4 => size(u,v,w,color[4])
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ge_Vertex), BUFFER_OFFSET(0));
 
 	}
 
@@ -135,7 +134,7 @@ void geRendererUse(ge_Renderer* render){
 	}else{
 		glDisable(GL_DEPTH_TEST);
 	}
-	glDepthMask(render->depth_mask);
+//	glDepthMask(render->depth_mask);
 	if(render->blend_enabled){
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

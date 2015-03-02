@@ -45,30 +45,41 @@ static int Image_create(lua_State *L){
 }
 
 static int Image_load(lua_State *L){
+	printf("mylock\n");
+//	lua_lock(L);
+	printf("Image_load 1\n");
 	int argc = lua_gettop(L); 
 	if (argc != 1 && argc != 2){
 		return luaL_error(L, "Argument error: geImage.Load(path, [flags]) takes one or two arguments.");
 	}
-	lua_gc(L, LUA_GCCOLLECT, 0);
+	printf("Image_load 2\n");
+// 	lua_gc(L, LUA_GCCOLLECT, 0);
+	printf("Image_load 3\n");
 	
 	char file[2048] = "";
 	char tmp[2048] = "";
 	strncpy(tmp, luaL_checkstring(L, 1), 2048);
 	ge_LuaScript* script = ge_ScriptFromState(L);
 	sprintf(file, "%s%s%s", script->root, script->root[0] ? "/" : "", tmp);
+	printf("Image_load 4\n");
 
 	int flags = 0;
 	if(argc == 2){
 		flags = luaL_checkint(L, 2);
 	}
+	printf("Image_load 5\n");
 
 	ge_Image* img = geLoadImageOptions(file, flags);
+	printf("Image_load 6\n");
 
 	if(!img){
 		return luaL_error(L, "Error while loading image \"%s\"", file);
 	}
 
+	printf("Image_load 7\n");
+//	lua_unlock(L);
 	alloc_img(L, img);
+	printf("Image_load 8\n");
 
 	return 1;
 }
@@ -416,9 +427,12 @@ static const luaL_Reg Image_meta[] = {
 };
 
 static void alloc_img(lua_State *L, ge_Image* img){
+	printf("alloc_img 1\n");
 
 	lua_createtable(L, 0, 0);
+	printf("alloc_img 2\n");
 	luaL_setfuncs(L, Image_methods, 0);
+	printf("alloc_img 3\n");
 /*
 	lua_createtable(L, 0, 0);
 	luaL_setfuncs(L, Image_meta, 0);

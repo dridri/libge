@@ -100,6 +100,60 @@ static int Shader_uniform1f(lua_State* L){
 	return 1;
 }
 
+static int Shader_uniform2f(lua_State* L){
+	int argc = lua_gettop(L);
+	ge_Shader* shader = selfShader(L, &argc);
+
+	if(!shader){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) must be with a colon");
+	}
+	if(argc < 3){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) takes shader variable id and value as arguments");
+	}
+
+	ge_Shader* last = geShaderUse(shader);
+	geShaderUniform2f(luaL_checkinteger(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3));
+	geShaderUse(last);
+
+	return 1;
+}
+
+static int Shader_uniform3f(lua_State* L){
+	int argc = lua_gettop(L);
+	ge_Shader* shader = selfShader(L, &argc);
+
+	if(!shader){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) must be with a colon");
+	}
+	if(argc < 4){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) takes shader variable id and value as arguments");
+	}
+
+	ge_Shader* last = geShaderUse(shader);
+	geShaderUniform3f(luaL_checkinteger(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3), luaL_checknumber(L, 4));
+	geShaderUse(last);
+
+	return 1;
+}
+
+static int Shader_uniform4f(lua_State* L){
+	int argc = lua_gettop(L);
+	ge_Shader* shader = selfShader(L, &argc);
+
+	if(!shader){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) must be with a colon");
+	}
+	if(argc < 5){
+		return luaL_error(L, "Error: geShader.uniformID(id, value) takes shader variable id and value as arguments");
+	}
+
+	ge_Shader* last = geShaderUse(shader);
+	geShaderUniform4f(luaL_checkinteger(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3), luaL_checknumber(L, 4), luaL_checknumber(L, 5));
+	geShaderUse(last);
+
+	return 1;
+}
+
 static int Shader_getDefault(lua_State* L){
 	int argc = lua_gettop(L);
 
@@ -113,6 +167,9 @@ static const luaL_Reg Shader_methods[] = {
 	{ "use", Shader_use },
 	{ "uniformID", Shader_uniformID },
 	{ "uniform1f", Shader_uniform1f },
+	{ "uniform2f", Shader_uniform2f },
+	{ "uniform3f", Shader_uniform3f },
+	{ "uniform4f", Shader_uniform4f },
 	{ "getDefaultShader", Shader_getDefault },
 	{ NULL, NULL }
 };

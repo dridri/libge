@@ -1,4 +1,5 @@
 #define LUA_COMPAT_MODULE
+#define LUA_COMPAT_APIINTCASTS
 #include <lua5.2/lua.h>
 #include <lua5.2/lualib.h>
 #include <lua5.2/lauxlib.h>

@@ -101,6 +101,24 @@ static int debugPrint(lua_State *L){
 	return 1;
 }
 
+static int getTick(lua_State *L){
+	int argc = lua_gettop(L);
+	if(argc != 0) return luaL_error(L, "Argument error: getTicks() takes no argument.");
+
+	lua_pushnumber(L, ((float)geGetTick()) / 1000.0f);
+
+	return 1;
+}
+
+static int ge_sleep(lua_State *L){
+	int argc = lua_gettop(L);
+	if(argc != 1) return luaL_error(L, "Argument error: geSleep(ms) takes one argument.");
+
+	geSleep(luaL_checkinteger(L, 1));
+
+	return 1;
+}
+
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
 	{"geClearScreen", clearScreen},
@@ -110,6 +128,8 @@ static const luaL_Reg f_ge[] = {
 	{"geFps", fps},
 	{"geDrawingMode", drawingMode},
 	{"geDebugPrint", debugPrint},
+	{"geGetTick", getTick},
+	{"geSleep", ge_sleep},
 	{"dofile", dofile},
 	{0,0}
 };
@@ -129,6 +149,10 @@ int geLuaInit_ge(lua_State* L){
 
 	lua_setconst(L, GE_NEAREST);
 	lua_setconst(L, GE_LINEAR);
+
+	lua_setconst(L, GE_TRIANGLES);
+	lua_setconst(L, GE_LINES);
+	lua_setconst(L, GE_LINE_STRIP);
 
 	return 0;
 }

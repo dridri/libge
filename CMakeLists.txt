@@ -165,6 +165,9 @@ set(SOURCES ${SOURCES}
 	src/lua/gelua_image.c
 	src/lua/gelua_screen.c
 	src/lua/gelua_shader.c
+	src/lua/gelua_vertexarray.c
+	src/lua/gelua_renderer.c
+	src/lua/gelua_thread.c
 	src/gui/gegui.c
 	src/gui/gegui_button.c
 	src/gui/gegui_checkbox.c
@@ -468,7 +471,8 @@ elseif(UNIX)
 	if(NOT mini)
 		set(LIBS ${LIBS}
 			mad
-			${LUA_LIBRARY}
+			lua_static
+			#${LUA_LIBRARY}
 			${JPEG_LIBRARY}
 			${PNG_LIBRARY}
 			${ZLIB_LIBRARY}
