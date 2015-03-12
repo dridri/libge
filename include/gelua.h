@@ -20,9 +20,11 @@
 #define __GE_LUA_H__
 
 #include "getypes.h"
-#ifdef LIBGE_LIB
-#include <lua5.2/lua.h>
-#endif
+// #ifdef LIBGE_LIB
+// #include <lua5.2/lua.h>
+// #endif
+
+typedef struct lua_State lua_State;
 
 typedef struct ge_LuaScript {
 	char root[2048];
@@ -32,11 +34,12 @@ typedef struct ge_LuaScript {
 
 	int mode;
 	ge_Thread* thread;
-#ifdef LIBGE_LIB
 	lua_State* L;
-#else
-	void* L;
-#endif
+// #ifdef LIBGE_LIB
+// 	lua_State* L;
+// #else
+// 	void* L;
+// #endif
 	char str_error[1024];
 } ge_LuaScript;
 

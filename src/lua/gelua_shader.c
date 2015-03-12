@@ -57,11 +57,12 @@ static int Shader_use(lua_State* L){
 	int argc = lua_gettop(L);
 
 	if(argc < 1){
-		return luaL_error(L, "Error: geShader.use() must be with a colon");
+		return luaL_error(L, "Error: geShader:use() must be with a colon");
 	}
 
 	ge_Shader* shader = selfShader(L, &argc);
 	geShaderUse(shader);
+	lua_pop(L, -2);
 
 	return 1;
 }

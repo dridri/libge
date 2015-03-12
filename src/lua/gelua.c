@@ -490,7 +490,11 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 		geFileClose(fp);
 	}
 
+#ifdef LIBGE_LUAJIT
+	script->L = lj_state_newstate(luaMalloc, NULL);
+#else
 	script->L = lua_newstate(luaMalloc, NULL);
+#endif
 	luaL_openlibs(script->L);
 	geLuaInit_ge(script->L);
 	geLuaInit_screen(script->L);

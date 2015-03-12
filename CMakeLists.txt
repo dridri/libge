@@ -16,8 +16,9 @@ option(video "video")
 option(static "static")
 option(mini "mini")
 option(opttest "opttest")
-option(debug "debug" )
+option(debug "debug")
 option(opencl "opencl")
+option(luajit "luajit")
 option(ARCH "ARCH")
 
 if(mini)
@@ -90,6 +91,13 @@ if(${video} MATCHES OFF)
 	else()
 		set(video ${target})
 	endif()
+endif()
+
+if(NOT ${luajit} MATCHES OFF)
+	set(GE_LUA_LIBS luajit)
+	add_definitions(-DLIBGE_LUAJIT)
+else()
+	set(GE_LUA_LIBS lua_static)
 endif()
 
 # if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
@@ -471,7 +479,7 @@ elseif(UNIX)
 	if(NOT mini)
 		set(LIBS ${LIBS}
 			mad
-			lua_static
+			${GE_LUA_LIBS}
 			#${LUA_LIBRARY}
 			${JPEG_LIBRARY}
 			${PNG_LIBRARY}
