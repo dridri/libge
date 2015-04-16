@@ -25,13 +25,19 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+#define INDICE_ARRAY_TYPE u16
+#else
+#define INDICE_ARRAY_TYPE u32
+#endif
+
 UserdataStubs(VertexArray, ge_Vertex*);
 UserdataStubs(Vertex, ge_Vertex*);
-UserdataStubs(IndiceArray, u32*);
+UserdataStubs(IndiceArray, INDICE_ARRAY_TYPE*);
 
 void alloc_Vertex(lua_State* L, ge_Vertex* vertex);
 void alloc_VertexArray(lua_State* L, ge_Vertex* array, int size);
-void alloc_IndiceArray(lua_State* L, u32* array, int size);
+void alloc_IndiceArray(lua_State* L, INDICE_ARRAY_TYPE* array, int size);
 
 #define ARRAY_STUB(name, type, luatype) \
 UserdataStubs(name, type*); \
@@ -282,7 +288,7 @@ static int IndiceArray_new(lua_State *L){
 		return luaL_error(L, "Argument error: geIndiceArray.new(size) : size must be greater than 0");
 	}
 
-	u32* array = (u32*)geMalloc(sizeof(u32) * size);
+	INDICE_ARRAY_TYPE* array = (INDICE_ARRAY_TYPE*)geMalloc(sizeof(INDICE_ARRAY_TYPE) * size);
 	alloc_IndiceArray(L, array, size);
 
 	return 1;
@@ -293,7 +299,7 @@ static int IndiceArray_index(lua_State* L){
 
 	lua_pushstring(L, "array");
 	lua_gettable(L, 1);
-	u32* array = *toIndiceArray(L, -1);
+	INDICE_ARRAY_TYPE* array = *toIndiceArray(L, -1);
 
 	int i = luaL_checkint(L, 2);
 //	printf("VertexArray_index(%d)\n", i);
@@ -311,7 +317,7 @@ static int IndiceArray_newIndex(lua_State* L){
 
 	lua_pushstring(L, "array");
 	lua_gettable(L, 1);
-	u32* array = *toIndiceArray(L, -1);
+	INDICE_ARRAY_TYPE* array = *toIndiceArray(L, -1);
 
 	int i = luaL_checkint(L, 2);
 //	printf("IndiceArray_newIndex(%d)\n", i);
@@ -472,7 +478,7 @@ void alloc_VertexArray(lua_State* L, ge_Vertex* array, int size){
 	lua_setmetatable(L, -2);
 }
 
-void alloc_IndiceArray(lua_State* L, u32* array, int size){
+void alloc_IndiceArray(lua_State* L, INDICE_ARRAY_TYPE* array, int size){
 	lua_createtable(L, 0, 0);
 	luaL_setfuncs(L, IndiceArray_methods, 0);
 	*pushNewIndiceArray(L) = array;

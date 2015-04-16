@@ -122,7 +122,7 @@ int LinuxKeyboardUpdate(){
 				_ge_linuxkeyboard_i--;
 			}
 		}else if(k == (0xFF00 + GEK_DELETE)){
-			printf("pwet\n");
+			printf("pwet2 %X\n", k);
 			if(_ge_linuxkeyboard_out[_ge_linuxkeyboard_i] != 0x0){
 				strcpy(&_ge_linuxkeyboard_out[_ge_linuxkeyboard_i], &_ge_linuxkeyboard_out[_ge_linuxkeyboard_i+1]);
 			}

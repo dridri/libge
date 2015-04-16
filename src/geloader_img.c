@@ -188,6 +188,21 @@ ge_Image* geCreateSurfaceFromSurface3D(ge_Image3D* image, int depth, int alloc_n
 	return image2d;
 }
 
+ge_Image* geAnimateImage(ge_Image* _img, int n, float t){
+	_ge_ImageAnimated* img = (_ge_ImageAnimated*)geMalloc(sizeof(_ge_ImageAnimated));
+	memcpy(img, _img, sizeof(ge_Image));
+	img->flags |= GE_IMAGE_ANIMATED;
+	img->realHeight = img->height;
+	img->height = img->realHeight / n;
+	img->v = img->v / n;
+	img->nImages = n;
+	img->frameTime = t;
+	img->_ge_n = 0;
+	img->_ge_t = 0.0f;
+	return (ge_Image*)img;
+	
+}
+
 static ge_Image _ge_image3d_to_image2d;
 ge_Image* geSurfaceFromSurface3D(ge_Image3D* image, int depth){
 	_ge_image3d_to_image2d.color = image->color;

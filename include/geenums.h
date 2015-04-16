@@ -113,6 +113,7 @@ extern "C" {
 #define GE_IMAGE_3D 0x10
 #define GE_IMAGE_RECTANGLE 0x20
 #define GE_IMAGE_ARRAY 0x40
+#define GE_IMAGE_ANIMATED 0x80
 #define GE_IMAGE_CLAMPX 0x1000
 #define GE_IMAGE_CLAMPY 0x2000
 

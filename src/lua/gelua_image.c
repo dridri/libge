@@ -120,8 +120,6 @@ static int Image_blit(lua_State* L){
 	int x = luaL_checkint(L, 1);
 	int y = luaL_checkint(L, 2);
 	lua_getfield(L, 3, "img");
-	lua_pushstring(L, "img");
-	lua_gettable(L, 3);
 	ge_Image* img = *toImage(L, -1);
 	int sx = 0;
 	int sy = 0;
@@ -324,14 +322,40 @@ static int Image_pixel(lua_State* L){
 }
 
 static int Image_update(lua_State* L){
-/*TODO
-	ge_Image* dest = selfImage(L, NULL);
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
 	if(!dest){
-		return luaL_error(L, "Error: geImage.Update() must be with a colon");
+		return luaL_error(L, "Error: geImage.update() must be with a colon");
 	}
 
 	geUpdateImage(dest);
-*/
+
+	return 1;
+}
+
+static int Image_animate(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	if(!dest || argc < 3){
+		return luaL_error(L, "Error: geImage.animate(nFrames, frameTime) must be with a colon and takes two arguments");
+	}
+
+	ge_Image* img = geAnimateImage(dest, luaL_checkint(L, 2), luaL_checknumber(L, 3));
+	geFree(dest);
+
+	*pushNewImage(L) = img;
+	lua_setfield(L, 1, "img");
+
 	return 1;
 }
 
@@ -413,6 +437,7 @@ int geLuaInit_image(lua_State* L){
 static const luaL_Reg Image_methods[] = {
 //	{ "width", Image_width },
 //	{ "height", Image_height },
+	{ "animate", Image_animate },
 	{ "setColor", Image_color },
 	{ "Pixel", Image_pixel },
 	{ "Update", Image_update },

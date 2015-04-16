@@ -18,6 +18,8 @@
 
 #include "ge_lua.c"
 
+UserdataPrototypes(Font, ge_Font*);
+
 static int dofile(lua_State *L){
 	int argc = lua_gettop(L);
 	if(argc != 1) return luaL_error(L, "Argument error: dofile(file) takes one argument.");
@@ -119,6 +121,78 @@ static int ge_sleep(lua_State *L){
 	return 1;
 }
 
+static int textInput(lua_State *L){
+	int argc = lua_gettop(L);
+	if(argc != 3 && argc != 5) return luaL_error(L, "Argument error: geTextInput(title, initial_text, font[, draw_callback, callback_data]) takes two or four argument.");
+
+	lua_getfield(L, 3, "fnt");
+	ge_Font* font = *toFont(L, -1);
+
+#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+	ge_GuiWindow* win = NULL;
+	bool done = true;
+//TODO
+#else
+	ge_GuiWindow* win = geGuiCreateWindow(luaL_checkstring(L, 1), geGetContext()->width * 0.9, geGetContext()->width * 0.3, 0);
+	geGuiStyleFont(win->style, font, font->size);
+	ge_GuiInputBox* input = geGuiCreateInputBox(win->width * 0.9, font->size * 2.0, luaL_checkstring(L, 2), 32);
+	ge_GuiButton* ok = geGuiCreateButton("Ok", win->width * 0.4, win->height * 0.3);
+	ge_GuiButton* cancel = geGuiCreateButton("Cancel", win->width * 0.4, win->height * 0.3);
+	geGuiWindowLinkObject(win, -input->width / 2, -input->height * 1.0, input, GE_GUI_ALIGNX_CENTER | GE_GUI_ALIGNY_CENTER);
+	geGuiWindowLinkObject(win, -input->width / 2, input->height * 0.4, ok, GE_GUI_ALIGNX_CENTER | GE_GUI_ALIGNY_CENTER);
+	geGuiWindowLinkObject(win, -input->width / 2, input->height * 0.4, cancel, GE_GUI_ALIGNX_RIGHT | GE_GUI_ALIGNY_CENTER);
+	bool first_focus = false;
+	bool done = false;
+#endif
+
+	float dt=0.0f, t = geGetTick() / 1000.0f;
+
+	while(win->visible){
+		geClearScreen();
+
+		lua_pushvalue(L, 4);
+		lua_pushvalue(L, 5);
+		lua_pushnumber(L, t);
+		lua_pushnumber(L, dt);
+		lua_call(L, 3, 0);
+
+		geSwapBuffers();
+
+#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+//TODO
+#else
+		if(!first_focus){
+			geGuiGiveFocus(input);
+			first_focus = true;
+		}
+		if(ok->pressed){
+			done = true;
+			win->visible = false;
+		}
+		if(cancel->pressed){
+			win->visible = false;
+		}
+#endif
+
+		dt = geGetTick() / 1000.0f - t;
+		t = geGetTick() / 1000.0f;
+	}
+
+	if(done){
+	#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+		//TODO
+		lua_pushstring(L, luaL_checkstring(L, 2));
+	#else
+		lua_pushstring(L, input->text);
+	#endif
+	}else{
+		lua_pushstring(L, luaL_checkstring(L, 2));
+	}
+
+
+	return 1;
+}
+
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
 	{"geClearScreen", clearScreen},
@@ -126,6 +200,7 @@ static const luaL_Reg f_ge[] = {
 	{"geClearMode", clearMode},
 	{"geSwapBuffers", swapBuffers},
 	{"geFps", fps},
+	{"geTextInput", textInput},
 	{"geDrawingMode", drawingMode},
 	{"geDebugPrint", debugPrint},
 	{"geGetTick", getTick},

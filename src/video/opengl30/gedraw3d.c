@@ -535,6 +535,13 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 	l_pos[2] += cCam[2];
 	geLookAt(l_pos[0], l_pos[1], l_pos[2], light->target.x + cCam[0], light->target.y + cCam[1], light->target.z + cCam[2]);
 
+	static ge_Camera fake_cam;
+	fake_cam.x = l_pos[0];
+	fake_cam.y = l_pos[1];
+	fake_cam.z = l_pos[2];
+	ge_Camera* cam_save = ge_current_camera;
+	ge_current_camera = &fake_cam;
+
 /*
 	float cCam[3] = { cam->cX - cam->x, cam->cY - cam->y, cam->cZ - cam->z };
 	geNormalize(cCam);
@@ -615,4 +622,6 @@ void geLightComputeShadow(ge_Light* light, ge_Camera* cam, void (*render)(void*)
 
 	memcpy(libge_context->projection_matrix, save_proj, sizeof(float)*16);
 	memcpy(geGetMatrix(GE_MATRIX_PROJECTION), save_proj, sizeof(float)*16);
+
+	ge_current_camera = cam_save;
 }

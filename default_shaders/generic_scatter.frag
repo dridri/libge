@@ -3,10 +3,11 @@ uniform sampler2D ge_Texture2;
 uniform vec4 lights_pos[8];
 uniform int nLights;
 uniform float sun_diameter = 0.5;
-uniform float weight = 5.65;
+uniform float weight = 1.0;
 smooth in vec3 frag_coord;
 
 #define NUM_SAMPLES 48
+float weight_base = 5.65;
 float exposure = 0.0034;
 float decay = 1.0;
 float density = 0.84;
@@ -38,7 +39,7 @@ vec4 scatter(vec2 coord, vec2 light_coord, float dist){
 		}else{
 			sample = vec4(0.0, 0.0, 0.0, 1.0);
 		}
-		sample *= illuminationDecay * weight;
+		sample *= illuminationDecay * weight * weight_base;
 		color += sample;
 		illuminationDecay *= decay;
 	}

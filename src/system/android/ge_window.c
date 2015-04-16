@@ -173,11 +173,11 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		base_width = ANativeWindow_getWidth(engine.aSurface);
 		base_height = ANativeWindow_getHeight(engine.aSurface);
 	}
-	LOGW("base size: %d x %d", base_width, base_height);
+	LOGI("base size: %d x %d", base_width, base_height);
 
 	int width = Width < 0 ? base_width : Width;
 	int height = Height < 0 ? base_height : Height;
-	LOGW("new size: %d x %d", width, height);
+	LOGI("new size: %d x %d", width, height);
 	if(engine.app && engine.aSurface){
 		ANativeWindow_setBuffersGeometry(engine.aSurface, width, height, WINDOW_FORMAT_RGBA_8888/*format*/);
 // 		ANativeWindow_setBuffersGeometry(engine.aSurface, 0, 0, WINDOW_FORMAT_RGBA_8888/*format*/);
@@ -204,6 +204,7 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	LOGI("final size: %d x %d", w, h);
 	
 	if(engine.context == EGL_NO_CONTEXT){
+		gePrintDebug(0x100, "glGetString: 0x%08lX\n", (unsigned long)glGetString);
 		gePrintDebug(0x100, "glGetString: 0x%08lX\n", (unsigned long)glGetString);
 		gePrintDebug(0x100, "Current OpenGL version: %s\n", (const char*)glGetString(GL_VERSION));
 		geInitVideo();

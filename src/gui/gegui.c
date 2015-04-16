@@ -302,4 +302,5 @@ void geGuiGiveFocus(void* widget){
 	_ge_gui_focused_widget = (ge_GuiWidget*)widget;
 	_ge_gui_focused_widget->focused = true;
 	_ge_gui_focused_widget->gotfocus = true;
+	_ge_gui_focused_widget->lostfocus = false;
 }
