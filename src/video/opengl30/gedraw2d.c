@@ -35,9 +35,12 @@ static void InitDraw(ge_Image* tex, int mode){
 	}
 	if(ge_current_shader == _ge_GetVideoContext()->shader2d){
 		geShaderUniform1f(ge_current_shader->loc_HasTexture, 1.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 	}
+	glUniform1f(ge_current_shader->loc_time, ((float)geGetTick()) / 1000.0);
+	glUniform1f(ge_current_shader->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
+
 	if(tex && tex->id){
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex->id);
@@ -282,7 +285,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -494,7 +497,7 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -605,19 +608,22 @@ void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColo
 	InitDraw(font->texture, GL_TRIANGLES);
 
 	for(i=0, j=0; i<len; i++){
+		int _c = text[i];
+		u8 c = _c;
+
 		if(text[i] == '\n'){
 			x = b_x;
 			y += font->size;
 			continue;
 		}
 
-		float sx = ((float)font->positions[(u8)text[i]].x) * rx;
-		float sy = ((float)font->positions[(u8)text[i]].y) * ry;
-		float texMaxX = ((float)font->positions[(u8)text[i]].w) * rx;
-		float texMaxY = ((float)font->positions[(u8)text[i]].h) * ry;
-		float width = font->positions[(u8)text[i]].w;
-		float height = font->positions[(u8)text[i]].h;
-		float fy = (float)y - font->positions[(u8)text[i]].posY;
+		float sx = ((float)font->positions[c].x) * rx;
+		float sy = ((float)font->positions[c].y) * ry;
+		float texMaxX = ((float)font->positions[c].w) * rx;
+		float texMaxY = ((float)font->positions[c].h) * ry;
+		float width = font->positions[c].w;
+		float height = font->positions[c].h;
+		float fy = (float)y - font->positions[c].posY;
 
 		if(outlineColor != 0){
 			float ofs = 0.06;
@@ -627,13 +633,13 @@ void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColo
 			vertex[0].u = sx;
 			vertex[0].v = sy;
 			vertex[0].x = x - width*ofs;
-			vertex[0].y = fy - font->positions[(u8)text[i]].posY*ofs;
+			vertex[0].y = fy - font->positions[c].posY*ofs;
 			vertex[0].z = z+libge_context->img_stack[z+2048];
 
 			vertex[1].u = sx+texMaxX;
 			vertex[1].v = sy;
 			vertex[1].x = x + width*scale;
-			vertex[1].y = fy - font->positions[(u8)text[i]].posY*ofs;
+			vertex[1].y = fy - font->positions[c].posY*ofs;
 			vertex[1].z = z+libge_context->img_stack[z+2048];
 
 			vertex[2].u = sx+texMaxX;
@@ -645,7 +651,7 @@ void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColo
 			vertex[3].u = sx;
 			vertex[3].v = sy;
 			vertex[3].x = x - width*ofs;
-			vertex[3].y = fy - font->positions[(u8)text[i]].posY*ofs;
+			vertex[3].y = fy - font->positions[c].posY*ofs;
 			vertex[3].z = z+libge_context->img_stack[z+2048];
 
 			vertex[4].u = sx+texMaxX;
@@ -709,7 +715,7 @@ void geRenderFontOutline(int x, int y, ge_Font* font, u32 color, u32 outlineColo
 		vertex[0].color[2] = vertex[1].color[2] = vertex[2].color[2] = vertex[3].color[2] = vertex[4].color[2] = vertex[5].color[2] = Bf(color);
 		vertex[0].color[3] = vertex[1].color[3] = vertex[2].color[3] = vertex[3].color[3] = vertex[4].color[3] = vertex[5].color[3] = Af(color);
 
-		x += font->positions[(u8)text[i]].advX;
+		x += font->positions[c].advX;
 	}
 
 	libge_context->img_stack[z+2048] += 0.001;

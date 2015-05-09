@@ -36,6 +36,7 @@ typedef struct ge_Joystick {
 	void* handler;
 	const ge_JoystickController* controller;
 	u8 buttons[32];
+	u8 toggles[32];
 	u8 swaps[32];
 	s16 stick1_x;
 	s16 stick1_y;

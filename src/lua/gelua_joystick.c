@@ -63,6 +63,9 @@ static int Joystick_open(lua_State *L){
 	lua_createtable(L, 0, 32);
 	lua_setfield(L, -2, "buttons");
 
+	lua_createtable(L, 0, 32);
+	lua_setfield(L, -2, "toggles");
+
 	lua_pushinteger(L, 0);
 	lua_setfield(L, -2, "triggerL");
 
@@ -136,6 +139,13 @@ static int Joystick_read(lua_State* L){
 	for(i=0; i<32; i++){
 		lua_pushinteger(L, i);
 		lua_pushinteger(L, js->buttons[i]);
+		lua_settable(L, -3);
+	}
+
+	lua_getfield(L, 1, "toggles");
+	for(i=0; i<32; i++){
+		lua_pushinteger(L, i);
+		lua_pushinteger(L, js->toggles[i]);
 		lua_settable(L, -3);
 	}
 

@@ -19,6 +19,7 @@
 #include "ge_lua.c"
 
 void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize);
+void geLuaStacktrace(ge_LuaScript* script, int pmode);
 
 int geLuaInit_ge(lua_State* L);
 int geLuaInit_screen(lua_State* L);
@@ -416,11 +417,12 @@ void geLuaCallFunction(ge_LuaScript* script, const char* funcname, const char* f
 	sprintf(dbg_str, "%s)", dbg_str);
 
 // 	gePrintDebug(0x100, "Calling LUA (0x%08X) function \"%s\" with %d arguments and %d returns\n", script->L, funcname, nArgs, nRets);
-	gePrintDebug(0x100, "Calling LUA (context: 0x%08X) function %s\n", script->L, dbg_str);
+// 	gePrintDebug(0x100, "Calling LUA (context: 0x%08X) function %s\n", script->L, dbg_str);
 	int ret = lua_pcall(script->L, nArgs, nRets, 0);
 
 	if(ret != 0){
 		geSetLuaError(script, lua_tostring(script->L, -1));
+		geLuaStacktrace(script, 0x102);
 		gePrintDebug(0x102, "Lua: %s\n", script->str_error);
 	}
 
@@ -545,11 +547,30 @@ void geLuaDoFile(ge_LuaScript* script, const char* file){
 	int ret = lua_pcall(script->L, 0, LUA_MULTRET, 0);
 	if(ret != 0){
 		geSetLuaError(script, lua_tostring(script->L, -1));
-		gePrintDebug(0x102, "geLuaDoFile: %s\n", script->str_error);
+		gePrintDebug(0x102, "geLuaDoFile ['%s']: %s\n", file, script->str_error);
 	}
 
 	geFree(buf);
 }
+
+void geLuaStacktrace(ge_LuaScript* script, int pmode){
+	lua_Debug entry;
+	int depth = 0;
+
+	bool crit = geDebugCritical(false);
+	gePrintDebug(pmode, "LUA Stack trace :\n");
+
+	while (lua_getstack(script->L, depth, &entry))
+	{
+		int status = lua_getinfo(script->L, "Sln", &entry);
+
+		gePrintDebug(pmode, "%s(%d): %s\n", entry.short_src, entry.currentline, entry.name ? entry.name : "?");
+		depth++;
+	}
+
+	geDebugCritical(crit);
+}
+
 
 void* luaMalloc(void* ud, void* ptr, size_t osize, size_t nsize){
 	if(nsize == 0){
@@ -590,7 +611,8 @@ int _ge_lua_start_script(int args, void* argp){
 
 	if(ret != 0){
 		geSetLuaError(script, lua_tostring(script->L, -1));
-		gePrintDebug(0x102, "Lua: %s\n", script->str_error);
+		geLuaStacktrace(script, 0x102);
+		gePrintDebug(0x102, "Lua_start: %s\n", script->str_error);
 	}
 
 	return 0;

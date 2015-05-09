@@ -25,6 +25,9 @@ static int dofile(lua_State *L){
 	if(argc != 1) return luaL_error(L, "Argument error: dofile(file) takes one argument.");
 
 	const char* file = luaL_checkstring(L, 1);
+
+	geLuaDoFile(ge_ScriptFromState(L), file);
+/*
 	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
 
 	geFileSeek(fp, 0, GE_FILE_SEEK_END);
@@ -39,6 +42,7 @@ static int dofile(lua_State *L){
 	luaL_dostring(L, buf);
 
 	geFree(buf);
+*/
 	return 0;
 }
 
@@ -193,18 +197,45 @@ static int textInput(lua_State *L){
 	return 1;
 }
 
+static int lineWidth(lua_State* L){
+	int argc = lua_gettop(L);
+
+	if(argc != 1) return luaL_error(L, "Argument error: geLineWidth(ms) takes one argument.");
+
+	glLineWidth(luaL_checkinteger(L, 1));
+
+	return 1;
+}
+
+static int offset(lua_State* L){
+	int argc = lua_gettop(L);
+
+	if(argc != 2) return luaL_error(L, "Argument error: geOffset(x, y) takes two arguments.");
+
+	geDrawOffset(luaL_checknumber(L, 1), luaL_checknumber(L, 2));
+
+	return 1;
+}
+
+
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
 	{"geClearScreen", clearScreen},
 	{"geClearColor", clearColor},
 	{"geClearMode", clearMode},
+	{"geDrawingMode", drawingMode},
 	{"geSwapBuffers", swapBuffers},
 	{"geFps", fps},
+
+	{"geLineWidth", lineWidth},
+	{"geDrawOffset", offset},
+
 	{"geTextInput", textInput},
-	{"geDrawingMode", drawingMode},
+
 	{"geDebugPrint", debugPrint},
 	{"geGetTick", getTick},
 	{"geSleep", ge_sleep},
+
 	{"dofile", dofile},
 	{0,0}
 };
@@ -213,6 +244,9 @@ int geLuaInit_ge(lua_State* L){
 //	luaL_openlib(L, "ge", f_ge, 0);
 //	_ge_register_lua_lib(L, "", f_ge, NULL);
 	_ge_register_lua_global_functions(L, f_ge);
+
+	lua_setconst(L, GE_CLAMP);
+	lua_setconst(L, GE_REPEAT);
 	
 	lua_setconst(L, GE_WINDOW_FULLSCREEN);
 	lua_setconst(L, GE_DRAWING_MODE_2D);

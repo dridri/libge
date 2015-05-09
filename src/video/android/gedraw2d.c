@@ -34,9 +34,11 @@ static void InitDraw(ge_Image* tex, int mode){
 	}
 	if(ge_current_shader == _ge_GetVideoContext()->shader2d){
 		geShaderUniform1f(ge_current_shader->loc_HasTexture, 1.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 	}
+	glUniform1f(ge_current_shader->loc_time, ((float)geGetTick()) / 1000.0);
+	glUniform1f(ge_current_shader->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 
 	geUpdateMatrix();
 	if(tex && tex->id){
@@ -244,7 +246,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -345,7 +347,7 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -448,7 +450,7 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}

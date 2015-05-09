@@ -102,6 +102,7 @@ ge_Renderer* geCreateRenderer(ge_Shader* shader){
 }
 
 void geRendererLinkObject(ge_Renderer* render, ge_Object* obj){
+	printf("geRendererLinkObject %x %x\n", render->objs, render->nVerts);
 	render->objs = (ge_Object**)geRealloc(render->objs, sizeof(ge_Object*)*(render->nObjs+1));
 	render->objs[render->nObjs] = obj;
 	render->nObjs++;

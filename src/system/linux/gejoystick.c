@@ -249,6 +249,8 @@ bool geJoystickRead(ge_Joystick* js){
 	if (joystick_fd < 0)
 		return false;
 
+	memset(js->toggles, 0, sizeof(js->toggles));
+
 	while ((rc = _ge_JoystickReadEvent(joystick_fd, &jse) == 1)) {
 		jse.type &= ~JS_EVENT_INIT;
 		if (jse.type == JS_EVENT_AXIS) {
@@ -263,7 +265,9 @@ bool geJoystickRead(ge_Joystick* js){
 			}
 		} else if (jse.type == JS_EVENT_BUTTON) {
 			if (jse.number < 32) {
-				js->buttons[js->swaps[js->controller->swaps[jse.number]]] = jse.value;
+				int idx = js->swaps[js->controller->swaps[jse.number]];
+				js->buttons[idx] = jse.value;
+				js->toggles[idx] = jse.value;
 			}
 		}
 		ret = true;

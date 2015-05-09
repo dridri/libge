@@ -22,6 +22,20 @@ UserdataStubs(Image, ge_Image*);
 
 static void alloc_img(lua_State *L, ge_Image* img);
 
+static int Image_gc(lua_State *L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	printf("Image_gc\n");
+	geFreeImage(dest);
+
+	return 1;
+}
+
 static int Image_create(lua_State *L){
 	int argc = lua_gettop(L); 
 
@@ -99,6 +113,23 @@ static int Image_textureMode(lua_State* L){
 	int mode = luaL_checkint(L, 2);
 
 	geTextureMode(dest, mode);
+
+	return 1;
+}
+
+static int Image_textureWrap(lua_State* L){
+	int argc = lua_gettop(L);
+
+	if(argc != 3){
+		return luaL_error(L, "Error: geImage:TextureWrap(wrap_x, wrap_y) must be with a colon and takes two arguments");
+	}
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	geTextureWrap(dest, luaL_checkint(L, 2), luaL_checkint(L, 3));
 
 	return 1;
 }
@@ -274,7 +305,7 @@ static int Image_height(lua_State* L){
 	lua_pushinteger(L, dest->height);
 	return 1;
 }
-
+/*
 static int Image_color(lua_State* L){
 	int argc = lua_gettop(L);
 
@@ -296,7 +327,7 @@ static int Image_color(lua_State* L){
 
 	return 1;
 }
-
+*/
 static int Image_pixel(lua_State* L){
 /*TODO
 	int argc = lua_gettop(L);
@@ -373,6 +404,14 @@ static int Image_index(lua_State* L){
 		lua_pushinteger(L, dest->width);
 	}else if(!strcmp(key, "height")){
 		lua_pushinteger(L, dest->height);
+	}else if(!strcmp(key, "textureWidth")){
+		lua_pushinteger(L, dest->textureWidth);
+	}else if(!strcmp(key, "textureHeight")){
+		lua_pushinteger(L, dest->textureHeight);
+	}else if(!strcmp(key, "color")){
+		*pushNewColor(L) = dest->color;
+	}else if(!strcmp(key, "flags")){
+		lua_pushinteger(L, dest->flags);
 	}else{
 		lua_pushvalue(L, 2);
 		lua_rawget(L, 1);
@@ -396,6 +435,12 @@ static int Image_newIndex(lua_State* L){
 		dest->width = luaL_checkint(L, 3);
 	}else if(!strcmp(key, "height")){
 		dest->height = luaL_checkint(L, 3);
+	}else if(!strcmp(key, "color")){
+		dest->color = *toColor(L, 3);
+	}else if(!strcmp(key, "flags")){
+		dest->flags = luaL_checkint(L, 3);
+	}else if(!strcmp(key, "anim") && dest->flags & GE_IMAGE_ANIMATED){
+		((_ge_ImageAnimated*)dest)->_ge_n = luaL_checkint(L, 3);
 	}else{
 		lua_pushvalue(L, 2);
 		lua_pushvalue(L, 3);
@@ -438,16 +483,18 @@ static const luaL_Reg Image_methods[] = {
 //	{ "width", Image_width },
 //	{ "height", Image_height },
 	{ "animate", Image_animate },
-	{ "setColor", Image_color },
+//	{ "setColor", Image_color },
 	{ "Pixel", Image_pixel },
 	{ "Update", Image_update },
 	{ "TextureMode", Image_textureMode },
+	{ "TextureWrap", Image_textureWrap },
 	{ NULL, NULL }
 };
 
 static const luaL_Reg Image_meta[] = {
 	{ "__index", Image_index },
 	{ "__newindex", Image_newIndex },
+// 	{ "__gc", Image_gc },
 	{ NULL, NULL }
 };
 

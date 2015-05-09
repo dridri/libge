@@ -28,7 +28,7 @@ static int Color_colors(lua_State *L){
 	int g = G(*color);
 	int b = B(*color);
 	int a = A(*color);
-	
+
 	lua_newtable(L);
 	lua_pushstring(L, "r"); lua_pushnumber(L, r); lua_settable(L, -3);
 	lua_pushstring(L, "g"); lua_pushnumber(L, g); lua_settable(L, -3);
@@ -44,7 +44,6 @@ static int Color_new(lua_State *L){
 	int argc = lua_gettop(L); 
 	if (argc != 3 && argc != 4) return luaL_error(L, "Argument error: Color.New(r, g, b, [a]) takes either three color arguments or three color arguments and an alpha value.");
 
-	u32* color = pushNewColor(L);
 	u8 r = (u8)luaL_checkint(L, 1);
 	u8 g = (u8)luaL_checkint(L, 2);
 	u8 b = (u8)luaL_checkint(L, 3);
@@ -52,7 +51,7 @@ static int Color_new(lua_State *L){
 	if(argc == 4){
 		a = (u8)luaL_checkint(L, 4);
 	}
-	*color = RGBA(r, g, b, a);
+	*pushNewColor(L) = RGBA(r, g, b, a);
 
 //	lua_unlock(L);
 	return 1;
@@ -147,8 +146,8 @@ static int Color_equal(lua_State *L){
 }
 
 static const luaL_Reg Color_methods[] = {
-	{ "New", Color_new },
-	{ "Set", Color_set },
+	{ "new", Color_new },
+	{ "set", Color_set },
 	{ "r", Color_r },
 	{ "g", Color_g },
 	{ "b", Color_b },
