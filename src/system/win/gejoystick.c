@@ -26,20 +26,20 @@ ge_Joystick* geJoystickOpen(const ge_JoystickController* controller){
 	return NULL;
 }
 
-static _ge_JoystickReadEvent(int joystick_fd, _ge_jsEvent* js){
+static _ge_JoystickReadEvent(int joystick_fd, void* js){
 	return -1;
 }
 
 void geJoystickClose(ge_Joystick* js){
 }
 
-static void geJoystickReadAxisXbox360(ge_Joystick* js, _ge_jsEvent* jse){
+static void geJoystickReadAxisXbox360(ge_Joystick* js, void* jse){
 }
 
-static void geJoystickReadAxisDS3(ge_Joystick* js, _ge_jsEvent* jse){
+static void geJoystickReadAxisDS3(ge_Joystick* js, void* jse){
 }
 
-void geJoystickRead(ge_Joystick* js){
+bool geJoystickRead(ge_Joystick* js){
 }
 
 void geJoystickDebugPrint(ge_Joystick* js, int num){
