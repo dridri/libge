@@ -169,7 +169,7 @@ int geDrawingMode(int mode){
 			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_CULL_FACE);
 		
-			glEnable(GL_ALPHA_TEST);
+//			glEnable(GL_ALPHA_TEST);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

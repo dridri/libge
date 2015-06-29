@@ -68,6 +68,7 @@ void geInitVideo(){
 	load_func(glBlendEquation);
 	load_func(glBlendColor);
 */
+#ifndef PLATFORM_mac
 #ifdef WIN32
 	load_func(glBlendEquation);
 	load_func(glTexImage3D);
@@ -90,6 +91,7 @@ void geInitVideo(){
 	load_func(glFramebufferTexture2D);
 	load_func(glFramebufferTexture3D);
 	load_func(glFramebufferTextureLayer);
+
 	load_func(glDrawBuffers);
 	load_func(glBlitFramebuffer);
 
@@ -99,6 +101,7 @@ void geInitVideo(){
 	load_func(glFramebufferRenderbuffer);
 	
 	load_func(glPatchParameteri);
+#endif
 }
 
 void InitMipmaps(ge_Image* image, int max){
@@ -485,7 +488,7 @@ ge_Framebuffer* geCreateFramebuffer(int width, int height){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, 34894/*GL_COMPARE_R_TO_TEXTURE*/);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -540,7 +543,7 @@ ge_Framebuffer* geCreateFramebufferMultisample(int width, int height, int sample
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, 34894/*GL_COMPARE_R_TO_TEXTURE*/);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

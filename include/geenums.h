@@ -314,8 +314,6 @@ extern "C" {
 #elif PLATFORM_mac
 #define GL3_PROTOTYPES 1
 #include <OpenGL/gl3.h>
-//#include <OpenGL/gl3ext.h>
-//#include <GL/glext.h>
 #else
 #include <GL/gl.h>
 #include <GL/glext.h>

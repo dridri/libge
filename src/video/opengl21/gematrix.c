@@ -496,11 +496,13 @@ void geUpdateMatrix(){
 	geSendMatrix(GE_MATRIX_TEXTURE5, (float*)&ge_matrices[GE_MATRIX_TEXTURE5]);
 	geSendMatrix(GE_MATRIX_TEXTURE6, (float*)&ge_matrices[GE_MATRIX_TEXTURE6]);
 	geSendMatrix(GE_MATRIX_TEXTURE7, (float*)&ge_matrices[GE_MATRIX_TEXTURE7]);
-	
-	glActiveTexture(GL_TEXTURE0);
+    
+    glActiveTexture(GL_TEXTURE0);
+#ifndef PLATFORM_mac
 	if(!ge_current_shader)return;
 	GLdouble cp[4] = { ge_clip_plane[0], ge_clip_plane[1], ge_clip_plane[2], ge_clip_plane[3] };
 	glClipPlane(GL_CLIP_PLANE0, cp);
+#endif
 }
 
 void geUpdateCurrentMatrix(){

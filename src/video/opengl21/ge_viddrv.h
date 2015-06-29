@@ -19,10 +19,15 @@
 #ifndef __GE_GL_H__
 #define __GE_GL_H__
 
+#ifdef PLATFORM_mac
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#else
 #include <GL/gl.h>
 #include <GL/glext.h>
 #ifdef WIN32
 #include <GL/wglext.h>
+#endif
 #endif
 #include "getypes.h"
 
@@ -97,6 +102,8 @@ define_proc(DEPTHRANGE, glDepthRange);
 define_proc(CLEARDEPTH, glClearDepth);
 define_proc(COLORMASK, glColorMask);
 */
+
+#ifndef PLATFORM_mac
 
 #ifdef WIN32
 define_proc(BLENDEQUATION, glBlendEquation);
@@ -176,5 +183,7 @@ define_proc(VERTEXATTRIBPOINTER, glVertexAttribPointer);
 
 //Tesselation
 define_proc(PATCHPARAMETERI, glPatchParameteri);
+
+#endif
 
 #endif //__GE_GL_H__
