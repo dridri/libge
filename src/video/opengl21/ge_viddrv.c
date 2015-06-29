@@ -68,6 +68,7 @@ void geInitVideo(){
 	load_func(glBlendEquation);
 	load_func(glBlendColor);
 */
+#ifndef GL_GLEXT_PROTOTYPES
 #ifdef WIN32
 	load_func(glBlendEquation);
 	load_func(glTexImage3D);
@@ -97,8 +98,9 @@ void geInitVideo(){
 	load_func(glBindRenderbuffer);
 	load_func(glRenderbufferStorageMultisample);
 	load_func(glFramebufferRenderbuffer);
-	
+
 	load_func(glPatchParameteri);
+#endif
 }
 
 void InitMipmaps(ge_Image* image, int max){

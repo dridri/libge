@@ -310,16 +310,18 @@ extern "C" {
 
 #else
 #ifdef PLATFORM_android
-#include <GLES/gl.h>
-#include <GLES2/gl2.h>
+	#include <GLES/gl.h>
+	#include <GLES2/gl2.h>
 #elif PLATFORM_mac
-#define GL3_PROTOTYPES 1
-#include <OpenGL/gl3.h>
-//#include <OpenGL/gl3ext.h>
-//#include <GL/glext.h>
+	#define GL3_PROTOTYPES 1
+	#include <OpenGL/gl3.h>
+	//#include <OpenGL/gl3ext.h>
+	//#include <GL/glext.h>
 #else
-#ifndef GL_GLEXT_PROTOTYPES
-#define GL_GLEXT_PROTOTYPES
+	#ifdef PLATFORM_linux
+		#ifndef GL_GLEXT_PROTOTYPES
+		#define GL_GLEXT_PROTOTYPES
+	#endif
 #endif
 #include <GL/gl.h>
 #include <GL/glext.h>

@@ -68,7 +68,7 @@ int geGetTickResolution(){
 	return 1000;
 }
 
-void geShowAds(){
+void geShowAds(int type){
 }
 
 void geSleep(int msec){
