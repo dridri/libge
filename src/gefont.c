@@ -101,8 +101,13 @@ ge_Font* geLoadFont(const char* filename){
 
 void geFreeFont(ge_Font* font){
 	geFreeImage(font->texture);
-	geFree(font->data);
+	if(font->data)geFree(font->data);
 	geFree(font);
+}
+
+void geReleaseFont(ge_Font* font){
+	if(font->data)geFree(font->data);
+	if(font->texture)geReleaseImage(font->texture);
 }
 
 void geFontSize(ge_Font* font, int px){

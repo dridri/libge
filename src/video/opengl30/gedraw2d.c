@@ -471,7 +471,7 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 	}
 
 	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
-		return;
+// 		return;
 	}
 	
 	if(flags & GE_BLIT_NOALPHA){

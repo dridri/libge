@@ -115,6 +115,8 @@ LIBGE_API void gePrintDebug(int level, const char *format, ...);
 LIBGE_API void geRegisterSystemMessageCallback(void* cb);
 LIBGE_API void geCustomProcAdress(void* (*fct)(const char*));
 
+LIBGE_API void geShowAds(int type);
+
 LIBGE_API int geEnable(int what);
 LIBGE_API int geDisable(int what);
 LIBGE_API void geForceCap(int which, int en);
@@ -171,6 +173,7 @@ LIBGE_API ge_Image* geDuplicateImage(ge_Image* source);
 LIBGE_API ge_Image* geAnimateImage(ge_Image* _img, int n, float t);
 LIBGE_API void geFlipImageVertical(ge_Image* img);
 LIBGE_API void geUpdateImage(ge_Image* img);
+LIBGE_API void geReleaseImage(ge_Image* img);
 LIBGE_API void geDeleteImage(ge_Image* img);
 LIBGE_API void geFreeImage(ge_Image* image);
 LIBGE_API int geGetNextPower2(int width);

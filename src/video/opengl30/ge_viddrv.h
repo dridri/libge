@@ -25,6 +25,11 @@
 //#include <OpenGL/gl3ext.h>
 //#include <GL/glext.h>
 #else
+#ifdef PLATFORM_linux
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
+#endif
+#endif // PLATFORM_linux
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
@@ -117,6 +122,7 @@ define_proc(CLEARDEPTH, glClearDepth);
 define_proc(COLORMASK, glColorMask);
 */
 
+#ifndef PLATFORM_linux
 #ifdef WIN32
 define_proc(BLENDEQUATION, glBlendEquation);
 define_proc(TEXIMAGE3D, glTexImage3D);
@@ -203,7 +209,9 @@ define_proc(UNIFORMMATRIX4FV, glUniformMatrix4fv);
 define_proc(GETUNIFORMFV, glGetUniformfv);
 
 //Tesselation
-define_proc(PATCHPARAMETERI, glPatchParameteri);
+//define_proc(PATCHPARAMETERI, glPatchParameteri);
 #endif // PLATFORM_mac
+
+#endif // PLATFORM_linux
 
 #endif //__GE_GL_H__

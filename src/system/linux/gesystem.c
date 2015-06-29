@@ -31,6 +31,9 @@ void LinuxKeyboardColor(u32 color);
 int LinuxKeyboardUpdate();
 int LinuxKeyboardIndex();
 
+void geShowAds(int type){
+}
+
 void LinuxInit(){
 	geKeyboardDefine(LinuxKeyboardInit, LinuxKeyboardFinished, LinuxKeyboardDescrition, LinuxKeyboardOutput, LinuxKeyboardColor, LinuxKeyboardUpdate, LinuxKeyboardIndex);
 }

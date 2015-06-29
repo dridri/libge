@@ -309,30 +309,32 @@ void geAllocateSurface(ge_Image* image, int width, int height){
 		ok = true;
 	}
 */
+
 	if(width != height){
-		if(geCheckExtensionAvailable("GL_ARB_texture_rectangle")){
-			if((p2w != width || p2h != height) && (geCheckExtensionAvailable("GL_OES_texture_npot") || geCheckExtensionAvailable("GL_NV_texture_npot_2D_mipmap"))){
-				gePrintDebug(0x100, "Allocating rectangle NPOT texture\n");
+//		if(geCheckExtensionAvailable("GL_ARB_texture_rectangle")){
+			if((p2w != width || p2h != height) && (geCheckExtensionAvailable("GL_OES_texture_npot") || geCheckExtensionAvailable("GL_NV_texture_npot_2D_mipmap") || geCheckExtensionAvailable("GL_ARB_texture_non_power_of_two"))){
+				gePrintDebug(0x100, "Allocating rectangle NPOT texture (%d x %d)\n", width, height);
 				image->flags |= GE_IMAGE_RECTANGLE;
 				image->textureWidth = width;
 				image->textureHeight = height;
 				ok = true;
 			}else if(p2w == width || p2h == height){
-				gePrintDebug(0x100, "Allocating rectangle texture\n");
+				gePrintDebug(0x100, "Allocating rectangle texture (%d x %d)\n", width, height);
 				image->flags |= GE_IMAGE_RECTANGLE;
 				image->textureWidth = width;
 				image->textureHeight = height;
 				ok = true;
 			}
-		}
+//		}
 	}else{
-		if(p2w != width && (geCheckExtensionAvailable("GL_OES_texture_npot")/* || geCheckExtensionAvailable("GL_NV_texture_npot_2D_mipmap")*/)){
-			gePrintDebug(0x100, "Allocating NPOT texture\n");
+		if(p2w != width && (geCheckExtensionAvailable("GL_OES_texture_npot") || geCheckExtensionAvailable("GL_ARB_texture_non_power_of_two") || geCheckExtensionAvailable("GL_NV_texture_npot_2D_mipmap"))){
+			gePrintDebug(0x100, "Allocating NPOT texture (%d x %d)\n", width, height);
 			image->textureWidth = width;
 			image->textureHeight = height;
 			ok = true;
 		}
 	}
+
 /*
 	if(width != height){
 		if(geCheckExtensionAvailable("GL_ARB_texture_rectangle")){
@@ -362,6 +364,7 @@ void geAllocateSurface(ge_Image* image, int width, int height){
 	if(!ok){
 		image->textureWidth = geGetNextPower2(width);
 		image->textureHeight = geGetNextPower2(height);
+		gePrintDebug(0x100, "Allocating _POT texture (%d x %d  :  %d x %d)\n", image->textureWidth, image->textureHeight, width, height);
 		int framesz = max(image->textureWidth, image->textureHeight);
 		image->textureWidth = framesz;
 		image->textureHeight = framesz;

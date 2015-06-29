@@ -69,6 +69,7 @@ void geInitVideo(){
 	load_func(glBlendColor);
 */
 
+#ifndef PLATFORM_linux
 #ifdef WIN32
 	load_func(glBlendEquation);
 	load_func(glTexImage3D);
@@ -111,6 +112,7 @@ void geInitVideo(){
 	
 	load_func(glPatchParameteri);
 #endif // PLATFORM_mac
+#endif // PLATFORM_linux
 }
 
 void InitMipmaps(ge_Image* image, int max){

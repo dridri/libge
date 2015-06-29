@@ -126,8 +126,8 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = 24;
 	pfd.cAlphaBits = 8;
-//	pfd.cDepthBits = 16;
-	pfd.cDepthBits = 32;
+	pfd.cDepthBits = 16;
+// 	pfd.cDepthBits = 32;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 	int fmt = 0;
 	if(iFormat == 0){

@@ -111,9 +111,9 @@ void geRendererUse(ge_Renderer* render){
 	glBindVertexArray(render->vao);
 
 #ifndef PLATFORM_mac
-	if(render->tesselated && glPatchParameteri){
-		glPatchParameteri(GL_PATCH_VERTICES, 3);
-	}
+//	if(render->tesselated && glPatchParameteri){
+//		glPatchParameteri(GL_PATCH_VERTICES, 3);
+//	}
 #endif
 	
 	if(render->depth_enabled){

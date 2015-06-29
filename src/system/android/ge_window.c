@@ -522,6 +522,34 @@ JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setHasSurface(JNIEnv* env, job
 	hasSurface = _hasSurface;
 }
 
+static bool java_ads_visible = false;
+static int java_ads_type = 0;
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_adsVisible(JNIEnv* env, jobject obj)
+{
+	return java_ads_visible;
+}
+
+JNIEXPORT jint JNICALL Java_com_drich_libge_LibGE_adsType(JNIEnv* env, jobject obj)
+{
+	return java_ads_type;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_setAdsVisible(JNIEnv* env, jobject obj, jboolean visible)
+{
+	java_ads_visible = visible;
+}
+
+void geShowAds(int type){
+	java_ads_type = type;
+	java_ads_visible = true;
+
+	while(java_ads_visible){
+		mouse_warp_x = mouse_warp_y = 0;
+		PollEvents();
+		geSleep(10);
+	}
+}
+
 LibGE_AndroidContext* _ge_GetAndroidContext(){
 	return _ge_android_context;
 }

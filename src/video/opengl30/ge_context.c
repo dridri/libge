@@ -28,12 +28,14 @@ static char _ge_shader_ogl3_generic_2d_vert[] =
 	"in vec4 ge_VertexColor;\n"
 	"in vec3 _ge_VertexPosition;\n"
 	"uniform mat4 ge_MatrixProjection;\n"
+	"uniform mat4 ge_MatrixView;\n"
+	"uniform mat4 ge_MatrixModel;\n"
 	"smooth out vec4 ge_Color;\n"
 	"smooth out vec2 ge_TexCoord0;\n"
 	"void main(){\n"
 	"	ge_Color = ge_VertexColor;\n"
 	"	ge_TexCoord0 = ge_VertexTexcoord.st;\n"
-	"	gl_Position = ge_MatrixProjection * vec4(_ge_VertexPosition, 1.0);\n"
+	"	gl_Position = ge_MatrixProjection * ge_MatrixView * ge_MatrixModel * vec4(_ge_VertexPosition, 1.0);\n"
 	"}\n";
 
 static char _ge_shader_ogl3_generic_2d_frag[] = 

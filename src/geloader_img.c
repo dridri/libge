@@ -57,6 +57,11 @@ ge_Image* geLoadImage(const char* file){
 	return geLoadImageOptions(file, 0);
 }
 
+void geReleaseImage(ge_Image* img){
+	if(img->data)geFree(img->data);
+	img->data = NULL;
+}
+
 void geFreeImage(ge_Image* img){
 	if((t_ptr)img==0xBAADF00D)return;
 	if(!img)return;

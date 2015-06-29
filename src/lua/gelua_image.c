@@ -369,6 +369,23 @@ static int Image_update(lua_State* L){
 	return 1;
 }
 
+static int Image_release(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "img");
+	lua_pushstring(L, "img");
+	lua_gettable(L, 1);
+	ge_Image* dest = *toImage(L, -1);
+
+	if(!dest){
+		return luaL_error(L, "Error: geImage:release() must be with a colon");
+	}
+
+	geReleaseImage(dest);
+
+	return 1;
+}
+
 static int Image_animate(lua_State* L){
 	int argc = lua_gettop(L);
 
@@ -486,6 +503,7 @@ static const luaL_Reg Image_methods[] = {
 //	{ "setColor", Image_color },
 	{ "Pixel", Image_pixel },
 	{ "Update", Image_update },
+	{ "Release", Image_release },
 	{ "TextureMode", Image_textureMode },
 	{ "TextureWrap", Image_textureWrap },
 	{ NULL, NULL }

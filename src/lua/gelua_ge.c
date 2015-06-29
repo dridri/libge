@@ -217,6 +217,29 @@ static int offset(lua_State* L){
 	return 1;
 }
 
+static int showAds(lua_State* L){
+	int argc = lua_gettop(L);
+
+	if(argc != 1) return luaL_error(L, "Argument error: geShowAds(type) must take one argument.");
+
+	geShowAds(luaL_checkint(L, 1));
+
+	return 1;
+}
+
+static int memoryUsage(lua_State* L){
+	int argc = lua_gettop(L);
+
+	
+	lua_createtable(L, 0, 0);
+	lua_pushinteger(L, geGetContext()->mem);
+	lua_setfield(L, -2, "ram");
+	lua_pushinteger(L, geGetContext()->gpumem);
+	lua_setfield(L, -2, "vram");
+
+	return 1;
+}
+
 
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
@@ -226,11 +249,13 @@ static const luaL_Reg f_ge[] = {
 	{"geDrawingMode", drawingMode},
 	{"geSwapBuffers", swapBuffers},
 	{"geFps", fps},
+	{"geMemoryUsage", memoryUsage},
 
 	{"geLineWidth", lineWidth},
 	{"geDrawOffset", offset},
 
 	{"geTextInput", textInput},
+	{"geShowAds", showAds},
 
 	{"geDebugPrint", debugPrint},
 	{"geGetTick", getTick},

@@ -23,6 +23,7 @@ UserdataStubs(Font, ge_Font*);
 static const luaL_Reg Font_meta[];
 
 static int Font_print(lua_State* L);
+static int Font_release(lua_State* L);
 static int Font_measureString(lua_State* L);
 
 static int Font_load(lua_State *L){
@@ -61,6 +62,9 @@ static int Font_load(lua_State *L){
 
 	lua_pushcfunction(L, Font_measureString);
 	lua_setfield(L, -2, "measureString");
+
+	lua_pushcfunction(L, Font_release);
+	lua_setfield(L, -2, "Release");
 
 	lua_createtable(L, 0, 0);
 	luaL_setfuncs(L, Font_meta, 0);
@@ -150,6 +154,23 @@ static int Font_print(lua_State* L){
 	return 1;
 }
 
+static int Font_release(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "fnt");
+	lua_pushstring(L, "fnt");
+	lua_gettable(L, 1);
+	ge_Font* fnt = *toFont(L, -1);
+
+	if(!fnt){
+		return luaL_error(L, "Error: geFont:release() must be with a colon");
+	}
+
+	geReleaseFont(fnt);
+
+	return 1;
+}
+
 static int Font_index(lua_State* L){
 	int argc = lua_gettop(L);
 
@@ -197,6 +218,7 @@ static const luaL_Reg Font_methods[] = {
 	{ "load", Font_load },
 	{ "print", Font_print },
 	{ "measureString", Font_measureString },
+	{ "Release", Font_release },
 	{ NULL, NULL }
 };
 
