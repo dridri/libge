@@ -135,10 +135,10 @@ void geRendererUse(ge_Renderer* render){
 #endif
 	}
 
-	if(render->tesselated && glPatchParameteri){
-		glPatchParameteri(GL_PATCH_VERTICES, 3);
-	}
-	
+//	if(render->tesselated && glPatchParameteri){
+//		glPatchParameteri(GL_PATCH_VERTICES, 3);
+//	}
+
 	if(render->depth_enabled){
 		glEnable(GL_DEPTH_TEST);
 	}else{
