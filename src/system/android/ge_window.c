@@ -44,6 +44,7 @@ typedef struct Engine {
 	ANativeWindow* aSurface;
 	int ofsx;
 	int ofsy;
+	int fullscreen;
 
 	ASensorManager* sensorManager;
 	const ASensor* accelerometerSensor;
@@ -69,6 +70,7 @@ typedef struct ATouch {
 static Engine engine;
 static bool hasSurface = false;
 static LibGE_AndroidContext* _ge_android_context = NULL;
+static bool geCreateMainWindow_called = false;
 
 static bool v_keys[GE_KEYS_COUNT] = { 0 };
 static ATouch touches[16] = { { 0, 0, 0, 0.0, 0.0, 0.0 } };
@@ -116,10 +118,28 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 // 					}else{
 // 						engine.aSurface = engine.app->window;
 // 					}
+	while(hasSurface && !engine.aSurface){
+		geSleep(10);
+	}
+
+	aflags = AWINDOW_FLAG_KEEP_SCREEN_ON;
+	if(flags & GE_WINDOW_FULLSCREEN){
+		aflags |= AWINDOW_FLAG_FULLSCREEN;
+		engine.aSurface = 0;
+	}
+// 	if(engine.app && engine.aSurface){
+		ANativeActivity_setWindowFlags(_ge_android_context->state->activity, aflags, 0);
+// 	}
+
+
+	geCreateMainWindow_called = true;
 
 	while(hasSurface && !engine.aSurface){
 		geSleep(10);
 	}
+// 	while(!hasSurface && !engine.aSurface){
+// 		engine.aSurface = engine.app->window;
+// 	}
 
 	const EGLint attribs[] = {
 			EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -153,14 +173,14 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 		base_width = ANativeWindow_getWidth(engine.aSurface);
 		base_height = ANativeWindow_getHeight(engine.aSurface);
 	}
-	LOGW("base size: %d x %d", base_width, base_height);
+	LOGI("base size: %d x %d", base_width, base_height);
 
-	int width = Width < 0 ? 0 : Width;
-	int height = Height < 0 ? 0 : Height;
-	LOGW("new size: %d x %d", width, height);
+	int width = Width < 0 ? base_width : Width;
+	int height = Height < 0 ? base_height : Height;
+	LOGI("new size: %d x %d", width, height);
 	if(engine.app && engine.aSurface){
-// 		ANativeWindow_setBuffersGeometry(engine.aSurface, width, height, WINDOW_FORMAT_RGBA_8888/*format*/);
-		ANativeWindow_setBuffersGeometry(engine.aSurface, 0, 0, WINDOW_FORMAT_RGBA_8888/*format*/);
+		ANativeWindow_setBuffersGeometry(engine.aSurface, width, height, WINDOW_FORMAT_RGBA_8888/*format*/);
+// 		ANativeWindow_setBuffersGeometry(engine.aSurface, 0, 0, WINDOW_FORMAT_RGBA_8888/*format*/);
 		LOGW("Ok");
 		LOGW("BLAHLBH");
 		surface = eglCreateWindowSurface(display, config, engine.aSurface, NULL);
@@ -178,25 +198,13 @@ int geCreateMainWindow(const char* title, int Width, int Height, int flags){
 	eglQuerySurface(display, surface, EGL_WIDTH, &w);
 	eglQuerySurface(display, surface, EGL_HEIGHT, &h);
 
-	aflags = AWINDOW_FLAG_KEEP_SCREEN_ON;
-	if(flags & GE_WINDOW_FULLSCREEN){
-		aflags |= AWINDOW_FLAG_FULLSCREEN;
-	}
-	/*
-	if(w != base_width || h != base_height){
-		aflags |= AWINDOW_FLAG_SCALED;
-	}
-	*/
-	if(engine.app && engine.aSurface){
-			(_ge_android_context->state->activity, aflags, 0);
-	}
-
 	libge_context->vidcontext = (t_ptr)&engine;
 	libge_context->width = w;
 	libge_context->height = h;
 	LOGI("final size: %d x %d", w, h);
 	
 	if(engine.context == EGL_NO_CONTEXT){
+		gePrintDebug(0x100, "glGetString: 0x%08lX\n", (unsigned long)glGetString);
 		gePrintDebug(0x100, "glGetString: 0x%08lX\n", (unsigned long)glGetString);
 		gePrintDebug(0x100, "Current OpenGL version: %s\n", (const char*)glGetString(GL_VERSION));
 		geInitVideo();
@@ -512,6 +520,34 @@ JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setSurface(JNIEnv* env, jobjec
 JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setHasSurface(JNIEnv* env, jobject obj, jint _hasSurface)
 {
 	hasSurface = _hasSurface;
+}
+
+static bool java_ads_visible = false;
+static int java_ads_type = 0;
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_adsVisible(JNIEnv* env, jobject obj)
+{
+	return java_ads_visible;
+}
+
+JNIEXPORT jint JNICALL Java_com_drich_libge_LibGE_adsType(JNIEnv* env, jobject obj)
+{
+	return java_ads_type;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_setAdsVisible(JNIEnv* env, jobject obj, jboolean visible)
+{
+	java_ads_visible = visible;
+}
+
+void geShowAds(int type){
+	java_ads_type = type;
+	java_ads_visible = true;
+
+	while(java_ads_visible){
+		mouse_warp_x = mouse_warp_y = 0;
+		PollEvents();
+		geSleep(10);
+	}
 }
 
 LibGE_AndroidContext* _ge_GetAndroidContext(){

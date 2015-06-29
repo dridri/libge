@@ -278,6 +278,7 @@ int _ev_thread(int args, void* argp){
 						KeySym keysym;
 						len = XLookupString(&event.xkey, str, 25, &keysym, NULL);
 						last_pressed = (u8)str[0];
+						printf("key : %X %X\n", key, last_pressed);
 					}
 					keys_pressed[key] = true;
 					keys_released[key] = false;
@@ -613,5 +614,6 @@ void LinuxGetPressedKeys(u8* k){
 int LinuxGetLastPressed(){
 	int ret = last_pressed;
 	last_pressed = 0;
+	printf("LinuxGetLastPressed : %X\n", ret);
 	return ret;
 }

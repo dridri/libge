@@ -121,6 +121,21 @@ typedef struct ge_Image {
 	u32 color;
 } ge_Image;
 
+typedef struct _ge_ImageAnimated {
+	s32 flags;
+	u32 id;
+	s32 width, height;
+	s32 textureWidth, textureHeight;
+	float u, v;
+	u32* data;
+	u32 color;
+	float frameTime;
+	s32 nImages;
+	float _ge_t;
+	s32 realHeight;
+	s32 _ge_n;
+} _ge_ImageAnimated;
+
 typedef struct ge_Image3D {
 	s32 flags;
 	u32 id;

@@ -20,7 +20,10 @@
 
 UserdataStubs(Font, ge_Font*);
 
+static const luaL_Reg Font_meta[];
+
 static int Font_print(lua_State* L);
+static int Font_release(lua_State* L);
 static int Font_measureString(lua_State* L);
 
 static int Font_load(lua_State *L){
@@ -48,8 +51,8 @@ static int Font_load(lua_State *L){
 	*pushNewFont(L) = fnt;
 	lua_setfield(L, -2, "fnt");
 
-	lua_pushinteger(L, fnt->size);
-	lua_setfield(L, -2, "size");
+// 	lua_pushinteger(L, fnt->size);
+// 	lua_setfield(L, -2, "size");
 
 	*pushNewColor(L) = RGBA(255, 255, 255, 255);
 	lua_setfield(L, -2, "color");
@@ -60,6 +63,12 @@ static int Font_load(lua_State *L){
 	lua_pushcfunction(L, Font_measureString);
 	lua_setfield(L, -2, "measureString");
 
+	lua_pushcfunction(L, Font_release);
+	lua_setfield(L, -2, "Release");
+
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, Font_meta, 0);
+	lua_setmetatable(L, -2);
 //	lua_unlock(L);
 
 	return 1;
@@ -80,7 +89,7 @@ static int Font_measureString(lua_State* L){
 	if(argc != 1){
 		return luaL_error(L, "Error: geFont.measureString(string) must take only one arguments.");
 	}
-
+/*
 	lua_getfield(L, 1, "size");
 	lua_pushstring(L, "size");
 	lua_gettable(L, 1);
@@ -88,7 +97,7 @@ static int Font_measureString(lua_State* L){
 
 	if(sz != fnt->size){
 		geFontSize(fnt, sz);
-	}
+	}*/
 
 	int w = 0;
 	int h = 0;
@@ -113,7 +122,7 @@ static int Font_print(lua_State* L){
 	}
 	argc--;
 	if(argc != 3 && argc != 4){
-		return luaL_error(L, "Error: geFont.print(x, y, [color], string) must take 3 or 4 arguments.");
+		return luaL_error(L, "Error: geFont.print(x, y, string, [color]) must take 3 or 4 arguments.");
 	}
 
 	u32 color = 0;
@@ -126,14 +135,17 @@ static int Font_print(lua_State* L){
 		color = *toColor(L, -1);
 	}
 
-	lua_getfield(L, 1, "size");
-	lua_pushstring(L, "size");
-	lua_gettable(L, 1);
-	int sz = lua_tointeger(L, -1);
-
-	if(sz != fnt->size || fnt->texture == NULL){
-		geFontSize(fnt, sz);
-	}
+// 	lua_getfield(L, 1, "size");
+// 	lua_pushstring(L, "size");
+// 	lua_gettable(L, 1);
+// 	int sz = lua_tointeger(L, -1);
+// 
+// 	if(sz != fnt->size || fnt->texture == NULL){
+// 		geFontSize(fnt, sz);
+// 		fnt->size = sz;
+// 		lua_pushinteger(L, fnt->size);
+// 		lua_setfield(L, 1, "size");
+// 	}
 
 	lua_settop(L, argc + 1);
 
@@ -142,14 +154,77 @@ static int Font_print(lua_State* L){
 	return 1;
 }
 
+static int Font_release(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "fnt");
+	lua_pushstring(L, "fnt");
+	lua_gettable(L, 1);
+	ge_Font* fnt = *toFont(L, -1);
+
+	if(!fnt){
+		return luaL_error(L, "Error: geFont:release() must be with a colon");
+	}
+
+	geReleaseFont(fnt);
+
+	return 1;
+}
+
+static int Font_index(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "fnt");
+	lua_pushstring(L, "fnt");
+	lua_gettable(L, 1);
+	ge_Font* fnt = *toFont(L, -1);
+
+	const char* key = luaL_checkstring(L, 2);
+// 	printf("LUA::Font_index key = \"%s\"\n", key);
+
+	if(!strcmp(key, "size")){
+		lua_pushinteger(L, fnt->size);
+	}else{
+		lua_pushvalue(L, 2);
+		lua_rawget(L, 1);
+	}
+
+	return 1;
+}
+
+static int Font_newIndex(lua_State* L){
+	int argc = lua_gettop(L);
+
+	lua_getfield(L, 1, "fnt");
+	lua_pushstring(L, "fnt");
+	lua_gettable(L, 1);
+	ge_Font* fnt = *toFont(L, -1);
+
+	const char* key = luaL_checkstring(L, 2);
+// 	printf("LUA::Font_newIndex key = \"%s\"\n", key);
+
+	if(!strcmp(key, "size")){
+		geFontSize(fnt, luaL_checkint(L, 3));
+	}else{
+		lua_pushvalue(L, 2);
+		lua_pushvalue(L, 3);
+		lua_rawset(L, 1);
+	}
+
+	return 1;
+}
+
 static const luaL_Reg Font_methods[] = {
 	{ "load", Font_load },
 	{ "print", Font_print },
 	{ "measureString", Font_measureString },
+	{ "Release", Font_release },
 	{ NULL, NULL }
 };
 
 static const luaL_Reg Font_meta[] = {
+	{ "__index", Font_index },
+	{ "__newindex", Font_newIndex },
 	{ NULL, NULL }
 };
 

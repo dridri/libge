@@ -52,6 +52,7 @@ int geInitShaders(){
 	}
 
 	if(libge_context->shaders_available){
+#ifndef PLATFORM_linux
 #ifndef PLATFORM_mac
 		load_func(glCreateShader);
 		load_func(glShaderSource);
@@ -86,6 +87,7 @@ int geInitShaders(){
 		load_func(glUniformMatrix3fv);
 		load_func(glUniformMatrix4fv);
 		load_func(glGetUniformfv);
+#endif
 #endif
 	}else{
 		return -1;

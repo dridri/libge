@@ -43,6 +43,9 @@ void* geMemalign(int size, int align){
 	var[1] = size; //Store the size on the 2nd int
 	memset((void*)(t_ptr)&var[2], 0x0, size);
 	if(libge_context){
+		if(size > 16384){
+			gePrintDebug(0x100, "Memory += %d\n", size);
+		}
 		libge_context->mem += size;
 		libge_context->allocs++;
 	}

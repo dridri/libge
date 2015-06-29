@@ -43,6 +43,7 @@ void geFontPrintScreenScroll(int x, int y, ge_Font* font, const char* text, u32 
 */
 
 LIBGE_API ge_Font* geLoadFont(const char* file);
+LIBGE_API void geReleaseFont(ge_Font* font);
 LIBGE_API void geFreeFont(ge_Font* font);
 LIBGE_API void geFontSize(ge_Font* font, int px);
 LIBGE_API void geFontEncoding(ge_Font* font, int encod);

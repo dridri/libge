@@ -47,6 +47,7 @@ extern "C" {
 #include "geerror.h"
 #include "getypes.h"
 #include "gekeys.h"
+#include "gejoystick.h"
 #include "getimers.h"
 #include "gefile.h"
 #include "geresources.h"
@@ -114,6 +115,8 @@ LIBGE_API void gePrintDebug(int level, const char *format, ...);
 LIBGE_API void geRegisterSystemMessageCallback(void* cb);
 LIBGE_API void geCustomProcAdress(void* (*fct)(const char*));
 
+LIBGE_API void geShowAds(int type);
+
 LIBGE_API int geEnable(int what);
 LIBGE_API int geDisable(int what);
 LIBGE_API void geForceCap(int which, int en);
@@ -167,8 +170,10 @@ LIBGE_API ge_Image* geCreateSurface(short width, short height, u32 color);
 LIBGE_API ge_Image3D* geCreateSurface3D(short width, short height, short depth, u32 color);
 LIBGE_API ge_Image* geResizeImage(ge_Image* src, int new_width, int new_height, int method);
 LIBGE_API ge_Image* geDuplicateImage(ge_Image* source);
+LIBGE_API ge_Image* geAnimateImage(ge_Image* _img, int n, float t);
 LIBGE_API void geFlipImageVertical(ge_Image* img);
 LIBGE_API void geUpdateImage(ge_Image* img);
+LIBGE_API void geReleaseImage(ge_Image* img);
 LIBGE_API void geDeleteImage(ge_Image* img);
 LIBGE_API void geFreeImage(ge_Image* image);
 LIBGE_API int geGetNextPower2(int width);

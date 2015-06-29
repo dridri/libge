@@ -34,9 +34,11 @@ static void InitDraw(ge_Image* tex, int mode){
 	}
 	if(ge_current_shader == _ge_GetVideoContext()->shader2d){
 		geShaderUniform1f(ge_current_shader->loc_HasTexture, 1.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
-		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_time, ((float)geGetTick()) / 1000.0);
+// 		glUniform1f(_ge_GetVideoContext()->shader2d->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 	}
+	glUniform1f(ge_current_shader->loc_time, ((float)geGetTick()) / 1000.0);
+	glUniform1f(ge_current_shader->loc_ratio, ((float)libge_context->width) / ((float)libge_context->height));
 
 	geUpdateMatrix();
 	if(tex && tex->id){
@@ -242,6 +244,14 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 	width *= 0.5f;
 	height *= 0.5f;
 
+	if(img->flags & GE_IMAGE_ANIMATED){
+		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
+			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
+			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
+		}
+	}
+
 	float Cos = geCos(angle);
 	float Sin = geSin(-angle);
 
@@ -335,6 +345,14 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 	texMaxX = ex*texMaxX/img->width;
 	texMaxY = ey*texMaxY/img->height;
 
+	if(img->flags & GE_IMAGE_ANIMATED){
+		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
+			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
+			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
+		}
+	}
+
 	if(flags & GE_BLIT_VFLIP){
 		texMaxY = -texMaxY;
 	}
@@ -398,9 +416,9 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 	x += libge_context->draw_off_x;
 	y += libge_context->draw_off_y;
 
-	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
-		return;
-	}
+// 	if(x > libge_context->width || x+width < 0 || y > libge_context->height || y+height < 0){
+// 		return;
+// 	}
 
 	if(flags & GE_BLIT_NOALPHA){
 		glDisable(GL_ALPHA_TEST);
@@ -429,6 +447,14 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 	float sy = _sy*texMaxY/img->height;
 	texMaxX = ex*texMaxX/img->width;
 	texMaxY = ey*texMaxY/img->height;
+
+	if(img->flags & GE_IMAGE_ANIMATED){
+		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
+		if((geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t) >= ((_ge_ImageAnimated*)img)->frameTime){
+			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
+			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
+		}
+	}
 
 	float Cos = geCos(angle);
 	float Sin = geSin(-angle);

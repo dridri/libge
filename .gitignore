@@ -7,11 +7,12 @@ Game.exe
 Debug
 obj
 build
+test
 scene
 rk4
 data
 Makefile.win_low2
-testsrc
+testsrc/*
 testobj
 ge.log
 *.kdev4

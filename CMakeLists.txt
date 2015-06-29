@@ -16,8 +16,9 @@ option(video "video")
 option(static "static")
 option(mini "mini")
 option(opttest "opttest")
-option(debug "debug" )
+option(debug "debug")
 option(opencl "opencl")
+option(luajit "luajit")
 option(ARCH "ARCH")
 
 if(mini)
@@ -90,6 +91,13 @@ if(${video} MATCHES OFF)
 	else()
 		set(video ${target})
 	endif()
+endif()
+
+if(NOT ${luajit} MATCHES OFF)
+	set(GE_LUA_LIBS luajit)
+	add_definitions(-DLIBGE_LUAJIT)
+else()
+	set(GE_LUA_LIBS -llua5.2)
 endif()
 
 # if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
@@ -168,6 +176,7 @@ set(SOURCES ${SOURCES}
 	src/lua/gelua_vertexarray.c
 	src/lua/gelua_renderer.c
 	src/lua/gelua_thread.c
+	src/lua/gelua_joystick.c
 	src/gui/gegui.c
 	src/gui/gegui_button.c
 	src/gui/gegui_checkbox.c
@@ -228,24 +237,24 @@ endif()
 if(${video} MATCHES opengl21 AND ${target} MATCHES win)
 	set(SOURCES
 		${SOURCES}
-		src/system/win_low/gesystem.c
 		src/system/win_low/ge_window.c
-		src/system/win_low/gememory.c
-		src/system/win_low/gekeys.c
-		src/system/win_low/gethreads.c
-		src/system/win_low/genet.c
 		)
 else()
 	set(SOURCES
 		${SOURCES}
-		src/system/${target}/gesystem.c
 		src/system/${target}/ge_window.c
-		src/system/${target}/gememory.c
-		src/system/${target}/gekeys.c
-		src/system/${target}/gethreads.c
-		src/system/${target}/genet.c
 		)
 endif()
+
+set(SOURCES
+	${SOURCES}
+	src/system/${target}/gesystem.c
+	src/system/${target}/gememory.c
+	src/system/${target}/gekeys.c
+	src/system/${target}/gethreads.c
+	src/system/${target}/genet.c
+	src/system/${target}/gejoystick.c
+	)
 
 set(SOURCES
 	${SOURCES}
@@ -276,6 +285,7 @@ set(INCLUDES
 	include/geenums.h
 	include/gephysics.h
 	include/gekeys.h
+	include/gejoystick.h
 	include/gegui.h
 	include/getimers.h
 	include/gelua.h
@@ -471,7 +481,7 @@ elseif(UNIX)
 	if(NOT mini)
 		set(LIBS ${LIBS}
 			mad
-			lua_static
+			${GE_LUA_LIBS}
 			#${LUA_LIBRARY}
 			${JPEG_LIBRARY}
 			${PNG_LIBRARY}

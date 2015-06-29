@@ -54,6 +54,8 @@ u32 geGetTick(){
 }
 
 float geGetTickFloat(){
+	return (double)geGetTick() / 1000.0;
+/*
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 // 	clock_gettime(CLOCK_REALTIME_HR, &now);
@@ -61,6 +63,7 @@ float geGetTickFloat(){
 	u32 ms = now.tv_nsec/1000000 - tick_pause;
 	ret += ((float)ms) / 1000.0;
 	return ret;
+*/
 }
 
 int geGetTickResolution(){

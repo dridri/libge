@@ -31,6 +31,9 @@ void LinuxKeyboardColor(u32 color);
 int LinuxKeyboardUpdate();
 int LinuxKeyboardIndex();
 
+void geShowAds(int type){
+}
+
 void LinuxInit(){
 	geKeyboardDefine(LinuxKeyboardInit, LinuxKeyboardFinished, LinuxKeyboardDescrition, LinuxKeyboardOutput, LinuxKeyboardColor, LinuxKeyboardUpdate, LinuxKeyboardIndex);
 }
@@ -65,6 +68,16 @@ u32 geGetTick(){
 	struct timespec now;
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	return now.tv_sec*1000 + now.tv_nsec/1000000;
+}
+
+float geGetTickFloat(){
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+// 	clock_gettime(CLOCK_REALTIME_HR, &now);
+	float ret = (float)now.tv_sec;
+	u32 ms = now.tv_nsec/1000000;
+	ret += ((float)ms) / 1000.0;
+	return ret;
 }
 
 int geGetTickResolution(){

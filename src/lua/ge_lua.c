@@ -1,14 +1,45 @@
 #define LUA_COMPAT_MODULE
-#define LUA_COMPAT_APIINTCASTS
+//#define LUA_COMPAT_APIINTCASTS
+
+#ifdef LIBGE_LUAJIT
+#include <luajit/lua.h>
+#include <luajit/lualib.h>
+#include <luajit/lauxlib.h>
+#else
 #include <lua5.2/lua.h>
 #include <lua5.2/lualib.h>
 #include <lua5.2/lauxlib.h>
+#endif
+
 #include "../ge_internal.h"
+
+#ifndef luaL_checkunsigned
+#define luaL_checkunsigned(L,a)	((unsigned int)luaL_checkinteger(L,a))
+#endif
+#ifndef lua_pushunsigned
+#define lua_pushunsigned(L,n)	lua_pushinteger(L, (unsigned int)(n))
+#endif
 
 #ifndef luaL_checkint
 static inline int luaL_checkint(lua_State* L, int n){
 	return (int)lua_tonumber(L, n);
 }
+#endif
+
+#ifdef LIBGE_LUAJIT
+#ifndef luaL_setfuncs
+static void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
+  luaL_checkstack(L, nup, "too many upvalues");
+  for (; l->name != NULL; l++) {  /* fill the table with given functions */
+    int i;
+    for (i = 0; i < nup; i++)  /* copy upvalues to the top */
+      lua_pushvalue(L, -nup);
+    lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+    lua_setfield(L, -(nup + 2), l->name);
+  }
+  lua_pop(L, nup);  /* remove upvalues */
+}
+#endif
 #endif
 
 #define lua_setconst(_l, name) { lua_pushnumber(_l, name); lua_setglobal(_l, #name); }

@@ -18,10 +18,16 @@
 
 #include "ge_lua.c"
 
+#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+#define INDICE_ARRAY_TYPE u16
+#else
+#define INDICE_ARRAY_TYPE u32
+#endif
+
 UserdataStubs(Renderer, ge_Renderer*);
 UserdataPrototypes(Shader, ge_Shader*);
 UserdataPrototypes(VertexArray, ge_Vertex*);
-UserdataPrototypes(IndiceArray, u32*);
+UserdataPrototypes(IndiceArray, INDICE_ARRAY_TYPE*);
 
 void alloc_Renderer(lua_State* L, ge_Renderer* render, int array_idx);
 
@@ -91,13 +97,17 @@ static int Renderer_draw(lua_State *L){
 	geUpdateMatrix();
 
 	if(argc == 3){
-		lua_pushstring(L, "array");
-		lua_gettable(L, 3);
-		u32* array = *toIndiceArray(L, -1);
 		lua_pushstring(L, "size");
 		lua_gettable(L, 3);
 		int count = luaL_checkinteger(L, -1);
+		lua_pushstring(L, "array");
+		lua_gettable(L, 3);
+		INDICE_ARRAY_TYPE* array = *toIndiceArray(L, -1);
+#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
+		glDrawElements(luaL_checkinteger(L, 2), count, GL_UNSIGNED_SHORT, array);
+#else
 		glDrawElements(luaL_checkinteger(L, 2), count, GL_UNSIGNED_INT, array);
+#endif
 	}else{
 		geDrawArray(luaL_checkinteger(L, 2), 0, size);
 	}

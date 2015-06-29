@@ -60,6 +60,10 @@ u32 geGetTick(){
 	return timeGetTime() - t0;
 }
 
+float geGetTickFloat(){
+	return (double)geGetTick() / 1000.0;
+}
+
 int geGetTickResolution(){
 	return 1000;
 }

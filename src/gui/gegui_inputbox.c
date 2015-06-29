@@ -42,6 +42,7 @@ ge_GuiInputBox* geGuiCreateInputBox(int width, int height, const char* base_text
 }
 
 void _geGui_RenderInputBox(ge_GuiAreaObject* object, ge_GuiStyle* style){
+	int last_i = geKeyboardIndex();
 	int i = -1;
 	ge_GuiInputBox* box = (ge_GuiInputBox*)object->object;
 	u32 back_color = box->back_color;
@@ -75,7 +76,7 @@ void _geGui_RenderInputBox(ge_GuiAreaObject* object, ge_GuiStyle* style){
 		int x = object->absx+box->textpos[0]+w;
 		int y = object->absy+(box->height/2-style->font->size/2);
 
-		if(geGetTick() - tick < 500){
+		if(geGetTick() - tick < 500 || i != last_i){
 			geDrawLineScreen(x, y, x, y+style->font->size, foreground);
 		}else if(geGetTick() - tick >= 1000){
 			tick = geGetTick();
