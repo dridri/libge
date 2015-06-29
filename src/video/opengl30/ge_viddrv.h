@@ -27,7 +27,7 @@
 #else
 #ifdef PLATFORM_linux
 #ifndef GL_GLEXT_PROTOTYPES
-#define GL_GLEXT_PROTOTYPES 1
+#define GL_GLEXT_PROTOTYPES
 #endif
 #endif // PLATFORM_linux
 #include <GL/gl.h>
@@ -209,7 +209,7 @@ define_proc(UNIFORMMATRIX4FV, glUniformMatrix4fv);
 define_proc(GETUNIFORMFV, glGetUniformfv);
 
 //Tesselation
-//define_proc(PATCHPARAMETERI, glPatchParameteri);
+define_proc(PATCHPARAMETERI, glPatchParameteri);
 #endif // PLATFORM_mac
 
 #endif // PLATFORM_linux
