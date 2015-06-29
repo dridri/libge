@@ -97,7 +97,7 @@ if(NOT ${luajit} MATCHES OFF)
 	set(GE_LUA_LIBS luajit)
 	add_definitions(-DLIBGE_LUAJIT)
 else()
-	set(GE_LUA_LIBS lua_static)
+	set(GE_LUA_LIBS -llua5.2)
 endif()
 
 # if("${target}" MATCHES "qt" OR WIN32 OR UNIX)
