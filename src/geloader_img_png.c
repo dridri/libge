@@ -17,11 +17,11 @@
 */
 
 #include "libge.h"
-#ifdef PLATFORM_mac
-#include <libpng15/png.h>
-#else
+//#ifdef PLATFORM_mac
+//#include <libpng15/png.h>
+//#else
 #include <png.h>
-#endif
+//#endif
 #include <errno.h>
 #include <string.h>
 
