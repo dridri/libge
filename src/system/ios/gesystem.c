@@ -21,21 +21,19 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <mach/clock.h>
-#include <mach/mach.h>
 
-void* MacNSGLGetProcAddress(const char *name);
+void* iOSGetProcAddress(const char *name);
+FILE* _ge_ios_fopen(const char* file, const char* mode);
 
 void* geglImportFunction(const char* func_name){
 	void* func = NULL;
-	func = MacNSGLGetProcAddress(func_name);
-//	func = glXGetProcAddress(func_name);
+	func = iOSGetProcAddress(func_name);
 	return func;
 }
 
-int MacSwapBuffers();
+int iOSSwapBuffer();
 int SystemSwapBuffers(){
-	return MacSwapBuffers();
+	return iOSSwapBuffer();
 }
 
 void geDebugOut(char* buff, int bufsz){
@@ -46,36 +44,29 @@ void geDebugOut(char* buff, int bufsz){
 	puts(buff);
 }
 
-static uint64_t t_base = 0;
+static u32 t_base = 0;
 
 u32 geGetTick(){
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-
-	host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-
+	struct timeval cTime;
+	gettimeofday(&cTime, 0);
 	if ( t_base == 0 ) {
-		t_base = mts.tv_sec*1000 + mts.tv_nsec / 1000000;
+		t_base = (cTime.tv_sec * 1000) + (cTime.tv_usec / 1000);
 	}
-
-	return mts.tv_sec*1000 + mts.tv_nsec / 1000000 - t_base;
+	return (cTime.tv_sec * 1000) + (cTime.tv_usec / 1000) - t_base;
+/*
+	struct timespec now;
+	clock_gettime(CLOCK_MONOTONIC, &now);
+	return now.tv_sec*1000 + now.tv_nsec/1000000;
+*/
 }
 
 float geGetTickFloat(){
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-
-	host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-
+	struct timeval cTime;
+	gettimeofday(&cTime, 0);
 	if ( t_base == 0 ) {
-		t_base = mts.tv_sec*1000 + mts.tv_nsec / 1000000;
+		t_base = (cTime.tv_sec * 1000) + (cTime.tv_usec / 1000);
 	}
-
-	uint64_t t = mts.tv_sec*1000 + mts.tv_nsec / 1000000;
+	uint64_t t = (cTime.tv_sec * 1000) + (cTime.tv_usec / 1000);
 	return ((double)(t - t_base)) / 1000.0;
 }
 
@@ -139,6 +130,9 @@ void* geSysFileOpen(const char* filename, int mode){
 		}
 	}
 	void* ret = (void*)fopen(file2, fp_mode);
+	if(!ret){
+		ret = _ge_ios_fopen(file2, fp_mode);
+	}
 	free(file2);
 	return ret;
 }

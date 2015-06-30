@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 LIBGE_API u32 geGetTick();
+LIBGE_API float geGetTickFloat();
 LIBGE_API int geGetTickResolution();
 LIBGE_API void geSleep(int msec);
 LIBGE_API void geUSleep(int usec);

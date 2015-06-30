@@ -315,6 +315,10 @@ extern "C" {
 #elif PLATFORM_mac
 #define GL3_PROTOTYPES 1
 #include <OpenGL/gl3.h>
+#elif PLATFORM_ios
+	#include <OpenGLES/ES2/gl.h>
+	#include <OpenGLES/ES2/glext.h>
+	#define main _ge_main
 #else
 #include <GL/gl.h>
 #include <GL/glext.h>
@@ -388,7 +392,7 @@ extern "C" {
 	#define GE_TRIANGLE_STRIP GL_TRIANGLE_STRIP
 	#define GE_LINES GL_LINES
 	#define GE_LINE_STRIP GL_LINE_STRIP
-#ifdef ANDROID
+#if (defined(ANDROID) || defined(PLATFORM_ios))
 	#define GE_PATCHES -1
 #else
 	#define GE_PATCHES GL_PATCHES

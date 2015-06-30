@@ -111,7 +111,7 @@ static int getTick(lua_State *L){
 	int argc = lua_gettop(L);
 	if(argc != 0) return luaL_error(L, "Argument error: getTicks() takes no argument.");
 
-	lua_pushnumber(L, ((float)geGetTick()) / 1000.0f);
+	lua_pushnumber(L, geGetTickFloat());
 
 	return 1;
 }
