@@ -55,6 +55,7 @@ int geInitShaders(){
 	libge_context->shaders_available = true; // Suppose shaders available
 #endif
 
+#ifndef GL_GLEXT_PROTOTYPES
 	if(libge_context->shaders_available){
 		load_func(glCreateShader);
 		load_func(glShaderSource);
@@ -92,6 +93,7 @@ int geInitShaders(){
 	}else{
 		return -1;
 	}
+#endif
 	return 0;
 }
 
