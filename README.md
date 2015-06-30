@@ -33,10 +33,12 @@ The target platform will be automatically detected. If you want to cross-compile
 run the 'cmake' command with -Dtarget option, where _TARGET_ can be :
  * linux
  * win
- * psp
- * android
+ * mac
 
 On Linux/Windows/Mac platforms, you can also choose the OpenGL support version between 2.1 and 3.0+
 with the -Dvideo option, where _VIDEO_ can be :
  * opengl21
  * opengl30
+
+Pre-compiled builds are available here :
+http://ci.drich.fr/job/LibGE/
