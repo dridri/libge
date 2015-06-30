@@ -68,11 +68,8 @@ void geInitVideo(){
 	load_func(glBlendEquation);
 	load_func(glBlendColor);
 */
-<<<<<<< HEAD
-#ifndef PLATFORM_mac
-=======
+
 #ifndef GL_GLEXT_PROTOTYPES
->>>>>>> 20d87c1c9ce10b4acea29b4969daa65b87432bf6
 #ifdef WIN32
 	load_func(glBlendEquation);
 	load_func(glTexImage3D);
