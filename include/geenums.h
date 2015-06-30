@@ -166,7 +166,7 @@ extern "C" {
 	#define SET_COLOR(c,i)c[0]=Rf(i); c[1]=Gf(i); c[2]=Bf(i); c[3]=Af(i)
 	#define SET_COLOR_fRGBA(c,r,g,b,a)c[0]=r; c[1]=g; c[2]=b; c[3]=a
 #endif
-	
+
 
 #ifndef M_PI
 	#define M_PI		3.14159265358979323846
@@ -317,10 +317,13 @@ extern "C" {
 	#include <OpenGLES/ES2/glext.h>
 	#define main _ge_main
 #elif PLATFORM_mac
+	#ifdef LIBGE_OPENGL30
 	#define GL3_PROTOTYPES 1
 	#include <OpenGL/gl3.h>
-	//#include <OpenGL/gl3ext.h>
-	//#include <GL/glext.h>
+	#else
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glext.h>
+	#endif
 #else
 	#ifdef PLATFORM_linux
 		#ifndef GL_GLEXT_PROTOTYPES

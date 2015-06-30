@@ -55,7 +55,7 @@ int geInitShaders(){
 	libge_context->shaders_available = true; // Suppose shaders available
 #endif
 
-#ifndef GL_GLEXT_PROTOTYPES
+#if( !defined(GL_GLEXT_PROTOTYPES) && !defined(PLATFORM_mac) )
 	if(libge_context->shaders_available){
 		load_func(glCreateShader);
 		load_func(glShaderSource);
@@ -162,11 +162,13 @@ void _geShaderSource(ge_Shader* shader, int type, char* src){
 	if(!libge_context->shaders_available || type == 0xFFFFFFFF)return;
 	gePrintDebug(0x100, "_geShaderSource(0x%08lX, %d, \"...\")\n", shader, type);
 	u32 glId = glCreateShader(type);
-	if(type==GL_GEOMETRY_SHADER)shader->gShaderId=glId;
 	if(type==GL_VERTEX_SHADER)shader->vShaderId=glId;
 	if(type==GL_FRAGMENT_SHADER)shader->fShaderId=glId;
+#ifndef PLATFORM_mac
+        if(type==GL_GEOMETRY_SHADER)shader->gShaderId=glId;
 	if(type==GL_TESS_CONTROL_SHADER)shader->tcShaderId=glId;
 	if(type==GL_TESS_EVALUATION_SHADER)shader->teShaderId=glId;
+#endif
 	gePrintDebug(0x100, "_geShaderSource : shader initialized\n");
 
 	char* buf = NULL;
@@ -191,17 +193,25 @@ void _geShaderSource(ge_Shader* shader, int type, char* src){
 
  	if(no_include == false){
 		char* header_file = "default_shaders/geshader_gl2v.h";
-		void* header_bin = &GE_BLOB(geshader_gl2v_h_start);
-		t_ptr header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2v_h_size);
+		void* header_bin = NULL;
+		t_ptr header_bin_sz = 0;
+#ifndef PLATFORM_mac
+		header_bin = &GE_BLOB(geshader_gl2v_h_start);
+		header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2v_h_size);
+#endif
+#ifndef PLATFORM_mac
 		if(type == GL_GEOMETRY_SHADER){
 			header_file = "default_shaders/geshader_gl2g.h";
 			header_bin = &GE_BLOB(geshader_gl2g_h_start);
 			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2g_h_size);
 		}
+#endif
 		if(type == GL_FRAGMENT_SHADER){
 			header_file = "default_shaders/geshader_gl2f.h";
+#ifndef PLATFORM_mac
 			header_bin = &GE_BLOB(geshader_gl2f_h_start);
 			header_bin_sz = (t_ptr)&GE_BLOB(geshader_gl2f_h_size);
+#endif
 		}
 		header = _ge_shader_load_header(header_file, header_bin, header_bin_sz, &headerlen);
 	}

@@ -16,7 +16,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef LIBGE_OPENGL30
 #include "../../video/opengl30/ge_viddrv.h"
+#else
+#include "../../video/opengl21/ge_viddrv.h"
+#endif
 
 typedef struct LibGE_MacContext {
 	int flags;

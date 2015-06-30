@@ -36,8 +36,12 @@
 #endif
 #define BUFFER_OFFSET(a) ((char*)NULL + (a))
 
-typedef ptrdiff_t GLsizeiptrARB;
-typedef ptrdiff_t GLintptrARB;
+#ifndef GLsizeiptrARB
+//typedef ptrdiff_t GLsizeiptrARB;
+#endif
+#ifndef GLintptrARB
+//typedef ptrdiff_t GLintptrARB;
+#endif
 
 void* geglImportFunction(const char* func_name);
 int geCheckExtensionAvailable(const char* name);

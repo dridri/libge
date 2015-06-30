@@ -346,7 +346,11 @@ void geRendererUpdate(ge_Renderer* render){
 			glActiveTexture(GL_TEXTURE7);
 			glDisable(GL_TEXTURE_2D);
 			glEnable(GL_TEXTURE_3D);
-			glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
+#ifdef PLATFORM_mac
+			glBindTexture(GL_TEXTURE_2D, light->shadow->id);
+#else
+                        glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
+#endif
 			glUniform1i(render->shader->loc_lights[j].loc_shadow, 7);
 		}
 	}
@@ -449,16 +453,21 @@ void geLightInitShadow(ge_Light* light, ge_Shader* shader, int size, int depth, 
 	glBindFramebuffer(GL_FRAMEBUFFER, light->shadow_fbo->id);
 	light->shadow = (ge_Image*)geCreateSurface3D(light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0xFFFFFFFF);
 	glGenTextures(1, &light->shadow->id);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, light->shadow->id);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+#ifdef PLATFORM_mac
+	int target = GL_TEXTURE_2D; // TODO
+#else
+	int target = GL_TEXTURE_2D_ARRAY;
+#endif
+	glBindTexture(target, light->shadow->id);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+	glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+	glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+	glTexImage3D(target, 0, GL_DEPTH_COMPONENT, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light->shadow->id, 0, 0);
 	/*
 	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RG32F, light->shadow_fbo->texture->width, light->shadow_fbo->texture->height, depth, 0, GL_RG, GL_FLOAT, NULL);

@@ -115,8 +115,8 @@ if("${target}" MATCHES "qt" OR "${video}" MATCHES "opengl*")
 	include_directories(${OPENGL_INCLUDE_DIR})
 endif()
 
-if("${video}" MATCHES "opengl20")
-	add_definitions(-DLIBGE_OPENGL20)
+if("${video}" MATCHES "opengl21")
+	add_definitions(-DLIBGE_OPENGL21)
 else()
 	add_definitions(-DLIBGE_OPENGL30)
 endif()
@@ -134,6 +134,7 @@ if(NOT WIN32 AND NOT mini AND NOT "${target}" MATCHES "ios")
 	find_package(Freetype REQUIRED)
 	find_package(Lua52 REQUIRED)
 	find_package(ZLIB REQUIRED)
+	find_package(LibMad REQUIRED)
 	include_directories(${PNG_INCLUDE_DIRS})
 	include_directories(${JPEG_INCLUDE_DIRS})
 	include_directories(${FREETYPE_INCLUDE_DIRS})
@@ -448,7 +449,7 @@ else()
 	add_library(ge SHARED ${SOURCES})
 endif()
 
-if(WIN32)
+if("${target}" MATCHES "win*")
 	set(LIBS ${LIBS}
 		mad
 		png
@@ -463,7 +464,7 @@ if(WIN32)
 		gdi32
 		user32
 		winmm)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+elseif("${target}" MATCHES "mac*")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework Cocoa -framework OpenGL")
 	set(LIBS ${LIBS}
@@ -474,8 +475,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		)
 	if(NOT mini)
 		set(LIBS ${LIBS}
-		mad
 			bz2
+			${LIBMAD_LIBRARY}
 			${LUA_LIBRARY}
 			${JPEG_LIBRARY}
 			${PNG_LIBRARY}
@@ -483,7 +484,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 			${FREETYPE_LIBRARY}
 		)
 	endif()
-elseif(UNIX)
+elseif("${target}" MATCHES "linux*")
 	set(LIBS ${LIBS}
 		m
 #		OpenCL
