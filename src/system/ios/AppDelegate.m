@@ -6,7 +6,6 @@
 //  Copyright (c) 2015 Adrien AUBRY. All rights reserved.
 //
 
-#include <libge/libge.h>
 #include "../../ge_internal.h"
 #import "AppDelegate.h"
 
