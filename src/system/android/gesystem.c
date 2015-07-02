@@ -207,7 +207,7 @@ char* convert_path(const char* path){
 	int i, j;
 	
 	strcpy(buf0, path);
-	gePrintDebug(0x100, "convert : '%s' =>\n", buf0);
+// 	gePrintDebug(0x100, "convert : '%s' =>\n", buf0);
 	for(i=0; buf0[i]!='\0'; i++){
 		if(buf0[i] == '\\'){
 			buf0[i] = '/';
@@ -219,7 +219,7 @@ char* convert_path(const char* path){
 			buf0[j] = 0x0;
 		}
 	}
-	gePrintDebug(0x100, "          '%s'\n", buf0);
+// 	gePrintDebug(0x100, "          '%s'\n", buf0);
 
 	for(i=0, j=0; i<strlen(buf0); i++, j++){
 		if(!strncmp(&buf0[i], "/../", 4) && i > 0){
@@ -227,8 +227,8 @@ char* convert_path(const char* path){
 			if(!j)j--;
 			buf[j+1] = 0x0;
 			i += 2;
-			gePrintDebug(0x100, "  [%d] %s\n", i, buf0);
-			gePrintDebug(0x100, "   [%d] %s\n", j, buf);
+// 			gePrintDebug(0x100, "  [%d] %s\n", i, buf0);
+// 			gePrintDebug(0x100, "   [%d] %s\n", j, buf);
 		}else{
 			buf[j] = buf0[i];
 		}
