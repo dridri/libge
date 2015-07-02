@@ -534,6 +534,11 @@ void geLuaDoString(ge_LuaScript* script, const char* buf){
 void geLuaDoFile(ge_LuaScript* script, const char* file){
 	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
 
+	if(!fp){
+		geSetLuaError(script, "File not found");
+		return;
+	}
+
 	geFileSeek(fp, 0, GE_FILE_SEEK_END);
 	size_t sz = geFileTell(fp);
 	char* buf = (char*)geMalloc(sz + 1);

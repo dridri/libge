@@ -256,7 +256,7 @@ void* geSysFileOpen(const char* filename, int mode){
 	}
 	if(!ret){
 		char* path = convert_path(filename);
-		gePrintDebug(0x100, "Android converted path : '%s'\n", path);
+// 		gePrintDebug(0x100, "Android converted path : '%s'\n", path);
 		ret = AAssetManager_open(context->state->activity->assetManager, path, AASSET_MODE_STREAMING);
 		geFree(path);
 		isAsset = true;

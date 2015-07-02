@@ -22,11 +22,15 @@ UserdataPrototypes(Font, ge_Font*);
 
 static int dofile(lua_State *L){
 	int argc = lua_gettop(L);
-	if(argc != 1) return luaL_error(L, "Argument error: dofile(file) takes one argument.");
+	if(argc != 1 && argc != 2) return luaL_error(L, "Argument error: dofile(file [, fatal_on_notfound = true ]) takes one or two arguments.");
 
 	const char* file = luaL_checkstring(L, 1);
+	bool fatal = ( argc == 2 ) ? lua_toboolean(L, 2) : true;
+	bool crit = geDebugCritical(fatal);
 
 	geLuaDoFile(ge_ScriptFromState(L), file);
+
+	geDebugCritical(crit);
 /*
 	ge_File* fp = geFileOpen(file, GE_FILE_MODE_READ | GE_FILE_MODE_BINARY);
 

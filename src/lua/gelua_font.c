@@ -149,7 +149,7 @@ static int Font_print(lua_State* L){
 
 	lua_settop(L, argc + 1);
 
-	geFontPrintScreen(luaL_checkint(L, 2), luaL_checkint(L, 3), fnt, luaL_checkstring(L, 4), color);
+	geFontPrintScreen(luaL_checknumber(L, 2), luaL_checknumber(L, 3), fnt, luaL_checkstring(L, 4), color);
 
 	return 1;
 }
@@ -204,7 +204,7 @@ static int Font_newIndex(lua_State* L){
 // 	printf("LUA::Font_newIndex key = \"%s\"\n", key);
 
 	if(!strcmp(key, "size")){
-		geFontSize(fnt, luaL_checkint(L, 3));
+		geFontSize(fnt, luaL_checknumber(L, 3));
 	}else{
 		lua_pushvalue(L, 2);
 		lua_pushvalue(L, 3);

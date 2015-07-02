@@ -59,41 +59,32 @@ static int Image_create(lua_State *L){
 }
 
 static int Image_load(lua_State *L){
-	printf("mylock\n");
 //	lua_lock(L);
-	printf("Image_load 1\n");
 	int argc = lua_gettop(L); 
 	if (argc != 1 && argc != 2){
 		return luaL_error(L, "Argument error: geImage.Load(path, [flags]) takes one or two arguments.");
 	}
-	printf("Image_load 2\n");
 // 	lua_gc(L, LUA_GCCOLLECT, 0);
-	printf("Image_load 3\n");
 	
 	char file[2048] = "";
 	char tmp[2048] = "";
 	strncpy(tmp, luaL_checkstring(L, 1), 2048);
 	ge_LuaScript* script = ge_ScriptFromState(L);
 	sprintf(file, "%s%s%s", script->root, script->root[0] ? "/" : "", tmp);
-	printf("Image_load 4\n");
 
 	int flags = 0;
 	if(argc == 2){
 		flags = luaL_checkint(L, 2);
 	}
-	printf("Image_load 5\n");
 
 	ge_Image* img = geLoadImageOptions(file, flags);
-	printf("Image_load 6\n");
 
 	if(!img){
 		return luaL_error(L, "Error while loading image \"%s\"", file);
 	}
 
-	printf("Image_load 7\n");
 //	lua_unlock(L);
 	alloc_img(L, img);
-	printf("Image_load 8\n");
 
 	return 1;
 }
@@ -148,8 +139,8 @@ static int Image_blit(lua_State* L){
 		return luaL_error(L, "Argument error: geImage.Blit(x, y, image, [sx, sy, width, height, flags]) takes at least 3 arguments.");
 	}
 
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
+	int x = luaL_checknumber(L, 1);
+	int y = luaL_checknumber(L, 2);
 	lua_getfield(L, 3, "img");
 	ge_Image* img = *toImage(L, -1);
 	int sx = 0;
@@ -159,16 +150,16 @@ static int Image_blit(lua_State* L){
 	int flags = 0;
 
 	if(argc > 3){
-		sx = luaL_checkint(L, 4);
+		sx = luaL_checknumber(L, 4);
 	}
 	if(argc > 4){
-		sy = luaL_checkint(L, 5);
+		sy = luaL_checknumber(L, 5);
 	}
 	if(argc > 5){
-		width = luaL_checkint(L, 6);
+		width = luaL_checknumber(L, 6);
 	}
 	if(argc > 6){
-		height = luaL_checkint(L, 7);
+		height = luaL_checknumber(L, 7);
 	}
 	if(argc > 7){
 		flags = luaL_checkint(L, 8);
@@ -192,10 +183,10 @@ static int Image_stretched(lua_State* L){
 		return luaL_error(L, "Argument error: geImage.stretch(x, y, width, height, image, [sx, sy, w, h, flags]) takes at least 5 arguments.");
 	}
 
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
+	int x = luaL_checknumber(L, 1);
+	int y = luaL_checknumber(L, 2);
+	int w = luaL_checknumber(L, 3);
+	int h = luaL_checknumber(L, 4);
 	lua_getfield(L, 5, "img");
 	lua_pushstring(L, "img");
 	lua_gettable(L, 5);
@@ -207,16 +198,16 @@ static int Image_stretched(lua_State* L){
 	int flags = 0;
 
 	if(argc > 5){
-		sx = luaL_checkint(L, 6);
+		sx = luaL_checknumber(L, 6);
 	}
 	if(argc > 6){
-		sy = luaL_checkint(L, 7);
+		sy = luaL_checknumber(L, 7);
 	}
 	if(argc > 7){
-		width = luaL_checkint(L, 8);
+		width = luaL_checknumber(L, 8);
 	}
 	if(argc > 8){
-		height = luaL_checkint(L, 9);
+		height = luaL_checknumber(L, 9);
 	}
 	if(argc > 9){
 		flags = luaL_checkint(L, 10);
@@ -240,10 +231,10 @@ static int Image_stretchedRotated(lua_State* L){
 		return luaL_error(L, "Argument error: geImage.stretch(x, y, width, height, image, angle, [sx, sy, w, h, flags]) takes at least 6 arguments.");
 	}
 
-	int x = luaL_checkint(L, 1);
-	int y = luaL_checkint(L, 2);
-	int w = luaL_checkint(L, 3);
-	int h = luaL_checkint(L, 4);
+	int x = luaL_checknumber(L, 1);
+	int y = luaL_checknumber(L, 2);
+	int w = luaL_checknumber(L, 3);
+	int h = luaL_checknumber(L, 4);
 	double angle = luaL_checknumber(L, 6);
 	lua_getfield(L, 5, "img");
 	lua_pushstring(L, "img");
@@ -256,16 +247,16 @@ static int Image_stretchedRotated(lua_State* L){
 	int flags = 0;
 
 	if(argc > 6){
-		sx = luaL_checkint(L, 7);
+		sx = luaL_checknumber(L, 7);
 	}
 	if(argc > 7){
-		sy = luaL_checkint(L, 8);
+		sy = luaL_checknumber(L, 8);
 	}
 	if(argc > 8){
-		ex = luaL_checkint(L, 9);
+		ex = luaL_checknumber(L, 9);
 	}
 	if(argc > 9){
-		ey = luaL_checkint(L, 10);
+		ey = luaL_checknumber(L, 10);
 	}
 	if(argc > 10){
 		flags = luaL_checkint(L, 11);
@@ -449,9 +440,9 @@ static int Image_newIndex(lua_State* L){
 //	gePrintDebug(0x100, "LUA::Image_newIndex key = \"%s\"\n", key);
 
 	if(!strcmp(key, "width")){
-		dest->width = luaL_checkint(L, 3);
+		dest->width = luaL_checknumber(L, 3);
 	}else if(!strcmp(key, "height")){
-		dest->height = luaL_checkint(L, 3);
+		dest->height = luaL_checknumber(L, 3);
 	}else if(!strcmp(key, "color")){
 		dest->color = *toColor(L, 3);
 	}else if(!strcmp(key, "flags")){
@@ -517,12 +508,8 @@ static const luaL_Reg Image_meta[] = {
 };
 
 static void alloc_img(lua_State *L, ge_Image* img){
-	printf("alloc_img 1\n");
-
 	lua_createtable(L, 0, 0);
-	printf("alloc_img 2\n");
 	luaL_setfuncs(L, Image_methods, 0);
-	printf("alloc_img 3\n");
 /*
 	lua_createtable(L, 0, 0);
 	luaL_setfuncs(L, Image_meta, 0);
