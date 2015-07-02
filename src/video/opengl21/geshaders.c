@@ -51,9 +51,8 @@ int geInitShaders(){
 		libge_context->shaders_available = true;
 	}
 
-#ifdef TARGET_qt
-	libge_context->shaders_available = true; // Suppose shaders available
-#endif
+	// Assume shaders are available
+	libge_context->shaders_available = true;
 
 #if( !defined(GL_GLEXT_PROTOTYPES) && !defined(PLATFORM_mac) )
 	if(libge_context->shaders_available){
