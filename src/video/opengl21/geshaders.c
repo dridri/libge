@@ -219,7 +219,7 @@ void _geShaderSource(ge_Shader* shader, int type, char* src){
 		gePrintDebug(0x100, "_geShaderSource : Header loaded\n");
 		fullheader = (char*)geMalloc(sizeof(char)*(headerlen + 256));
 		buf = (char*)geMalloc(sizeof(char)*(srclen + headerlen + 256));
-#ifndef PLATFORM_mac
+#ifdef PLATFORM_mac
 		sprintf(fullheader, "#define PLATFORM_mac\n");
 #endif
 		sprintf(fullheader, "%s#define LOW_PROFILE\n%s\n", fullheader, header);
