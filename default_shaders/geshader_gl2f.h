@@ -44,6 +44,9 @@ uniform vec3 ge_CameraPosition;
 #define in varying
 #define out varying
 #define ge_TexCoord0 gl_TexCoord[0]
+#ifdef PLATFORM_mac
+#define texture texture2D
+#endif
 
 #define ge_FragColor gl_FragColor
 
