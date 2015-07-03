@@ -42,7 +42,9 @@ struct ge_struct_Light {
 	vec3 targetVector;
 	float CosOuterConeAngle;
 	float CosInnerMinusOuterAngle;
+#ifndef PLATFORM_mac
 	sampler2DArray shadow;
+#endif
 };
 struct ge_struct_material {
 	vec4 ambient;
