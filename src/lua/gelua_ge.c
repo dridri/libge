@@ -19,6 +19,7 @@
 #include "ge_lua.c"
 
 UserdataPrototypes(Font, ge_Font*);
+UserdataPrototypes(Color, u32);
 
 static int dofile(lua_State *L){
 	int argc = lua_gettop(L);
@@ -244,6 +245,15 @@ static int memoryUsage(lua_State* L){
 	return 1;
 }
 
+static int drawLineScreen(lua_State* L){
+	int argc = lua_gettop(L);
+	if(argc != 5) return luaL_error(L, "Argument error: geDrawLineScreen(x0, y0, x1, y1, color) must take five arguments.");
+
+	geDrawLineScreen( luaL_checknumber(L, 1), luaL_checknumber(L, 2), luaL_checknumber(L, 3), luaL_checknumber(L, 4), *toColor(L, 5) );
+
+	return 1;
+}
+
 
 static const luaL_Reg f_ge[] = {
 	{"geCreateMainWindow", createMainWindow},
@@ -257,6 +267,8 @@ static const luaL_Reg f_ge[] = {
 
 	{"geLineWidth", lineWidth},
 	{"geDrawOffset", offset},
+
+	{"geDrawLineScreen", drawLineScreen},
 
 	{"geTextInput", textInput},
 	{"geShowAds", showAds},
