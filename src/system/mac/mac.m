@@ -218,7 +218,9 @@ void MacOpenWindow(int* Width, int* Height, int flags){
 
 	NSOpenGLPixelFormatAttribute formatAttrib[] =
 	{
+#ifdef LIBGE_OPENGL30
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+#endif
     //    NSOpenGLPFAOpenGLProfile, 0x3200,
         NSOpenGLPFAColorSize    , 24                           ,
         NSOpenGLPFAAlphaSize    , 8                            ,

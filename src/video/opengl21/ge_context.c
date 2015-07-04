@@ -19,7 +19,7 @@
 #include "../../ge_internal.h"
 #include "ge_viddrv.h"
 
-static char _ge_shader_ogl2_generic_2d_vert[] = 
+static char _ge_shader_ogl2_generic_2d_vert[] =
 	"#define NO_DEFAULT_INCLUDE\n"
 	"#define ge_VertexTexcoord gl_MultiTexCoord0\n"
 	"#define ge_VertexColor gl_Color\n"
@@ -34,7 +34,7 @@ static char _ge_shader_ogl2_generic_2d_vert[] =
 	"	ge_Position = ge_MatrixProjection * ge_VertexPosition;\n"
 	"}\n";
 
-static char _ge_shader_ogl2_generic_2d_frag[] = 
+static char _ge_shader_ogl2_generic_2d_frag[] =
 	"#define NO_DEFAULT_INCLUDE\n"
 	"#define ge_Color gl_Color\n"
 	"#define ge_TexCoord0 gl_TexCoord[0].st\n"
