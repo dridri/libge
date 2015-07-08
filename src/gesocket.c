@@ -111,7 +111,11 @@ void geSocketAccept(ge_Socket* socket, int client){
 }
 
 int geSocketConnect(ge_Socket* socket){
-	return connect(socket->sock, (SOCKADDR*)&socket->sin, sizeof(socket->sin));
+	int ret = connect(socket->sock, (SOCKADDR*)&socket->sin, sizeof(socket->sin));
+	if(ret < 0){
+		gePrintDebug(0x100, "geSocketConnect : %d (%s)\n", errno, strerror(errno));
+	}
+	return ret;
 }
 
 int geSocketServerSend(ge_Socket* socket, int client, void* data, int size){
