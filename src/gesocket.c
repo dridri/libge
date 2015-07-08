@@ -43,18 +43,24 @@ ge_Socket* geCreateSocket(int type, const char* address, int port, int port_type
 		bind(Socket->sock, (SOCKADDR*)&Socket->sin, sizeof(Socket->sin));
 #endif
 	}else{
-		struct hostent* hp;
+		struct hostent* hp = 0;
 		struct in_addr addr;
 		addr.s_addr = inet_addr(address);
-		hp = gethostbyaddr((char*)&addr, 4, AF_INET);
+		if(!addr.s_addr){
+			hp = gethostbyaddr((char*)&addr, 4, AF_INET);
+		}
 	/*	memcpy((char*)&Socket->sin.sin_addr, hp->h_addr, hp->h_length);
 		Socket->sin.sin_family = hp->h_addrtype;
 		Socket->sin.sin_port = htons(port);
 	*/
-		Socket->sin.sin_addr = *(IN_ADDR *) hp->h_addr;
+		if(hp){
+			Socket->sin.sin_addr = *(IN_ADDR *) hp->h_addr;
+		}else{
+			Socket->sin.sin_addr = addr;
+		}
 		Socket->sin.sin_family = AF_INET;
 		Socket->sin.sin_port = htons(port);
-		Socket->sock = socket(hp->h_addrtype, port_type, 0);
+		Socket->sock = socket(hp ? hp->h_addrtype :  AF_INET, port_type, 0);
 		gePrintDebug(0x100, "Socket->sock : %d (%s)\n", Socket->sock, strerror(errno));
 	}
 
