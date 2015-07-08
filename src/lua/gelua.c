@@ -31,6 +31,7 @@ int geLuaInit_vertex(lua_State* L);
 int geLuaInit_renderer(lua_State* L);
 int geLuaInit_thread(lua_State* L);
 int geLuaInit_joystick(lua_State* L);
+int geLuaInit_socket(lua_State* L);
 
 ge_LuaScript* scripts[32] = { NULL };
 
@@ -509,6 +510,7 @@ ge_LuaScript* geLoadLuaScript(const char* file){
 	geLuaInit_renderer(script->L);
 	geLuaInit_thread(script->L);
 	geLuaInit_joystick(script->L);
+	geLuaInit_socket(script->L);
 
 	if(file && file[0] && script->data && script->buf_size > 0){
 		int s = luaL_loadbuffer(script->L, script->data, script->buf_size, NULL);

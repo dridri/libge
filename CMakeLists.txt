@@ -185,6 +185,7 @@ set(SOURCES ${SOURCES}
 	src/lua/gelua_renderer.c
 	src/lua/gelua_thread.c
 	src/lua/gelua_joystick.c
+	src/lua/gelua_socket.c
 	src/gui/gegui.c
 	src/gui/gegui_button.c
 	src/gui/gegui_checkbox.c

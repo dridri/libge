@@ -24,7 +24,7 @@ ge_Socket* geCreateSocket(int type, const char* address, int port, int port_type
 	geInitSocket();
 
 	ge_Socket* Socket = (ge_Socket*)geMalloc(sizeof(ge_Socket));
-	gePrintDebug(0x100, "geCreateSocket(%d, %s, ùd, %d)\n", type, address, port, port_type);
+	gePrintDebug(0x100, "geCreateSocket(%d, %s, %d, %d)\n", type, address, port, port_type);
 	Socket->type = type;
 	if(type == GE_SOCKET_TYPE_SERVER){
 #ifndef PSP
@@ -119,7 +119,8 @@ int geSocketServerReceive(ge_Socket* socket, int client, void* data, int size){
 }
 
 int geSocketSend(ge_Socket* socket, void* data, int size){
-	return send(socket->sock, data, size, 0);
+	int ret = send(socket->sock, data, size, 0);
+	return ret;
 }
 
 int geSocketReceive(ge_Socket* socket, void* data, int size){
