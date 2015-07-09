@@ -189,8 +189,7 @@ static int textInput(lua_State *L){
 
 	if(done){
 	#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
-		//TODO
-		lua_pushstring(L, luaL_checkstring(L, 2));
+		lua_pushstring(L,"<none>");
 	#else
 		lua_pushstring(L, input->text);
 	#endif

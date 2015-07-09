@@ -31,7 +31,9 @@ static ge_GuiWidget* _ge_gui_focused_widget = NULL;
 
 void geGuiStyleFont(ge_GuiStyle* style, ge_Font* font, int size){
 	style->font = font;
-	geFontSize(font, size);
+	if(size != font->size){
+		geFontSize(font, size);
+	}
 }
 
 void _geGui_MakeResizableObject(ge_GuiWidget* obj, ge_GuiStyle* style){

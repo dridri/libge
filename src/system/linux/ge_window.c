@@ -266,6 +266,9 @@ int _ev_thread(int args, void* argp){
 					break;
 				case KeyPress:
 					key = (int)XLookupKeysym(&event.xkey, 0);
+					if(key == XK_ISO_Level3_Shift){
+						key = XK_Alt_L;
+					}
 					if(key >= 0xFF00){
 						key -= 0xFF00;
 					}
