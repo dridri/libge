@@ -116,6 +116,7 @@ LIBGE_API void geRegisterSystemMessageCallback(void* cb);
 LIBGE_API void geCustomProcAdress(void* (*fct)(const char*));
 
 LIBGE_API void geShowAds(int type);
+LIBGE_API bool geIMEInput(void (*cb)(void*), void* cbdata, char* buf, int max);
 
 LIBGE_API int geEnable(int what);
 LIBGE_API int geDisable(int what);

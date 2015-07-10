@@ -78,6 +78,8 @@
 #define GE_BLOB(x) _binary_##x
 #endif
 
+void ge_BaseInit();
+
 void ge_Splashscreen();
 void geGraphicsInit();
 void geInitFps();

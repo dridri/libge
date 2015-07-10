@@ -109,3 +109,7 @@ int MacGetLastPressed(){
 	last_pressed = 0;
 	return ret;
 }
+
+void geQuit(){
+	exit(0);
+}

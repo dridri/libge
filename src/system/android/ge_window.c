@@ -71,6 +71,7 @@ static Engine engine;
 static bool hasSurface = false;
 static LibGE_AndroidContext* _ge_android_context = NULL;
 static bool geCreateMainWindow_called = false;
+static bool exiting = false;
 
 static bool v_keys[GE_KEYS_COUNT] = { 0 };
 static ATouch touches[16] = { { 0, 0, 0, 0.0, 0.0, 0.0 } };
@@ -94,17 +95,23 @@ static ge_Image* loadRawCursor();
 static void engine_term_display(Engine* engine) {
 	if (engine->display != EGL_NO_DISPLAY) {
 		eglMakeCurrent(engine->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-		if (engine->context != EGL_NO_CONTEXT) {
-			eglDestroyContext(engine->display, engine->context);
-		}
-		if (engine->surface != EGL_NO_SURFACE) {
-			eglDestroySurface(engine->display, engine->surface);
-		}
+	}
+	if (engine->context != EGL_NO_CONTEXT) {
+		eglDestroyContext(engine->display, engine->context);
+	}
+	if (engine->surface != EGL_NO_SURFACE) {
+		eglDestroySurface(engine->display, engine->surface);
+	}
+	if (engine->aSurface) {
+		ANativeWindow_release(engine->aSurface);
+	}
+	if (engine->display != EGL_NO_DISPLAY) {
 		eglTerminate(engine->display);
 	}
 	engine->display = EGL_NO_DISPLAY;
 	engine->context = EGL_NO_CONTEXT;
 	engine->surface = EGL_NO_SURFACE;
+	engine->aSurface = 0;
 }
 
 int geCreateMainWindow(const char* title, int Width, int Height, int flags){
@@ -367,7 +374,8 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
 				eglDestroySurface(engine->display, engine->surface);
 				engine->surface = EGL_NO_SURFACE;
 			}
-			if(hasSurface){
+			if(hasSurface && engine->aSurface){
+				ANativeWindow_release(engine->aSurface);
 				engine->aSurface = 0;
 			}
 			break;
@@ -404,7 +412,8 @@ void PollEvents(){
 			if (_ge_android_context->state->destroyRequested != 0) {
 				engine_term_display(&engine);
 				geDebugTerm();
-				exit(0);
+				exiting = false;
+// 				exit(0);
 				return;
 			}
 		}
@@ -474,7 +483,8 @@ void AndroidReadKeys(ge_Keys* keys){
 void android_main(struct android_app* state){
 	LOGW("\n\n\n\n\n\n\n\n\n\n\n");
 	LOGW("LibGE For Android beta bordel de merde !\n");
-	chdir("/data/data/com.ssp.libge/files");
+
+	ge_BaseInit();
 
 	memset(&engine, 0, sizeof(engine));
 	state->userData = &engine;
@@ -482,6 +492,7 @@ void android_main(struct android_app* state){
 	state->onInputEvent = engine_handle_input;
 	engine.app = state;
 	engine.aSurface = engine.app->window;
+	engine.env = state->activity->env;
 
 	_ge_android_context = (LibGE_AndroidContext*)malloc(sizeof(LibGE_AndroidContext));
 	_ge_android_context->state = state;
@@ -489,26 +500,12 @@ void android_main(struct android_app* state){
 	while(!state->window){
 		PollEvents();
 	}
-	/*
-	geInit();
-	geDebugMode(GE_DEBUG_ALL);
-	geCreateMainWindow("LibGE", -1, -1, GE_WINDOW_FULLSCREEN);
 
-	glClearColor(1.0, 0.0, 1.0, 1.0);
-	while (1) {
-		glClear(GL_COLOR_BUFFER_BIT);
-		PollEvents();
-		if(engine.display != EGL_NO_DISPLAY && engine.surface != EGL_NO_SURFACE){
-			eglSwapBuffers(engine.display, engine.surface);
-		}
-	}
-	*/
 	main(0, NULL);
 }
 
 JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setSurface(JNIEnv* env, jobject obj, jobject surface, jint ofsx, jint ofsy)
 {
-	engine.env = env;
 	engine.aJavaSurface = surface;
 	LOGI("Java_com_drich_libge_LibGE_setSurface(%p, %d, %d)", surface, ofsx, ofsy);
 	engine.ofsx = ofsx;
@@ -534,9 +531,37 @@ JNIEXPORT jint JNICALL Java_com_drich_libge_LibGE_adsType(JNIEnv* env, jobject o
 	return java_ads_type;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_setAdsVisible(JNIEnv* env, jobject obj, jboolean visible)
+JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setAdsVisible(JNIEnv* env, jobject obj, jboolean visible)
 {
 	java_ads_visible = visible;
+}
+
+static bool java_ime_visible = false;
+static char* java_ime_ret = NULL;
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_imeVisible(JNIEnv* env, jobject obj)
+{
+	return java_ime_visible;
+}
+
+JNIEXPORT void JNICALL Java_com_drich_libge_LibGE_setImeState(JNIEnv* env, jobject obj, jint state, jstring jret)
+{
+	if(state == 1){
+		jboolean isCopy = false;
+		char* ret = (char*)(*env)->GetStringUTFChars(env, jret, &isCopy);
+		java_ime_ret = strdup(ret);
+		if(isCopy){
+			(*env)->ReleaseStringUTFChars(env, jret, ret);
+		}
+	}
+	if(state == 1 || state == 2){
+		java_ime_visible = false;
+	}
+}
+
+static bool quit_app = false;
+JNIEXPORT jboolean JNICALL Java_com_drich_libge_LibGE_exiting(JNIEnv* env, jobject obj)
+{
+	return quit_app;
 }
 
 void geShowAds(int type){
@@ -548,6 +573,27 @@ void geShowAds(int type){
 		PollEvents();
 		geSleep(10);
 	}
+}
+
+bool geIMEInput(void (*cb)(void*), void* cbdata, char* buf, int max){
+	java_ime_visible = true;
+	while(java_ime_visible){
+// 		if(cb){
+// 			cb(cbdata);
+// 		}
+		mouse_warp_x = mouse_warp_y = 0;
+		PollEvents();
+		geSleep(10);
+	}
+	if(java_ime_ret){
+		strncpy(buf, java_ime_ret, max - 1);
+		buf[max - 1] = 0x0;
+		free(java_ime_ret);
+		java_ime_ret = NULL;
+		return true;
+	}
+	memset(buf, 0, max);
+	return false;
 }
 
 LibGE_AndroidContext* _ge_GetAndroidContext(){
@@ -603,4 +649,14 @@ static ge_Image* loadRawCursor(){
 
 	geUpdateImage(surface);
 	return surface;
+}
+
+void geQuit(){
+	exiting = true;
+	ANativeActivity_finish(_ge_android_context->state->activity);
+	while(exiting){
+		geSleep(10);
+		PollEvents();
+	}
+	quit_app = true;
 }

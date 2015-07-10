@@ -620,3 +620,7 @@ int LinuxGetLastPressed(){
 	printf("LinuxGetLastPressed : %X\n", ret);
 	return ret;
 }
+
+void geQuit(){
+	exit(0);
+}

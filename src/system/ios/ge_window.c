@@ -102,3 +102,7 @@ int iOSGetLastPressed(){
 	last_pressed = 0;
 	return ret;
 }
+
+void geQuit(){
+	exit(0);
+}

@@ -556,3 +556,7 @@ void WindowsGetPressedKeys(u8* k){
 int WindowsGetLastPressed(){
 	return last_key;
 }
+
+void geQuit(){
+	exit(0);
+}

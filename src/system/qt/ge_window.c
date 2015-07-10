@@ -107,3 +107,7 @@ void LinuxGetPressedKeys(u8* k){
 int LinuxGetLastPressed(){
 	return 0;
 }
+
+void geQuit(){
+	exit(0);
+}

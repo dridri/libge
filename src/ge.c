@@ -50,6 +50,14 @@ char* _ge_BuildPath(const char* path, const char* filename){
 	return ret;
 }
 
+void ge_BaseInit(){
+	logfile = NULL;
+	debug_mode = GE_DEBUG_ERROR | GE_DEBUG_PRINT;
+	debug_critical = true;
+	memset(_ge_path_build, 0, sizeof(_ge_path_build));
+	_ge_path_build_i = 0;
+}
+
 void geInit(){
 	libge_context = (LibGE_Context*)geMalloc(sizeof(LibGE_Context));
 	libge_context->mouse_x = 0;
@@ -241,7 +249,7 @@ void gePrintDebug(int level, const char *format, ...){
 		fflush(stdout);
 #endif
 	}
-	if(logfile && debug_mode & GE_DEBUG_LOGFILE){
+	if((logfile) && (debug_mode & GE_DEBUG_LOGFILE)){
 		int x = strlen(buff2);
 		if(x > 0 && buff2[x-1] != '\n'){
 			buff2[x] = '\n';

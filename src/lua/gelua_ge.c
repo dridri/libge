@@ -138,9 +138,24 @@ static int textInput(lua_State *L){
 	ge_Font* font = *toFont(L, -1);
 
 #if (defined(PLATFORM_android) || defined(PLATFORM_ios))
-	ge_GuiWindow* win = NULL;
-	bool done = true;
-//TODO
+	float dt=0.0f, t = geGetTick() / 1000.0f;
+	void show_back(void* data){
+		geClearScreen();
+		lua_pushvalue(L, 4);
+		lua_pushvalue(L, 5);
+		lua_pushnumber(L, t);
+		lua_pushnumber(L, dt);
+		lua_call(L, 3, 0);
+		geSwapBuffers();
+		dt = geGetTick() / 1000.0f - t;
+		t = geGetTick() / 1000.0f;
+	}
+	char text[2048] = "";
+	if(geIMEInput(show_back, NULL, text, sizeof(text))){
+		lua_pushstring(L, text);
+	}else{
+		lua_pushstring(L, luaL_checkstring(L, 2));
+	}
 #else
 	ge_GuiWindow* win = geGuiCreateWindow(luaL_checkstring(L, 1), geGetContext()->width * 0.9, geGetContext()->width * 0.3, 0);
 	geGuiStyleFont(win->style, font, font->size);
@@ -152,7 +167,6 @@ static int textInput(lua_State *L){
 	geGuiWindowLinkObject(win, -input->width / 2, input->height * 0.4, cancel, GE_GUI_ALIGNX_RIGHT | GE_GUI_ALIGNY_CENTER);
 	bool first_focus = false;
 	bool done = false;
-#endif
 
 	float dt=0.0f, t = geGetTick() / 1000.0f;
 
@@ -167,9 +181,6 @@ static int textInput(lua_State *L){
 
 		geSwapBuffers();
 
-#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
-//TODO
-#else
 		if(!first_focus){
 			geGuiGiveFocus(input);
 			first_focus = true;
@@ -181,22 +192,16 @@ static int textInput(lua_State *L){
 		if(cancel->pressed){
 			win->visible = false;
 		}
-#endif
 
 		dt = geGetTick() / 1000.0f - t;
 		t = geGetTick() / 1000.0f;
 	}
-
 	if(done){
-	#if (defined(PLATFORM_android) || defined(PLATFORM_ios))
-		lua_pushstring(L,"<none>");
-	#else
 		lua_pushstring(L, input->text);
-	#endif
 	}else{
 		lua_pushstring(L, luaL_checkstring(L, 2));
 	}
-
+#endif
 
 	return 1;
 }
