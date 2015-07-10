@@ -170,7 +170,7 @@ ge_Thread* getThreadByHandle(t_ptr handle){
 	return NULL;
 }
 
-ge_Thread* getThreadById(u32 id){
+ge_Thread* getThreadById(t_ptr id){
 	int i = 0;
 	for(i=0; i<32; i++){
 		if(threads[i] && threads[i]->id == id){
