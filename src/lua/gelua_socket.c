@@ -55,7 +55,7 @@ static int Socket_send(lua_State *L){
 	ge_Socket* sock = selfSocket(L, &argc);
 
 	if (!sock || (argc != 1 && argc != 2)){
-		return luaL_error(L, "Argument error: geSocket:send( string OR ( array[, size] ) ) must be called with a colon and takes one or two arguments");
+		return luaL_error(L, "Argument error: geSocket:send( string OR ( array, size ) ) must be called with a colon and takes one or two arguments");
 	}
 
 	if(lua_isstring(L, 1)){
@@ -66,7 +66,7 @@ static int Socket_send(lua_State *L){
 	}else{
 		lua_gettable(L, 1);
 
-		int i, len = ( argc == 2 ? (int)luaL_checknumber(L, 2) : lua_rawlen(L, -1) );
+		int i=0, len = (int)luaL_checknumber(L, 2);
 		unsigned char* buf = (unsigned char*)geMalloc(len);
 
 		for(i=0; i<len; i++){
