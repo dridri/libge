@@ -130,6 +130,24 @@ static int ge_sleep(lua_State *L){
 	return 1;
 }
 
+typedef struct show_back_data {
+	lua_State* L;
+	float t;
+	float dt;
+} show_back_data;
+
+static void show_back(show_back_data* data){
+	geClearScreen();
+	lua_pushvalue(data->L, 4);
+	lua_pushvalue(data->L, 5);
+	lua_pushnumber(data->L, data->t);
+	lua_pushnumber(data->L, data->dt);
+	lua_call(data->L, 3, 0);
+	geSwapBuffers();
+	data->dt = geGetTick() / 1000.0f - data->t;
+	data->t = geGetTick() / 1000.0f;
+}
+
 static int textInput(lua_State *L){
 	int argc = lua_gettop(L);
 	if(argc != 3 && argc != 5) return luaL_error(L, "Argument error: geTextInput(title, initial_text, font[, draw_callback, callback_data]) takes two or four argument.");
@@ -139,19 +157,9 @@ static int textInput(lua_State *L){
 
 #if (defined(PLATFORM_android) || defined(PLATFORM_ios))
 	float dt=0.0f, t = geGetTick() / 1000.0f;
-	void show_back(void* data){
-		geClearScreen();
-		lua_pushvalue(L, 4);
-		lua_pushvalue(L, 5);
-		lua_pushnumber(L, t);
-		lua_pushnumber(L, dt);
-		lua_call(L, 3, 0);
-		geSwapBuffers();
-		dt = geGetTick() / 1000.0f - t;
-		t = geGetTick() / 1000.0f;
-	}
+	show_back_data data = { L, dt, t };
 	char text[2048] = "";
-	if(geIMEInput(show_back, NULL, text, sizeof(text))){
+	if(geIMEInput((void(*)(void*))show_back, &data, text, sizeof(text))){
 		lua_pushstring(L, text);
 	}else{
 		lua_pushstring(L, luaL_checkstring(L, 2));

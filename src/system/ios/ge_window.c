@@ -103,6 +103,11 @@ int iOSGetLastPressed(){
 	return ret;
 }
 
+bool geIMEInput(void (*cb)(void*), void* cbdata, char* buf, int max){
+	memset(buf, 0, max);
+	return false;
+}
+
 void geQuit(){
 	exit(0);
 }

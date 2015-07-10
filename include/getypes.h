@@ -68,7 +68,7 @@
 #ifndef u8
 	#define u8 uint8_t
 #endif
-#if defined(_M_X64) || defined(__amd64__)
+#if defined(_M_X64) || defined(__amd64__) || defined(ARCH_64)
 	#define t_ptr u64
 #else
 	#define t_ptr u32

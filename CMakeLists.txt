@@ -147,6 +147,7 @@ if(${video} MATCHES opengl21 AND ${target} MATCHES win)
 else()
 	add_definitions(-DPLATFORM_${target})
 endif()
+add_definitions(-DARCH_${ARCH})
 
 set(SOURCES ${SOURCES}
 	src/video/geshader.c
