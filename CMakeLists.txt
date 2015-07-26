@@ -357,9 +357,7 @@ set(MINI_SOURCES
 
 set(MINI_SOURCES
 	${MINI_SOURCES}
-	src/video/${video}/geparticles.c Demandes
-Messages
-1 Notifications
+	src/video/${video}/geparticles.c
 	src/video/${video}/ge_context.c
 	src/video/${video}/ge_viddrv.c
 	src/video/${video}/geshaders.c

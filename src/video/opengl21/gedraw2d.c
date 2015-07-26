@@ -142,7 +142,7 @@ void geBlitImageDepthRotated(int x, int y, int z, ge_Image* img, int _sx, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if(geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -230,7 +230,7 @@ void geBlitImageDepthStretched(int x, int y, int z, ge_Image* img, int _sx, int 
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if(geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}
@@ -317,7 +317,7 @@ void geBlitImageDepthStretchedRotated(int x, int y, int z, ge_Image* img, int _s
 
 	if(img->flags & GE_IMAGE_ANIMATED){
 		sy += ((_ge_ImageAnimated*)img)->_ge_n * img->v;
-		if(((_ge_ImageAnimated*)img)->_ge_t - geGetTickFloat() >= ((_ge_ImageAnimated*)img)->frameTime){
+		if(geGetTickFloat() - ((_ge_ImageAnimated*)img)->_ge_t >= ((_ge_ImageAnimated*)img)->frameTime){
 			((_ge_ImageAnimated*)img)->_ge_t = geGetTickFloat();
 			((_ge_ImageAnimated*)img)->_ge_n = (((_ge_ImageAnimated*)img)->_ge_n + 1) % ((_ge_ImageAnimated*)img)->nImages;
 		}

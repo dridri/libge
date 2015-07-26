@@ -29,12 +29,16 @@ void anim(){
 }
 
 int main(int argc, char** argv){
-	SSAO();
+// 	SSAO();
 
 	geDebugMode(GE_DEBUG_ALL);
 	geInit();
 	geCreateMainWindow("LibGE !", 1024, 640, GE_WINDOW_RESIZABLE);
 	geWaitVsync(false);
+	while(1){
+		geClearScreen();
+		geSwapBuffers();
+	}
 
 	anim();
 
