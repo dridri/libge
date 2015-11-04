@@ -296,8 +296,10 @@ void FontMeasureText_short(ge_Font* font, const unsigned short* text, int* width
 		x += slot->advance.x >> 6;
 	}
 
-	*width = mx;
-	*height = y + font->size + (font->size * 0.4);
+	if(width)
+		*width = mx;
+	if(height)
+		*height = y + font->size + (font->size * 0.4);
 }
 
 static void fontPrintTextImpl(FT_Bitmap* bitmap, int xofs, int yofs, u32 text_color, u32* framebuffer, int width, int height, int lineSize){
