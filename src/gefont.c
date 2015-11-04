@@ -316,8 +316,10 @@ void geFontMeasureText(ge_Font* font, const char* text, int* width, int* height)
 		mx = x;
 	}
 
-	*width = mx;
-	*height = y + font->size + (font->size * 0.4);
+	if(width)
+		*width = mx;
+	if(height)
+		*height = y + font->size + (font->size * 0.4);
 }
 
 
